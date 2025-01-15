@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Programming\\Questionaire\\API\\QuestionaireApi.csproj": {}
+    "C:\\Programming\\Questionaire\\Api\\QuestionaireApi.csproj": {}
   },
   "projects": {
-    "C:\\Programming\\Questionaire\\API\\QuestionaireApi.csproj": {
+    "C:\\Programming\\Questionaire\\Api\\QuestionaireApi.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Programming\\Questionaire\\API\\QuestionaireApi.csproj",
+        "projectUniqueName": "C:\\Programming\\Questionaire\\Api\\QuestionaireApi.csproj",
         "projectName": "QuestionaireApi",
-        "projectPath": "C:\\Programming\\Questionaire\\API\\QuestionaireApi.csproj",
+        "projectPath": "C:\\Programming\\Questionaire\\Api\\QuestionaireApi.csproj",
         "packagesPath": "C:\\Users\\Marin\\.nuget\\packages\\",
-        "outputPath": "C:\\Programming\\Questionaire\\API\\obj\\",
+        "outputPath": "C:\\Programming\\Questionaire\\Api\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Marin\\AppData\\Roaming\\NuGet\\NuGet.Config"
