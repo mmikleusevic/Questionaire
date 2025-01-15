@@ -5,9 +5,9 @@ namespace QuestionaireApi;
 
 public class QuestionaireDbContext(DbContextOptions<QuestionaireDbContext> options) : DbContext(options)
 {
-    public DbSet<Category> Categories { get; set; }
-    public DbSet<Question> Questions { get; set; }
-    public DbSet<Answer> Answers { get; set; }
+    public DbSet<Category> Categories => Set<Category>();
+    public DbSet<Question> Questions => Set<Question>();
+    public DbSet<Answer> Answers => Set<Answer>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
