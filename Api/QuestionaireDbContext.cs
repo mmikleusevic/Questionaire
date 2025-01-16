@@ -20,5 +20,53 @@ public class QuestionaireDbContext(DbContextOptions<QuestionaireDbContext> optio
             .HasOne(a => a.Question)
             .WithMany(q => q.Answers)
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Category>().HasData(
+            new Category
+            {
+                Id = 1,
+                CategoryName = "Geografija"
+            },
+            new Category
+            {
+                Id = 2,
+                CategoryName = "Povijest"
+            },
+            new Category
+            {
+                Id = 3,
+                CategoryName = "Znanost"
+            },
+            new Category
+            {
+                Id = 4,
+                CategoryName = "Sport"
+            },
+            new Category
+            {
+                Id = 5,
+                CategoryName = "Glazba"
+            },
+            new Category
+            {
+                Id = 6,
+                CategoryName = "Kinematografija"
+            },
+            new Category
+            {
+                Id = 7,
+                CategoryName = "Književnost"
+            },
+            new Category
+            {
+                Id = 8,
+                CategoryName = "Politika"
+            },
+            new Category
+            {
+                Id = 9,
+                CategoryName = "Opće znanje"
+            }
+        );
     }
 }

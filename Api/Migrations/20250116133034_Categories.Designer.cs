@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QuestionaireApi;
 
@@ -10,9 +11,11 @@ using QuestionaireApi;
 namespace QuestionaireApi.Migrations
 {
     [DbContext(typeof(QuestionaireDbContext))]
-    partial class QuestionaireDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250116133034_Categories")]
+    partial class Categories
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
