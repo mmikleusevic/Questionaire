@@ -40,9 +40,10 @@ public class QuestionController(QuestionaireDbContext context) : ControllerBase
         public async Task<IActionResult> UpdateQuestion(int id, Question? updatedQuestion)
         {
                 Question question = await context.Questions.FindAsync(id);
+                
                 if (question is null) return NotFound();
                 
-                updatedQuestion.QuestionText = question.QuestionText;
+                question.QuestionText = updatedQuestion.QuestionText;
                 
                 await context.SaveChangesAsync();
                 
@@ -53,6 +54,7 @@ public class QuestionController(QuestionaireDbContext context) : ControllerBase
         public async Task<IActionResult> DeleteQuestion(int id)
         {
                 Question question = await context.Questions.FindAsync(id);
+                
                 if (question is null) return NotFound();
                 
                 context.Questions.Remove(question);
