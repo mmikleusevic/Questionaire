@@ -8,6 +8,7 @@ public class QuestionaireDbContext(DbContextOptions<QuestionaireDbContext> optio
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<Question> Questions => Set<Question>();
     public DbSet<Answer> Answers => Set<Answer>();
+    public DbSet<UserQuestionHistory> UserQuestionHistory => Set<UserQuestionHistory>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -19,6 +20,11 @@ public class QuestionaireDbContext(DbContextOptions<QuestionaireDbContext> optio
         modelBuilder.Entity<Answer>()
             .HasOne(a => a.Question)
             .WithMany(q => q.Answers)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        modelBuilder.Entity<UserQuestionHistory>()
+            .HasOne(h => h.Question)
+            .WithMany()
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Category>().HasData(
