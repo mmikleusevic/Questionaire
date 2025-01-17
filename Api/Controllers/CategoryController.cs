@@ -1,27 +1,26 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using QuestionaireApi.Interfaces;
 using QuestionaireApi.Models;
 
 namespace QuestionaireApi.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class CategoryController(QuestionaireDbContext context) : ControllerBase
+public class CategoryController(ICategoryService categoryService) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<List<Category>>> GetCategories()
     {
-        return Ok(await context.Categories.ToListAsync());
+        return Ok(await categoryService.GetCategoriesAsync());
     }
 
     [HttpGet]
     [Route("{id:int}")]
     public async Task<ActionResult<Category>> GetCategoryById(int id)
     {
-        Category category = await context.Categories.FindAsync(id);
-
+        Category category = await categoryService.GetCategoryByIdAsync(id);
         if (category is null) return NotFound();
-                        
         return Ok(category);
     }
 
@@ -29,37 +28,26 @@ public class CategoryController(QuestionaireDbContext context) : ControllerBase
     public async Task<ActionResult<Category>> AddCategory(Category? newCategory)
     {
         if (newCategory is null) return BadRequest();
-                
-        context.Categories.Add(newCategory);
-        await context.SaveChangesAsync();
-                
-        return CreatedAtAction(nameof(GetCategoryById), new { id = newCategory.Id }, newCategory);
+        
+        Category category = await categoryService.AddCategoryAsync(newCategory);
+        return CreatedAtAction(nameof(GetCategoryById), new { id = category.Id }, category);
     }
 
     [HttpPut("{id:int}")]
     public async Task<IActionResult> UpdateCategory(int id, Category? updatedCategory)
     {
-        Category category = await context.Categories.FindAsync(id);
-                
-        if (category is null) return NotFound();
-                
-        category.CategoryName = updatedCategory.CategoryName;
-                
-        await context.SaveChangesAsync();
-                
+        if (updatedCategory is null) return BadRequest();
+        
+        bool success = await categoryService.UpdateCategoryAsync(id, updatedCategory);
+        if (!success) return NotFound();
         return NoContent();
     }
 
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteCategory(int id)
     {
-        Category category = await context.Categories.FindAsync(id);
-                
-        if (category is null) return NotFound();
-                
-        context.Categories.Remove(category);
-        await context.SaveChangesAsync();
-                
+        bool success = await categoryService.DeleteCategoryAsync(id);
+        if (!success) return NotFound();
         return NoContent();
     }
 }

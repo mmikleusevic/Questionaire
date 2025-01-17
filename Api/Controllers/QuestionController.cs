@@ -1,65 +1,62 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using QuestionaireApi.Interfaces;
 using QuestionaireApi.Models;
 
 namespace QuestionaireApi.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class QuestionController(QuestionaireDbContext context) : ControllerBase
+public class QuestionController(IQuestionService questionService)  : ControllerBase
 {
         [HttpGet]
         public async Task<ActionResult<List<Question>>> GetQuestions()
         {
-                return Ok(await context.Questions.ToListAsync());
+                return Ok(await questionService.GetQuestionsAsync());
         }
 
         [HttpGet]
         [Route("{id:int}")]
         public async Task<ActionResult<Question>> GetQuestionById(int id)
         {
-                Question question = await context.Questions.FindAsync(id);
-
+                Question question = await questionService.GetQuestionByIdAsync(id);
                 if (question is null) return NotFound();
-                        
                 return Ok(question);
+        }
+        
+        [HttpGet]
+        [Route("{id:int}/{numberOfQuestions:int}")]
+        public async Task<ActionResult<Question>> GetRandomUniqueQuestions(int id, int numberOfQuestions)
+        {
+                List<Question> questions = await questionService.GetRandomUniqueQuestions(id, numberOfQuestions);
+                if (questions.Count == 0) return NotFound();
+                return Ok(questions);
         }
 
         [HttpPost]
         public async Task<ActionResult<Question>> AddQuestion(Question? newQuestion)
         {
                 if (newQuestion is null) return BadRequest();
-                
-                context.Questions.Add(newQuestion);
-                await context.SaveChangesAsync();
-                
-                return CreatedAtAction(nameof(GetQuestionById), new { id = newQuestion.Id }, newQuestion);
+
+                Question question = await questionService.AddQuestionAsync(newQuestion);
+                return CreatedAtAction(nameof(GetQuestionById), new { id = question.Id }, question);
         }
 
         [HttpPut("{id:int}")]
         public async Task<IActionResult> UpdateQuestion(int id, Question? updatedQuestion)
         {
-                Question question = await context.Questions.FindAsync(id);
-                
-                if (question is null) return NotFound();
-                
-                question.QuestionText = updatedQuestion.QuestionText;
-                
-                await context.SaveChangesAsync();
-                
+                if (updatedQuestion is null) return BadRequest();
+        
+                bool success = await questionService.UpdateQuestionAsync(id, updatedQuestion);
+                if (!success) return NotFound();
                 return NoContent();
         }
 
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteQuestion(int id)
         {
-                Question question = await context.Questions.FindAsync(id);
-                
-                if (question is null) return NotFound();
-                
-                context.Questions.Remove(question);
-                await context.SaveChangesAsync();
-                
+                bool success = await questionService.DeleteQuestionAsync(id);
+                if (!success) return NotFound();
                 return NoContent();
         }
 }
