@@ -19,3 +19,10 @@
     border-bottom-width: 3px;
     border-left-width: 3px;
 }
+
+.background {
+    flex-grow: 1;
+    align-content: center;
+    justify-content: space-between;
+    background-color: rgb(34, 62, 130);
+}

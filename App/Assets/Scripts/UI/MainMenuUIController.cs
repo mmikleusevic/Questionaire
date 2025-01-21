@@ -1,19 +1,21 @@
 using System;
+using UI;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 public class MainMenuUIController : MonoBehaviour
 {
-    private VisualElement root;
+    [SerializeField] private PlayUIController playUIController;
+    
     private Button playButton;
     private Button quitButton;
     
     private void Start()
     {
-        root = GetComponent<UIDocument>().rootVisualElement;
-        playButton = root.Q<Button>("play");
-        quitButton = root.Q<Button>("quit");
+        VisualElement root = GetComponent<UIDocument>().rootVisualElement;
+        playButton = root.Q<Button>("playButton");
+        quitButton = root.Q<Button>("quitButton");
 
         if (playButton != null) playButton.clicked += PlayPressed;
         if (quitButton != null) quitButton.clicked += QuitPressed;
@@ -27,7 +29,7 @@ public class MainMenuUIController : MonoBehaviour
 
     private void PlayPressed()
     {
-        
+        playUIController.Show();
     }
     
     private void QuitPressed()

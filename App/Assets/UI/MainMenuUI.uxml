@@ -1,8 +1,8 @@
 <engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/Style.uss?fileID=7433441132597879392&amp;guid=3d10b170ed6bc9845a37f7814cd118c9&amp;type=3#Style" />
-    <engine:VisualElement name="mainMenu" style="flex-grow: 1; align-content: center; justify-content: space-between; background-color: rgb(34, 62, 130);">
-        <engine:Button text="Play" name="play" class="button" />
+    <engine:VisualElement name="mainMenuUI" class="background">
+        <engine:Button text="Play" name="playButton" class="button" />
         <engine:Label text="Questionaire" name="title" style="align-items: center; align-content: center; justify-content: space-between; -unity-text-align: upper-center; font-size: 90px; color: rgb(255, 255, 255); -unity-font-style: bold; -unity-font-definition: url(&quot;project://database/Assets/UI%20Toolkit/UnityThemes/UnityDefaultRuntimeTheme.tss?fileID=2230732570650464555&amp;guid=d527c0a0a4858f346aea1ed8fe4449ff&amp;type=3#NotInter-Regular&quot;);" />
-        <engine:Button text="Quit&#10;" name="quit" class="button" style="align-content: flex-end; justify-content: space-between; align-items: stretch;" />
+        <engine:Button text="Quit&#10;" name="quitButton" class="button" style="align-content: flex-end; justify-content: space-between; align-items: stretch;" />
     </engine:VisualElement>
 </engine:UXML>
