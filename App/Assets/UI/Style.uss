@@ -1,0 +1,21 @@
+.button {
+    align-items: flex-start;
+    width: 20%;
+    color: rgb(255, 255, 255);
+    -unity-font-style: bold;
+    font-size: 30px;
+    height: 10%;
+    border-top-left-radius: 30px;
+    border-top-right-radius: 30px;
+    border-bottom-right-radius: 30px;
+    border-bottom-left-radius: 30px;
+    background-color: rgb(212, 136, 50);
+    border-left-color: rgb(255, 255, 255);
+    border-right-color: rgb(255, 255, 255);
+    border-top-color: rgb(255, 255, 255);
+    border-bottom-color: rgb(255, 255, 255);
+    border-top-width: 3px;
+    border-right-width: 3px;
+    border-bottom-width: 3px;
+    border-left-width: 3px;
+}
