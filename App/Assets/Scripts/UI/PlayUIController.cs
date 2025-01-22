@@ -6,6 +6,8 @@ namespace UI
 {
     public class PlayUIController : MonoBehaviour
     {
+        [SerializeField] private GameUIController gameUIController;
+        
         private VisualElement playUI;
         private Button playDirectButton;
         private Button playChooseButton;
@@ -33,12 +35,14 @@ namespace UI
 
         private void PlayChooseClicked()
         {
-            
+            //TODO: differentiate direct and choose
+            gameUIController.Show();
         }
         
         private void PlayDirectClicked()
         {
-            
+            //TODO: differentiate direct and choose
+            gameUIController.Show();
         }
         
         private void BackClicked()
