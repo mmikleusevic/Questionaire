@@ -26,3 +26,20 @@
     justify-content: space-between;
     background-color: rgb(34, 62, 130);
 }
+
+.answer {
+    width: 33%;
+    height: 100%;
+    margin-top: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+    font-size: 30px;
+    -unity-text-align: middle-center;
+    color: rgb(255, 255, 255);
+    -unity-font-style: bold;
+}
