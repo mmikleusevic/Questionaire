@@ -7,10 +7,11 @@ namespace UI
     public class PlayUIController : MonoBehaviour
     {
         [SerializeField] private GameUIController gameUIController;
+        [SerializeField] private ErrorModalUIController errorModalUIController;
         
         private VisualElement playUI;
         private Button playDirectButton;
-        private Button playChooseButton;
+        private Button playOptionsButton;
         private Button backButton;
 
         private void Start()
@@ -18,31 +19,29 @@ namespace UI
             VisualElement root = GetComponent<UIDocument>().rootVisualElement;
             playUI = root.Q("playUI");
             playDirectButton = root.Q<Button>("playDirectButton");
-            playChooseButton = root.Q<Button>("playChooseButton");
+            playOptionsButton = root.Q<Button>("playOptionsButton");
             backButton = root.Q<Button>("backButton");
 
-            if (playChooseButton != null) playChooseButton.clicked += PlayChooseClicked;
+            if (playOptionsButton != null) playOptionsButton.clicked += PlayOptionsClicked;
             if (playDirectButton != null) playDirectButton.clicked += PlayDirectClicked;
             if (backButton != null) backButton.clicked += BackClicked;
         }
 
         private void OnDestroy()
         {
-            if (playChooseButton != null) playChooseButton.clicked -= PlayChooseClicked;
+            if (playOptionsButton != null) playOptionsButton.clicked -= PlayOptionsClicked;
             if (playDirectButton != null) playDirectButton.clicked -= PlayDirectClicked;
             if (backButton != null) backButton.clicked -= BackClicked;
         }
 
-        private void PlayChooseClicked()
+        private void PlayOptionsClicked()
         {
-            //TODO: differentiate direct and choose
-            gameUIController.Show();
+            gameUIController.ShowOptions();
         }
         
         private void PlayDirectClicked()
         {
-            //TODO: differentiate direct and choose
-            gameUIController.Show();
+            gameUIController.ShowDirect();
         }
         
         private void BackClicked()
@@ -52,12 +51,12 @@ namespace UI
 
         public void Show()
         {
-            playUI.visible = true;
+            playUI.style.display = DisplayStyle.Flex;
         }
 
         private void Hide()
         {
-            playUI.visible = false;
+            playUI.style.display = DisplayStyle.None;
         }
     }
 }

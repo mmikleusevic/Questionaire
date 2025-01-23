@@ -38,13 +38,34 @@ public class GameUIController : MonoBehaviour
         Hide();
     }
 
-    public void Show()
+    private void Show()
     {
-        gameUI.visible = true;
+        gameUI.style.display = DisplayStyle.Flex;
     }
     
     private void Hide()
     {
-        gameUI.visible = false;
+        gameUI.style.display = DisplayStyle.None;
+    }
+
+    public void ShowDirect()
+    {
+        Show();
+        
+        ShowAnswers(false, true, false);
+    }
+
+    public void ShowOptions()
+    {
+        Show();
+
+        ShowAnswers(true, true, true);
+    }
+
+    private void ShowAnswers(bool showFirst, bool showSecond, bool showThird)
+    {
+        answer1Text.visible = showFirst;
+        answer2Text.visible = showSecond;
+        answer3Text.visible = showThird;
     }
 }
