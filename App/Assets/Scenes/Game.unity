@@ -249,7 +249,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a6718668138a4faa87856512882dc47d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  uri: http://localhost:5256/
+  baseUrl: http://localhost:5256/api/Question/
 --- !u!4 &1370997683
 Transform:
   m_ObjectHideFlags: 0

@@ -17,7 +17,7 @@ public class QuestionService(QuestionaireDbContext context) : IQuestionService
         return await context.Questions.Include(a => a.Answers).FirstAsync(a => a.Id == id);
     }
 
-    public async Task<List<Question>> GetRandomUniqueQuestions(int userId, int numberOfQuestions)
+    public async Task<List<Question>> GetRandomUniqueQuestions(string userId, int numberOfQuestions)
     {
         int currentRound = await context.UserQuestionHistory
             .Where(h => h.UserId == userId)

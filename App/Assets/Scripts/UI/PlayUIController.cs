@@ -1,4 +1,5 @@
 using System;
+using DefaultNamespace;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -36,12 +37,26 @@ namespace UI
 
         private void PlayOptionsClicked()
         {
-            gameUIController.ShowOptions();
+            StartCoroutine(GameManager.Instance.GetUniqueQuestions(questions =>
+            {
+                //TODO: make it return error and show it
+                if (questions != null)
+                {
+                    gameUIController.ShowOptions(questions);
+                }
+            }));
         }
         
         private void PlayDirectClicked()
         {
-            gameUIController.ShowDirect();
+            StartCoroutine(GameManager.Instance.GetUniqueQuestions(questions =>
+            {
+                //TODO: make it return error and show it
+                if (questions != null)
+                {
+                    gameUIController.ShowDirect(questions);
+                }
+            }));
         }
         
         private void BackClicked()

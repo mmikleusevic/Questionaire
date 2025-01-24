@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using DefaultNamespace.Models;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -12,6 +14,7 @@ public class GameUIController : MonoBehaviour
     private Button exitButton;
     private Button backButton;
     private Button forwardButton;
+    private List<Question> questions;
     
     private void Start()
     {
@@ -48,15 +51,19 @@ public class GameUIController : MonoBehaviour
         gameUI.style.display = DisplayStyle.None;
     }
 
-    public void ShowDirect()
+    public void ShowDirect(List<Question> questions)
     {
+        this.questions = questions;
+        
         Show();
         
         ShowAnswers(false, true, false);
     }
 
-    public void ShowOptions()
+    public void ShowOptions(List<Question> questions)
     {
+        this.questions = questions;
+        
         Show();
 
         ShowAnswers(true, true, true);
