@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuestionaireApi.Interfaces;
 using QuestionaireApi.Models;
+using QuestionaireApi.Models.Dto;
 
 namespace QuestionaireApi.Controllers;
 
@@ -26,9 +27,9 @@ public class QuestionController(IQuestionService questionService)  : ControllerB
         
         [HttpGet]
         [Route("{userId}/{numberOfQuestions:int}")]
-        public async Task<ActionResult<Question>> GetRandomUniqueQuestions(string userId, int numberOfQuestions)
+        public async Task<ActionResult<QuestionDto>> GetRandomUniqueQuestions(string userId, int numberOfQuestions)
         {
-                List<Question> questions = await questionService.GetRandomUniqueQuestions(userId, numberOfQuestions);
+                List<QuestionDto> questions = await questionService.GetRandomUniqueQuestions(userId, numberOfQuestions);
                 if (questions.Count == 0) return NotFound();
                 return Ok(questions);
         }

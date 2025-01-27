@@ -4,7 +4,6 @@ using QuestionaireApi;
 using QuestionaireApi.Interfaces;
 using QuestionaireApi.Services;
 using Scalar.AspNetCore;
-using Microsoft.AspNetCore.Routing.Constraints;
 
 var builder = WebApplication.CreateBuilder(args);
 
