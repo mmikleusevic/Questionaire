@@ -31,10 +31,10 @@ namespace DefaultNamespace
             uniqueID = SystemInfo.deviceUniqueIdentifier;
         }
 
-        public IEnumerator GetUniqueQuestions(Action<List<Question>> onComplete)
+        public IEnumerator GetUniqueQuestions(Action<List<Question>, string> onComplete)
         {
             yield return StartCoroutine(questionServiceHandler.GetRandomUniqueQuestions(uniqueID, 40, 
-                (response) => onComplete?.Invoke(response)  ));
+                (questions, message) => onComplete?.Invoke(questions, message)  ));
         }
     }
 }

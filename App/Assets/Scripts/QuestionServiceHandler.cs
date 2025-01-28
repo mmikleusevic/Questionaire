@@ -13,7 +13,7 @@ namespace DefaultNamespace
     {
         [SerializeField] private string baseUrl;
         
-        public IEnumerator GetRandomUniqueQuestions(string userId, int numberOfQuestions, Action<List<Question>> onComplete)
+        public IEnumerator GetRandomUniqueQuestions(string userId, int numberOfQuestions, Action<List<Question>, string> onComplete)
         {
             string url = $"{baseUrl}{userId}/{numberOfQuestions}";
 
@@ -25,7 +25,7 @@ namespace DefaultNamespace
                     webRequest.result == UnityWebRequest.Result.ProtocolError)
                 {
                     Debug.LogError($"Error: {webRequest.error}");
-                    onComplete?.Invoke(null);
+                    onComplete?.Invoke(null, webRequest.error);
                     yield break;
                 }
         
@@ -33,12 +33,12 @@ namespace DefaultNamespace
                 {
                     string jsonResponse = webRequest.downloadHandler.text;
                     List<Question> questions = JsonConvert.DeserializeObject<List<Question>>(jsonResponse);
-                    onComplete?.Invoke(questions);
+                    onComplete?.Invoke(questions, string.Empty);
                 }
                 catch (Exception ex)
                 {
                     Debug.LogError($"Parsing error: {ex.Message}");
-                    onComplete?.Invoke(null);
+                    onComplete?.Invoke(null, ex.Message);
                 }
             }
         }

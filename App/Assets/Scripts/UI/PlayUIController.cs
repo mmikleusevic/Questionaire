@@ -9,6 +9,7 @@ namespace UI
     {
         [SerializeField] private GameUIController gameUIController;
         [SerializeField] private ErrorModalUIController errorModalUIController;
+        [SerializeField] private LoadingUIController loadingUIController;
         
         private VisualElement playUI;
         private Button playDirectButton;
@@ -37,24 +38,38 @@ namespace UI
 
         private void PlayOptionsClicked()
         {
-            StartCoroutine(GameManager.Instance.GetUniqueQuestions(questions =>
+            loadingUIController.Show();
+            
+            StartCoroutine( GameManager.Instance.GetUniqueQuestions((questions, message) =>
             {
-                //TODO: make it return error and show it
+                loadingUIController.Hide();
+                
                 if (questions != null)
                 {
                     gameUIController.ShowOptions(questions);
+                }
+                else
+                {
+                    errorModalUIController.Show(message);
                 }
             }));
         }
         
         private void PlayDirectClicked()
         {
-            StartCoroutine(GameManager.Instance.GetUniqueQuestions(questions =>
+            loadingUIController.Show();
+            
+            StartCoroutine(GameManager.Instance.GetUniqueQuestions((questions, message) =>
             {
-                //TODO: make it return error and show it
+                loadingUIController.Hide();
+                
                 if (questions != null)
                 {
                     gameUIController.ShowDirect(questions);
+                }
+                else
+                {
+                    errorModalUIController.Show(message);
                 }
             }));
         }
