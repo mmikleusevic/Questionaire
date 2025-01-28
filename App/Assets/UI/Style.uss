@@ -16,10 +16,11 @@
     padding-right: 0;
     padding-bottom: 0;
     padding-left: 0;
-    font-size: 30px;
+    font-size: 40px;
     -unity-text-align: middle-center;
     color: rgb(255, 255, 255);
     -unity-font-style: bold;
+    white-space: pre-wrap;
 }
 
 .button {
@@ -42,8 +43,58 @@
     border-right-width: 3px;
     border-bottom-width: 3px;
     border-left-width: 3px;
+    white-space: pre-wrap;
 }
 
 .button:hover {
     background-color: rgb(225, 173, 113);
+    white-space: pre-wrap;
+}
+
+.correctAnswerBackground {
+    background-color: rgb(34, 130, 102);
+}
+
+.questionNavigation {
+    border-left-color: rgb(255, 255, 255);
+    border-right-color: rgb(255, 255, 255);
+    border-top-color: rgb(255, 255, 255);
+    border-bottom-color: rgb(255, 255, 255);
+    border-top-width: 5px;
+    border-right-width: 5px;
+    border-bottom-width: 5px;
+    border-left-width: 5px;
+}
+
+.questionNavigation:hover {
+    border-left-color: rgb(0, 0, 0);
+    border-right-color: rgb(0, 0, 0);
+    border-top-color: rgb(0, 0, 0);
+    border-bottom-color: rgb(0, 0, 0);
+    border-top-width: 5px;
+    border-right-width: 5px;
+    border-bottom-width: 5px;
+    border-left-width: 5px;
+}
+
+.exitGame {
+    border-left-color: rgb(0, 0, 0);
+    border-right-color: rgb(0, 0, 0);
+    border-top-color: rgb(0, 0, 0);
+    border-bottom-color: rgb(0, 0, 0);
+    border-top-width: 5px;
+    border-right-width: 5px;
+    border-bottom-width: 5px;
+    border-left-width: 5px;
+}
+
+.exitGame:hover {
+    border-left-color: rgb(255, 255, 255);
+    border-right-color: rgb(255, 255, 255);
+    border-top-color: rgb(255, 255, 255);
+    border-bottom-color: rgb(255, 255, 255);
+    border-top-width: 5px;
+    border-right-width: 5px;
+    border-bottom-width: 5px;
+    border-left-width: 5px;
 }

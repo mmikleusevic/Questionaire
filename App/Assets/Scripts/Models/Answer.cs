@@ -7,5 +7,6 @@ namespace DefaultNamespace.Models
     {
         public int Id;
         public string AnswerText;
+        public bool isCorrect;
     }
 }
