@@ -53,8 +53,11 @@ public class QuestionService(QuestionaireDbContext context) : IQuestionService
         {
             currentRound++;
             int remainingCount = numberOfQuestions - questions.Count;
+            
+            HashSet<int> existingQuestionIds = questions.Select(q => q.Id).ToHashSet();
 
             List<QuestionDto> additionalQuestions = await context.Questions
+                .Where(q => !existingQuestionIds.Contains(q.Id))
                 .OrderBy(q => Guid.NewGuid())
                 .Take(remainingCount)
                 .Select(q => new QuestionDto
