@@ -9,6 +9,12 @@
 /[Bb]uilds/
 /[Ll]ogs/
 /[Uu]ser[Ss]ettings/
+/Packages/*
+!/Packages/manifest.json
+!/Packages/packages-lock.json
+
+# dotenv files
+.env
 
 # MemoryCaptures can get excessive in size.
 # They also could contain extremely sensitive data

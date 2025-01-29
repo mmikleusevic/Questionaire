@@ -11,11 +11,11 @@ namespace DefaultNamespace
 {
     public class QuestionServiceHandler : MonoBehaviour
     {
-        [SerializeField] private string baseUrl;
-        
         public IEnumerator GetRandomUniqueQuestions(string userId, int numberOfQuestions, Action<List<Question>, string> onComplete)
         {
-            string url = $"{baseUrl}{userId}/{numberOfQuestions}";
+            string endpoint = "api/Question/";
+            
+            string url = $"{EnvironmentConfig.ApiBaseUrl + endpoint}{userId}/{numberOfQuestions}";
 
             using (UnityWebRequest webRequest = UnityWebRequest.Get(url))
             {
