@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using QuestionaireApi;
@@ -6,6 +7,8 @@ using QuestionaireApi.Services;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
+DotNetEnv.Env.Load();
 
 // Add services to the container.
 
@@ -19,11 +22,18 @@ builder.Services.AddControllers()
 builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<QuestionaireDbContext>(options => 
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(Environment.GetEnvironmentVariable("DEFAULT_CONNECTION")));
 
 builder.Services.AddScoped<IAnswerService, AnswerService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IQuestionService, QuestionService>();
+
+string applicationUrl = Environment.GetEnvironmentVariable("APPLICATION_URL");
+
+if (!string.IsNullOrEmpty(applicationUrl))
+{
+    builder.WebHost.UseUrls(applicationUrl);
+}
 
 var app = builder.Build();
 
