@@ -35,7 +35,23 @@ if (!string.IsNullOrEmpty(applicationUrl))
     builder.WebHost.UseUrls(applicationUrl);
 }
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: "Cors", policy =>
+            {
+                policy.AllowAnyHeader()
+                .AllowAnyOrigin()
+                .AllowAnyMethod();
+            });
+});
+
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<QuestionaireDbContext>();
+    dbContext.Database.Migrate();
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -43,10 +59,16 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
     app.MapOpenApi();
 }
+else
+{
+    app.UseHsts();
+}
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
+app.UseCors("Cors");
+
+app.UseRouting();
 
 app.MapControllers();
 

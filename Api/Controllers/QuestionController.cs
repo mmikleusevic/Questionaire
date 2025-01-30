@@ -32,7 +32,7 @@ public class QuestionController(IQuestionService questionService)  : ControllerB
                 List<QuestionDto> questions = await questionService.GetRandomUniqueQuestions(userId, numberOfQuestions);
                 if (questions.Count == 0) return NotFound();
                 return Ok(questions);
-        }
+    }
 
         [HttpPost]
         public async Task<ActionResult<Question>> AddQuestion(Question? newQuestion)

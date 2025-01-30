@@ -9,6 +9,8 @@
 /[Bb]uilds/
 /[Ll]ogs/
 /[Uu]ser[Ss]ettings/
+/[Aa]ssets/Resources/EnvironmentConfig.asset
+/[Aa]ssets/Resources/EnvironmentConfig.asset.meta
 /Packages/*
 !/Packages/manifest.json
 !/Packages/packages-lock.json
