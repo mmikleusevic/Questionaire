@@ -3,7 +3,7 @@
     <engine:VisualElement name="playUI" class="background" style="flex-grow: 1; align-items: center; visibility: visible; display: none;">
         <engine:VisualElement name="playPart" style="flex-grow: 1; flex-shrink: 0; width: 100%; height: 50%; justify-content: flex-end; align-items: center; align-content: center; flex-direction: row;">
             <engine:VisualElement name="playDirect" style="flex-grow: 1; width: 50%; height: 100%; align-items: center; justify-content: center;">
-                <engine:Button text="Play Direct" name="playDirectButton" class="button" style="width: 40%; height: 20%;" />
+                <engine:Button text="Play Direct" name="playDirectButton" class="button" style="width: 40%; height: 20%; overflow: hidden;" />
             </engine:VisualElement>
             <engine:VisualElement name="playOptions" style="flex-grow: 1; width: 50%; height: 100%; align-items: center; justify-content: center;">
                 <engine:Button text="Play Options" name="playOptionsButton" class="button" style="justify-content: space-between; align-items: center; align-content: center; width: 40%; height: 20%;" />

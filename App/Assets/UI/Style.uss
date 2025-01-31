@@ -20,7 +20,9 @@
     -unity-text-align: middle-center;
     color: rgb(255, 255, 255);
     -unity-font-style: bold;
+    flex-wrap: nowrap;
     white-space: pre-wrap;
+    text-overflow: clip;
 }
 
 .button {
@@ -43,11 +45,13 @@
     border-right-width: 3px;
     border-bottom-width: 3px;
     border-left-width: 3px;
+    flex-wrap: wrap;
     white-space: pre-wrap;
 }
 
 .button:hover {
     background-color: rgb(225, 173, 113);
+    flex-wrap: wrap;
     white-space: pre-wrap;
 }
 
