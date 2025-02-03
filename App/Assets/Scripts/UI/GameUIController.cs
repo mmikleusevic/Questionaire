@@ -127,7 +127,7 @@ namespace UI
             }
             else
             {
-                for (int i = 0; i < answerTexts.Length; i++)
+                for (int i = 0; i < question.Answers.Count; i++)
                 {
                     answerTexts[i].text = question.Answers[i].AnswerText;
 
