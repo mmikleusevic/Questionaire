@@ -30,10 +30,8 @@ public class EnvironmentConfig : ScriptableObject
         get
         {
 #if UNITY_EDITOR || DEVELOPMENT
-            Debug.Log("Using Development URL");
             return Instance.developmentUrl;
 #else
-            Debug.Log("Using Production URL");
             return Instance.productionUrl;
 #endif
         }

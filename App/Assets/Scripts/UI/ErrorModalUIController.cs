@@ -1,36 +1,40 @@
-using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class ErrorModalUIController : MonoBehaviour
+namespace UI
 {
-    private VisualElement errorModalUI;
-    private Label errorText;
-    private Button okButton;
-
-    private void Start()
+    public class ErrorModalUIController : SafeArea
     {
-        VisualElement root = GetComponent<UIDocument>().rootVisualElement;
-        errorModalUI = root.Q<VisualElement>("errorModalUI");
-        errorText = root.Q<Label>("errorText");
-        okButton = root.Q<Button>("okButton");
+        private VisualElement errorModalUI;
+        private Label errorText;
+        private Button okButton;
 
-        if (okButton != null) okButton.clicked += Hide;
-    }
+        private void Start()
+        {
+            VisualElement root = GetComponent<UIDocument>().rootVisualElement;
+            errorModalUI = root.Q<VisualElement>("errorModalUI");
+            errorText = root.Q<Label>("errorText");
+            okButton = root.Q<Button>("okButton");
+            
+            Hide();
 
-    private void OnDestroy()
-    {
-        if (okButton != null) okButton.clicked -= Hide;
-    }
+            if (okButton != null) okButton.clicked += Hide;
+        }
 
-    public void Show(string errorText)
-    {
-        errorModalUI.style.display = DisplayStyle.Flex;
-        this.errorText.text = errorText;
-    }
+        private void OnDestroy()
+        {
+            if (okButton != null) okButton.clicked -= Hide;
+        }
 
-    private void Hide()
-    {
-        errorModalUI.style.display = DisplayStyle.None;
+        public void Show(string errorText)
+        {
+            errorModalUI.style.display = DisplayStyle.Flex;
+            this.errorText.text = errorText;
+        }
+
+        private void Hide()
+        {
+            errorModalUI.style.display = DisplayStyle.None;
+        }
     }
 }

@@ -220,8 +220,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gameUIController: {fileID: 1371320359}
-  errorModalUIController: {fileID: 1971910285}
-  loadingUIController: {fileID: 1163337176}
 --- !u!1 &1163337174
 GameObject:
   m_ObjectHideFlags: 0
@@ -394,6 +392,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d34bb4c762fbf14b8e5ec9edf726680, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  errorModalUIController: {fileID: 1971910285}
+  loadingUIController: {fileID: 1163337176}
 --- !u!1 &1419761988
 GameObject:
   m_ObjectHideFlags: 0

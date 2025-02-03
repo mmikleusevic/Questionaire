@@ -4,13 +4,15 @@ using UnityEngine.UIElements;
 
 namespace UI
 {
-    public class LoadingUIController : MonoBehaviour
+    public class LoadingUIController : SafeArea
     {
         private VisualElement loadingUI;
         
         private void Start()
         {   
             loadingUI = GetComponent<UIDocument>().rootVisualElement.Q("loadingUI");
+            
+            Hide();
         }
 
         public void Show()

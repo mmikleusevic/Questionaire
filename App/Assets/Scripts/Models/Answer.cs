@@ -1,6 +1,6 @@
 using System;
 
-namespace DefaultNamespace.Models
+namespace Models
 {
     [Serializable]
     public class Answer

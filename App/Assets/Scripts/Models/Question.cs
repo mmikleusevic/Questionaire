@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace DefaultNamespace.Models
+namespace Models
 {
     [Serializable]
     public class Question
@@ -10,5 +10,6 @@ namespace DefaultNamespace.Models
         public string QuestionText;
         public int CategoryId;
         public List<Answer> Answers;
+        public bool isRead = false;
     }
 }

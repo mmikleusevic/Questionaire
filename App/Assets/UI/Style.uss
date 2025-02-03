@@ -102,3 +102,10 @@
     border-bottom-width: 5px;
     border-left-width: 5px;
 }
+
+.incorrectAnswerBackground {
+    background-color: rgb(130, 34, 62);
+}
+
+#exitButton Image {
+}

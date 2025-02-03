@@ -1,15 +1,12 @@
 using System;
-using DefaultNamespace;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace UI
 {
-    public class PlayUIController : MonoBehaviour
+    public class PlayUIController : SafeArea
     {
         [SerializeField] private GameUIController gameUIController;
-        [SerializeField] private ErrorModalUIController errorModalUIController;
-        [SerializeField] private LoadingUIController loadingUIController;
         
         private VisualElement playUI;
         private Button playDirectButton;
@@ -23,6 +20,8 @@ namespace UI
             playDirectButton = root.Q<Button>("playDirectButton");
             playOptionsButton = root.Q<Button>("playOptionsButton");
             backButton = root.Q<Button>("backButton");
+            
+            Hide();
 
             if (playOptionsButton != null) playOptionsButton.clicked += PlayOptionsClicked;
             if (playDirectButton != null) playDirectButton.clicked += PlayDirectClicked;
@@ -38,40 +37,12 @@ namespace UI
 
         private void PlayOptionsClicked()
         {
-            loadingUIController.Show();
-            
-            StartCoroutine( GameManager.Instance.GetUniqueQuestions((questions, message) =>
-            {
-                loadingUIController.Hide();
-                
-                if (questions != null)
-                {
-                    gameUIController.ShowOptions(questions);
-                }
-                else
-                {
-                    errorModalUIController.Show(message);
-                }
-            }));
+            gameUIController.ShowOptions();
         }
         
         private void PlayDirectClicked()
         {
-            loadingUIController.Show();
-            
-            StartCoroutine(GameManager.Instance.GetUniqueQuestions((questions, message) =>
-            {
-                loadingUIController.Hide();
-                
-                if (questions != null)
-                {
-                    gameUIController.ShowDirect(questions);
-                }
-                else
-                {
-                    errorModalUIController.Show(message);
-                }
-            }));
+            gameUIController.ShowDirect();
         }
         
         private void BackClicked()
