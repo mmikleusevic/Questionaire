@@ -103,10 +103,16 @@ namespace UI
         private void LoadQuestions()
         {
             int[] categoryIds = categories.Where(a => a.isUsed).Select(a => a.Id).ToArray();
-            
-            gameUIController.LoadQuestions(categoryIds);
-            
-            Hide();
+
+            if (categoryIds.Length == 0)
+            {
+                errorModalUIController.Show("You have to select at least one category!");
+            }
+            else
+            {
+                gameUIController.LoadQuestions(categoryIds);
+                Hide();
+            }
         }
 
         private void Show()
