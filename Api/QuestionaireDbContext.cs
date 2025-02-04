@@ -46,7 +46,7 @@ public class QuestionaireDbContext(DbContextOptions<QuestionaireDbContext> optio
             new Category
             {
                 Id = 4,
-                CategoryName = "Sport"
+                CategoryName = "Sports"
             },
             new Category
             {
