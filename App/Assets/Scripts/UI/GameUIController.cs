@@ -60,12 +60,12 @@ namespace UI
     
         private void NextPressed() => NextQuestion();
     
-        private void LoadQuestions(bool directMode)
+        public void LoadQuestions(int[] categories)
         {
             loadingUIController.Show();
             int numberOfQuestions = 40 - questions.Count(q => !q.isRead);
         
-            StartCoroutine(GameManager.Instance.GetUniqueQuestions(numberOfQuestions, (retrievedQuestions, message) =>
+            StartCoroutine(GameManager.Instance.GetUniqueQuestions(numberOfQuestions, categories,(retrievedQuestions, message) =>
             {
                 loadingUIController.Hide();
             
@@ -75,11 +75,10 @@ namespace UI
                     questions.AddRange(retrievedQuestions);
                 
                     currentQuestionIndex = 0;
-                    isDirectMode = directMode;
         
                     Show();
 
-                    ShowAnswers(directMode ? new[] { false, true, false } : new[] { true, true, true });
+                    ShowAnswers(isDirectMode ? new[] { false, true, false } : new[] { true, true, true });
                     SetNavigationButtons();
                     ShowQuestion();  
                 }
@@ -89,10 +88,6 @@ namespace UI
                 }
             }));
         }
-
-        public void ShowDirect() => LoadQuestions(true);
-
-        public void ShowOptions() => LoadQuestions(false);
 
         private void ShowAnswers(bool[] showAnswers)
         {
@@ -172,6 +167,11 @@ namespace UI
         {
             RemoveCorrectAnswerBackground();
             gameUI.style.display = DisplayStyle.None;
+        }
+
+        public void SetIsDirectMode(bool isDirectMode)
+        {
+            this.isDirectMode = isDirectMode;
         }
     }
 }

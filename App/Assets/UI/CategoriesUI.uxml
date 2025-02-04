@@ -1,0 +1,10 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/Style.uss?fileID=7433441132597879392&amp;guid=3d10b170ed6bc9845a37f7814cd118c9&amp;type=3#Style" />
+    <engine:VisualElement name="categoriesUI" class="background" style="flex-grow: 1;">
+        <engine:VisualElement name="categoriesPart" style="flex-grow: 1; height: 85%; width: 100%; justify-content: space-between; align-items: stretch; flex-direction: row; flex-wrap: wrap; align-content: stretch;" />
+        <engine:VisualElement name="sendPart" style="flex-grow: 1; height: 15%; width: 100%; align-items: center; justify-content: space-around; align-content: center; border-top-width: 5px; border-left-color: rgb(255, 255, 255); border-right-color: rgb(255, 255, 255); border-top-color: rgb(255, 255, 255); border-bottom-color: rgb(255, 255, 255); flex-direction: row;">
+            <engine:Button text="Get Questions" name="getQuestionsButton" class="button" style="width: 20%; height: 75%;" />
+            <engine:Button text="Back" name="backButton" class="button" style="height: 75%;" />
+        </engine:VisualElement>
+    </engine:VisualElement>
+</engine:UXML>

@@ -31,17 +31,17 @@ public class QuestionaireDbContext(DbContextOptions<QuestionaireDbContext> optio
             new Category
             {
                 Id = 1,
-                CategoryName = "Geografija"
+                CategoryName = "Geography"
             },
             new Category
             {
                 Id = 2,
-                CategoryName = "Povijest"
+                CategoryName = "History"
             },
             new Category
             {
                 Id = 3,
-                CategoryName = "Znanost"
+                CategoryName = "Science"
             },
             new Category
             {
@@ -51,27 +51,27 @@ public class QuestionaireDbContext(DbContextOptions<QuestionaireDbContext> optio
             new Category
             {
                 Id = 5,
-                CategoryName = "Glazba"
+                CategoryName = "Music"
             },
             new Category
             {
                 Id = 6,
-                CategoryName = "Kinematografija"
+                CategoryName = "Cinematography"
             },
             new Category
             {
                 Id = 7,
-                CategoryName = "Književnost"
+                CategoryName = "Literature"
             },
             new Category
             {
                 Id = 8,
-                CategoryName = "Politika"
+                CategoryName = "Politics"
             },
             new Category
             {
                 Id = 9,
-                CategoryName = "Opće znanje"
+                CategoryName = "General Knowledge"
             }
         );
     }

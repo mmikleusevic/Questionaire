@@ -6,7 +6,7 @@ namespace UI
 {
     public class PlayUIController : SafeArea
     {
-        [SerializeField] private GameUIController gameUIController;
+        [SerializeField] private CategoriesUIController categoriesUIController;
         
         private VisualElement playUI;
         private Button playDirectButton;
@@ -37,12 +37,13 @@ namespace UI
 
         private void PlayOptionsClicked()
         {
-            gameUIController.ShowOptions();
+            
+            categoriesUIController.OpenCategories(false);
         }
         
         private void PlayDirectClicked()
         {
-            gameUIController.ShowDirect();
+            categoriesUIController.OpenCategories(true);
         }
         
         private void BackClicked()

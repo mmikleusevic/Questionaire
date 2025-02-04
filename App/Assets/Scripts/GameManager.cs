@@ -4,13 +4,15 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Models;
 using NUnit.Framework;
+using ServiceHandlers;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
 
-    [SerializeField] private QuestionServiceHandler questionServiceHandler;
+    private QuestionServiceHandler questionServiceHandler;
+    private CategoryServiceHandler categoryServiceHandler;
 
     private string uniqueID;
 
@@ -25,13 +27,28 @@ public class GameManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
-
+        
+        questionServiceHandler = new QuestionServiceHandler();
+        categoryServiceHandler = new CategoryServiceHandler();
         uniqueID = SystemInfo.deviceUniqueIdentifier;
     }
 
-    public IEnumerator GetUniqueQuestions(int numberOfQuestions, Action<List<Question>, string> onComplete)
+    public IEnumerator GetUniqueQuestions(int numberOfQuestions, int[] categoryIds, Action<List<Question>, string> onComplete)
     {
-        yield return StartCoroutine(questionServiceHandler.GetRandomUniqueQuestions(uniqueID, numberOfQuestions, 
+        QuestionRequest request = new QuestionRequest
+        {
+            UserId = uniqueID,
+            NumberOfQuestions = numberOfQuestions,
+            CategoryIds = categoryIds,
+        };
+        
+        yield return StartCoroutine(questionServiceHandler.GetRandomUniqueQuestions(request,
             (questions, message) => onComplete?.Invoke(questions, message)  ));
+    }
+
+    public IEnumerator GetCategories(Action<List<Category>, string> onComplete)
+    {
+        yield return StartCoroutine((categoryServiceHandler.GetCategories((categories, message) =>
+            onComplete?.Invoke(categories, message))));
     }
 }

@@ -25,14 +25,14 @@ public class QuestionController(IQuestionService questionService)  : ControllerB
                 return Ok(question);
         }
         
-        [HttpGet]
-        [Route("{userId}/{numberOfQuestions:int}")]
-        public async Task<ActionResult<QuestionDto>> GetRandomUniqueQuestions(string userId, int numberOfQuestions)
+        [HttpPost]
+        [Route("random")]
+        public async Task<ActionResult<QuestionDto>> GetRandomUniqueQuestions([FromBody] GetRandomUniqueQuestionsRequest request)
         {
-                List<QuestionDto> questions = await questionService.GetRandomUniqueQuestions(userId, numberOfQuestions);
+                List<QuestionDto> questions = await questionService.GetRandomUniqueQuestions(request);
                 if (questions.Count == 0) return NotFound();
                 return Ok(questions);
-    }
+        }
 
         [HttpPost]
         public async Task<ActionResult<Question>> AddQuestion(Question? newQuestion)
