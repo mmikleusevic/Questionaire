@@ -67,13 +67,20 @@ namespace UI
         {
             loadingUIController.Show();
             
-            int numberOfQuestions = 40;
+            int numberOfQuestionsToFetch = 40;
             if (currentCategoryIds.SequenceEqual(categories))
             {
-                numberOfQuestions -= questions.Count(q => !q.isRead);
+                int numberOfUnreadQuestions = questions.Count(q => !q.isRead);
+                numberOfQuestionsToFetch -= numberOfUnreadQuestions;
+                
+                questions.RemoveAll(q => q.isRead);
+            }
+            else
+            {
+                questions.Clear();
             }
         
-            yield return StartCoroutine(GameManager.Instance.GetUniqueQuestions(numberOfQuestions, categories,(retrievedQuestions, message) =>
+            yield return StartCoroutine(GameManager.Instance.GetUniqueQuestions(numberOfQuestionsToFetch, categories,(retrievedQuestions, message) =>
             {
                 loadingUIController.Hide();
             
@@ -81,10 +88,7 @@ namespace UI
                 {
                     currentCategoryIds.Clear();
                     currentCategoryIds.AddRange(categories);
-                    
-                    questions.RemoveAll(q => q.isRead);
                     questions.AddRange(retrievedQuestions);
-                
                     currentQuestionIndex = 0;
         
                     Show();
