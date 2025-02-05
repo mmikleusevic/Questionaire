@@ -1,8 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace QuestionaireApi.Models;
 
+[Index(nameof(CategoryId))]
 public class Question
 {
     public int Id { get; set; }

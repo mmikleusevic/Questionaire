@@ -1,7 +1,9 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace QuestionaireApi.Models;
 
+[Index(nameof(UserId), nameof(QuestionId))]
 public class UserQuestionHistory
 {
     public int Id { get; set; }
