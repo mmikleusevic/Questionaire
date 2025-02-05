@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Models;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -15,8 +16,9 @@ namespace UI
         
         private VisualElement categoriesUI;
         private VisualElement categoriesPart;
-        private Button getQuestionsButton;
+        private Button selectAllButton;
         private Button backButton;
+        private Button getQuestionsButton;
 
         private List<Category> categories;
         
@@ -25,25 +27,28 @@ namespace UI
             VisualElement root = GetComponent<UIDocument>().rootVisualElement;
             categoriesUI = root.Q("categoriesUI");
             categoriesPart = root.Q<VisualElement>("categoriesPart");
-            getQuestionsButton = root.Q<Button>("getQuestionsButton");
+            selectAllButton = root.Q<Button>("selectAllButton");
             backButton = root.Q<Button>("backButton");
+            getQuestionsButton = root.Q<Button>("getQuestionsButton");
             
             Hide();
 
-            StartCoroutine(SetCategories());
+            StartCoroutine(SetCategoriesInitial());
 
+            if (selectAllButton != null) selectAllButton.clicked += SelectAllCategories;
             if (getQuestionsButton != null) getQuestionsButton.clicked += LoadQuestions;
             if (backButton != null) backButton.clicked += Hide;
         }
 
         private void OnDestroy()
         {
+            if (selectAllButton != null) selectAllButton.clicked -= SelectAllCategories;
             if (getQuestionsButton != null) getQuestionsButton.clicked -= LoadQuestions;
             if (backButton != null) backButton.clicked -= Hide;
 
             for (int i = 0; i < categoriesPart.childCount; i++)
             {
-                categoriesPart[i].UnregisterCallback<ClickEvent>(OnCategorySelected);
+                categoriesPart[i].UnregisterCallback<ChangeEvent<bool>>(OnCategoryChanged);
             }
         }
 
@@ -54,7 +59,7 @@ namespace UI
             Show();
         }
 
-        private IEnumerator SetCategories()
+        private IEnumerator SetCategoriesInitial()
         {
             yield return StartCoroutine(GetCategories());
 
@@ -72,12 +77,12 @@ namespace UI
                     categoryTemplate.Q<Label>().text = category.CategoryName;
                     categoryTemplate.Q<Toggle>().value = true;
                     
-                    categoryTemplate.RegisterCallback<ClickEvent>(OnCategorySelected);
+                    categoryTemplate.RegisterCallback<ChangeEvent<bool>>(OnCategoryChanged);
                 }
             }
         }
 
-        private void OnCategorySelected(ClickEvent evt)
+        private void OnCategoryChanged(ChangeEvent<bool> evt)
         {
             VisualElement toggleVisualElement = evt.currentTarget as VisualElement;
             
@@ -95,22 +100,34 @@ namespace UI
                 }
                 else
                 {
-                    errorModalUIController.Show(message);
+                    errorModalUIController.ShowMessage(message);
                 }
             }));
         }
 
+        private void SelectAllCategories()
+        {
+            for (int i = 0; i < categoriesPart.childCount; i++)
+            {
+                Toggle categoryToggle = categoriesPart[i] as Toggle;
+
+                if (categoryToggle.value) continue;
+                
+                categoryToggle.value = true;
+            }
+        }
+
         private void LoadQuestions()
         {
-            int[] categoryIds = categories.Where(a => a.isUsed).Select(a => a.Id).ToArray();
+            List<int> categoryIds = categories.Where(a => a.isUsed).Select(a => a.Id).ToList();
 
-            if (categoryIds.Length == 0)
+            if (categoryIds.Count == 0)
             {
-                errorModalUIController.Show("You have to select at least one category!");
+                errorModalUIController.ShowMessage("You have to select at least one category!");
             }
             else
             {
-                gameUIController.LoadQuestions(categoryIds);
+                StartCoroutine(gameUIController.LoadQuestions(categoryIds));
                 Hide();
             }
         }
@@ -119,7 +136,7 @@ namespace UI
         {
             if (categories == null)
             {
-                errorModalUIController.Show("Error: Couldn't fetch categories!");
+                errorModalUIController.ShowMessage("Error: Couldn't fetch categories!");
             }
             else
             {

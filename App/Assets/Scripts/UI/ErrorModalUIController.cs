@@ -26,10 +26,16 @@ namespace UI
             if (okButton != null) okButton.clicked -= Hide;
         }
 
-        public void Show(string errorText)
+        public void ShowMessage(string text)
+        {
+            errorText.text = text;
+            
+            Show();
+        }
+
+        private void Show()
         {
             errorModalUI.style.display = DisplayStyle.Flex;
-            this.errorText.text = errorText;
         }
 
         private void Hide()

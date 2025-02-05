@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Models;
@@ -22,6 +23,7 @@ namespace UI
     
         private Label[] answerTexts;
         private List<Question> questions;
+        private List<int> currentCategoryIds;
         private int currentQuestionIndex;
         private bool isDirectMode;
     
@@ -38,6 +40,7 @@ namespace UI
             nextButton = root.Q<Button>("nextButton");
         
             questions = new List<Question>();
+            currentCategoryIds = new List<int>();
             answerTexts = new[] { answer1Text, answer2Text, answer3Text };
             
             Hide();
@@ -60,17 +63,25 @@ namespace UI
     
         private void NextPressed() => NextQuestion();
     
-        public void LoadQuestions(int[] categories)
+        public IEnumerator LoadQuestions(List<int> categories)
         {
             loadingUIController.Show();
-            int numberOfQuestions = 40 - questions.Count(q => !q.isRead);
+            
+            int numberOfQuestions = 40;
+            if (currentCategoryIds.SequenceEqual(categories))
+            {
+                numberOfQuestions -= questions.Count(q => !q.isRead);
+            }
         
-            StartCoroutine(GameManager.Instance.GetUniqueQuestions(numberOfQuestions, categories,(retrievedQuestions, message) =>
+            yield return StartCoroutine(GameManager.Instance.GetUniqueQuestions(numberOfQuestions, categories,(retrievedQuestions, message) =>
             {
                 loadingUIController.Hide();
             
                 if (retrievedQuestions != null)
                 {
+                    currentCategoryIds.Clear();
+                    currentCategoryIds.AddRange(categories);
+                    
                     questions.RemoveAll(q => q.isRead);
                     questions.AddRange(retrievedQuestions);
                 
@@ -84,7 +95,7 @@ namespace UI
                 }
                 else
                 {
-                    errorModalUIController.Show(message);
+                    errorModalUIController.ShowMessage(message);
                 }
             }));
         }
