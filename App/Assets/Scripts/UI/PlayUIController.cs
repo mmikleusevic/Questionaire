@@ -38,12 +38,12 @@ namespace UI
         private void PlayOptionsClicked()
         {
             
-            categoriesUIController.OpenCategories(false);
+            StartCoroutine(categoriesUIController.OpenCategories(false));
         }
         
         private void PlayDirectClicked()
         {
-            categoriesUIController.OpenCategories(true);
+            StartCoroutine(categoriesUIController.OpenCategories(true));
         }
         
         private void BackClicked()

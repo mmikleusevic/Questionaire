@@ -5,6 +5,7 @@ public class EnvironmentConfig : ScriptableObject
 {
     [SerializeField] private string developmentUrl;
     [SerializeField] private string productionUrl;
+    //[SerializeField] private string productionCertificateThumbprint;
     
     private static EnvironmentConfig instance;
 
@@ -36,4 +37,17 @@ public class EnvironmentConfig : ScriptableObject
 #endif
         }
     }
+
+    //Don't need this since we are bypassing ssl certificate handling
+//     public static string CertificateThumbprint
+//     {
+//         get
+//         {
+// #if UNITY_EDITOR || DEVELOPMENT
+//             return null;
+// #else
+//             return Instance.productionCertificateThumbprint;
+// #endif
+//         }
+//     }
 }

@@ -18,10 +18,14 @@ namespace ServiceHandlers
 
             using (UnityWebRequest webRequest = UnityWebRequest.Get(url))
             {
+                //bypassing validation
+                webRequest.certificateHandler = new BypassCertificate();
+                
+                //webRequest.certificateHandler = new CustomCertificateHandler(EnvironmentConfig.CertificateThumbprint);
+                
                 yield return webRequest.SendWebRequest();
 
-                if (webRequest.result == UnityWebRequest.Result.ConnectionError || 
-                    webRequest.result == UnityWebRequest.Result.ProtocolError)
+                if (webRequest.result != UnityWebRequest.Result.Success)
                 {
                     Debug.LogError($"Error: {webRequest.error}");
                     onComplete?.Invoke(null, webRequest.error);

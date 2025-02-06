@@ -20,6 +20,11 @@ namespace ServiceHandlers
 
             using (UnityWebRequest webRequest = new UnityWebRequest(url, "POST"))
             {
+                //bypassing validation
+                webRequest.certificateHandler = new BypassCertificate();
+                
+                // webRequest.certificateHandler = new CustomCertificateHandler(EnvironmentConfig.CertificateThumbprint);
+                
                 byte[] jsonToSend = new System.Text.UTF8Encoding().GetBytes(jsonRequestData);
                 webRequest.uploadHandler = new UploadHandlerRaw(jsonToSend);
                 webRequest.downloadHandler = new DownloadHandlerBuffer();
@@ -27,7 +32,7 @@ namespace ServiceHandlers
 
                 yield return webRequest.SendWebRequest();
 
-                if (webRequest.result is UnityWebRequest.Result.ConnectionError or UnityWebRequest.Result.ProtocolError)
+                if (webRequest.result != UnityWebRequest.Result.Success)
                 {
                     Debug.LogError($"Error: {webRequest.error}");
                     onComplete?.Invoke(null, webRequest.error);

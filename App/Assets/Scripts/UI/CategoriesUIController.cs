@@ -13,6 +13,7 @@ namespace UI
     {
         [SerializeField] private GameUIController gameUIController;
         [SerializeField] private ErrorModalUIController errorModalUIController;
+        [SerializeField] private LoadingUIController loadingUIController;
         
         private VisualElement categoriesUI;
         private VisualElement categoriesPart;
@@ -33,8 +34,6 @@ namespace UI
             
             Hide();
 
-            StartCoroutine(SetCategoriesInitial());
-
             if (selectAllButton != null) selectAllButton.clicked += SelectAllCategories;
             if (getQuestionsButton != null) getQuestionsButton.clicked += LoadQuestions;
             if (backButton != null) backButton.clicked += Hide;
@@ -52,34 +51,20 @@ namespace UI
             }
         }
 
-        public void OpenCategories(bool isDirectMode)
+        public IEnumerator OpenCategories(bool isDirectMode)
         {
             gameUIController.SetIsDirectMode(isDirectMode);
             
-            Show();
+            yield return StartCoroutine(LoadCategoriesData());
+
+            if (categories != null) Show();
         }
 
-        private IEnumerator SetCategoriesInitial()
+        private IEnumerator LoadCategoriesData()
         {
+            if (categories != null) yield break;
+            
             yield return StartCoroutine(GetCategories());
-
-            if (categories != null)
-            {
-                VisualTreeAsset categoryTemplateAsset = Resources.Load<VisualTreeAsset>("ToggleCategoryTemplate");
-                
-                foreach (Category category in categories)
-                {
-                    VisualElement template = categoryTemplateAsset.CloneTree();
-                    VisualElement categoryTemplate = template.Children().First();
-                    categoriesPart.Add(categoryTemplate);
-                    
-                    categoryTemplate.userData = category;
-                    categoryTemplate.Q<Label>().text = category.CategoryName;
-                    categoryTemplate.Q<Toggle>().value = true;
-                    
-                    categoryTemplate.RegisterCallback<ChangeEvent<bool>>(OnCategoryChanged);
-                }
-            }
         }
 
         private void OnCategoryChanged(ChangeEvent<bool> evt)
@@ -92,17 +77,41 @@ namespace UI
 
         private IEnumerator GetCategories()
         {
+            loadingUIController.ShowLoadingMessage("Loading Categories...");
+            
             yield return StartCoroutine(GameManager.Instance.GetCategories((response, message) =>
             {
+                loadingUIController.Hide();
+                
                 if (response != null)
                 {
                     categories = response;
+
+                    SetCategoryToggles();
                 }
                 else
                 {
                     errorModalUIController.ShowMessage(message);
                 }
             }));
+        }
+
+        private void SetCategoryToggles()
+        {
+            VisualTreeAsset categoryTemplateAsset = Resources.Load<VisualTreeAsset>("ToggleCategoryTemplate");
+                
+            foreach (Category category in categories)
+            {
+                VisualElement template = categoryTemplateAsset.CloneTree();
+                VisualElement categoryTemplate = template.Children().First();
+                categoriesPart.Add(categoryTemplate);
+                    
+                categoryTemplate.userData = category;
+                categoryTemplate.Q<Label>().text = category.CategoryName;
+                categoryTemplate.Q<Toggle>().value = true;
+                    
+                categoryTemplate.RegisterCallback<ChangeEvent<bool>>(OnCategoryChanged);
+            }
         }
 
         private void SelectAllCategories()
@@ -134,14 +143,7 @@ namespace UI
 
         private void Show()
         {
-            if (categories == null)
-            {
-                errorModalUIController.ShowMessage("Error: Couldn't fetch categories!");
-            }
-            else
-            {
-                categoriesUI.style.display = DisplayStyle.Flex;
-            }
+            categoriesUI.style.display = DisplayStyle.Flex;
         }
         
         private void Hide()

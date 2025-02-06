@@ -65,7 +65,7 @@ namespace UI
     
         public IEnumerator LoadQuestions(List<int> categories)
         {
-            loadingUIController.Show();
+            loadingUIController.ShowLoadingMessage("Loading Questions...");
             
             int numberOfQuestionsToFetch = 40;
             if (currentCategoryIds.SequenceEqual(categories))

@@ -398,6 +398,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gameUIController: {fileID: 1371320359}
   errorModalUIController: {fileID: 1971910285}
+  loadingUIController: {fileID: 1163337176}
 --- !u!114 &1437421831
 MonoBehaviour:
   m_ObjectHideFlags: 0
