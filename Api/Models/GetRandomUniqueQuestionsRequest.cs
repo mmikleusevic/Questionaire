@@ -4,5 +4,5 @@ public class GetRandomUniqueQuestionsRequest
 {
     public string UserId { get; set; }
     public int NumberOfQuestions { get; set; }
-    public int[] CategoryIds { get; set; }
+    public List<int> CategoryIds { get; set; }
 }

@@ -5,7 +5,9 @@ using QuestionaireApi.Models.Dto;
 
 namespace QuestionaireApi.Services;
 
-public class QuestionService(QuestionaireDbContext context) : IQuestionService
+public class QuestionService(QuestionaireDbContext context, 
+    ICategoryService categoryService, 
+    IUserQuestionHistoryService userQuestionHistoryService) : IQuestionService
 {
     public async Task<List<Question>> GetQuestionsAsync()
     {
@@ -20,29 +22,46 @@ public class QuestionService(QuestionaireDbContext context) : IQuestionService
 
     public async Task<List<QuestionDto>> GetRandomUniqueQuestions(GetRandomUniqueQuestionsRequest request)
     {
-        List<int> answeredQuestionIds = await context.UserQuestionHistory
-            .Where(h => h.UserId == request.UserId)
-            .Select(h => h.QuestionId)
-            .ToListAsync();
+        HashSet<int> selectedCategoryIds = await categoryService.GetSelectedCategoryIds(request.CategoryIds);
 
-        IQueryable<Question> query = context.Questions.AsQueryable();
-        
-        if (request.CategoryIds != null && request.CategoryIds.Any())
+        IQueryable<Question> query = context.Questions
+            .Where(q => q.QuestionCategories.Any(qc => selectedCategoryIds.Contains(qc.CategoryId)))
+            .Where(q => !context.UserQuestionHistory
+                .Any(h => h.UserId == request.UserId && h.QuestionId == q.Id));
+    
+        List<QuestionDto> questions = await GetRandomQuestions(query, request.NumberOfQuestions);
+
+        HashSet<int> fetchedQuestionIds = questions.Select(a => a.Id).ToHashSet();
+    
+        if (questions.Count < request.NumberOfQuestions)
         {
-            query = query.Where(q => request.CategoryIds.Contains(q.CategoryId));
+            await userQuestionHistoryService.ResetUserQuestionHistory(request.UserId);
+            
+            int remainingQuestionsCount = request.NumberOfQuestions - questions.Count;
+            query = query.Where(q => !fetchedQuestionIds.Contains(q.Id));
+            
+            List<QuestionDto> additionalQuestions = await GetRandomQuestions(query, remainingQuestionsCount);
+            questions.AddRange(additionalQuestions);
         }
+    
+        await userQuestionHistoryService.SaveUserQuestionHistory(request.UserId, questions);
 
-        List<QuestionDto> questions = await query
-            .Where(q => !answeredQuestionIds.Contains(q.Id))
+        return questions;
+    }
+    
+    private async Task<List<QuestionDto>> GetRandomQuestions(IQueryable<Question> query, int count)
+    {
+        return await query
             .OrderBy(q => Guid.NewGuid())
-            .Take(request.NumberOfQuestions)
+            .Take(count)
             .Select(q => new QuestionDto
             {
                 Id = q.Id,
                 QuestionText = q.QuestionText,
                 Answers = q.Answers
-                    .OrderBy(a => Guid.NewGuid())
+                    .OrderBy(a => a.IsCorrect ? 0 : 1)
                     .Take(3)
+                    .OrderBy(a => Guid.NewGuid())
                     .Select(a => new AnswerDto
                     {
                         Id = a.Id,
@@ -52,54 +71,6 @@ public class QuestionService(QuestionaireDbContext context) : IQuestionService
                     .ToList()
             })
             .ToListAsync();
-
-        if (questions.Count < request.NumberOfQuestions)
-        {
-            List<UserQuestionHistory> historyToRemove = await context.UserQuestionHistory
-                .Where(h => h.UserId == request.UserId)
-                .ToListAsync();
-            
-            context.UserQuestionHistory.RemoveRange(historyToRemove);
-            await context.SaveChangesAsync();
-            
-            int remainingCount = request.NumberOfQuestions - questions.Count;
-            HashSet<int> existingIds = questions.Select(q => q.Id).ToHashSet();
-
-            List<QuestionDto> additionalQuestions = await query
-                .Where(q => !existingIds.Contains(q.Id))
-                .OrderBy(q => Guid.NewGuid())
-                .Take(remainingCount)
-                .Select(q => new QuestionDto
-                {
-                    Id = q.Id,
-                    QuestionText = q.QuestionText,
-                    Answers = q.Answers
-                        .OrderBy(a => Guid.NewGuid())
-                        .Take(3)
-                        .Select(a => new AnswerDto
-                        {
-                            Id = a.Id,
-                            AnswerText = a.AnswerText,
-                            IsCorrect = a.IsCorrect
-                        })
-                        .ToList()
-                })
-                .ToListAsync();
-
-            questions.AddRange(additionalQuestions);
-        }
-        
-        IEnumerable<UserQuestionHistory> newHistory = questions.Select(q => new UserQuestionHistory
-        {
-            UserId = request.UserId,
-            QuestionId = q.Id,
-            RoundNumber = 1
-        });
-
-        await context.UserQuestionHistory.AddRangeAsync(newHistory);
-        await context.SaveChangesAsync();
-
-        return questions;
     }
 
     public async Task<Question> AddQuestionAsync(Question question)

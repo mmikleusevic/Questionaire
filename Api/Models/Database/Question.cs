@@ -4,17 +4,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace QuestionaireApi.Models;
 
-[Index(nameof(CategoryId))]
+[Index(nameof(Id))]
 public class Question
 {
     public int Id { get; set; }
     
     [Required]
-    public string QuestionText { get; set; }
+    public string QuestionText { get; set; } = null!;
     
-    public int CategoryId { get; set; }
+    public virtual ICollection<QuestionCategory> QuestionCategories { get; set; } = new List<QuestionCategory>();
     
-    [ForeignKey(nameof(CategoryId))]
-    public virtual Category Category { get; set; } = null!;
     public virtual ICollection<Answer> Answers { get; set; } = new List<Answer>();
 }
