@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuestionaireApi.Interfaces;
 using QuestionaireApi.Models;
+using QuestionaireApi.Models.Dto;
 
 namespace QuestionaireApi.Controllers;
 
@@ -10,7 +11,7 @@ namespace QuestionaireApi.Controllers;
 public class CategoryController(ICategoryService categoryService) : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<List<Category>>> GetCategories()
+    public async Task<ActionResult<List<CategoryDto>>> GetCategories()
     {
         return Ok(await categoryService.GetCategoriesAsync());
     }

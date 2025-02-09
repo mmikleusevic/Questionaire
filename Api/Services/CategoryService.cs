@@ -1,17 +1,21 @@
 using Microsoft.EntityFrameworkCore;
 using QuestionaireApi.Interfaces;
 using QuestionaireApi.Models;
+using QuestionaireApi.Models.Dto;
 
 namespace QuestionaireApi.Services;
 
 public class CategoryService(QuestionaireDbContext context) : ICategoryService
 {
-    public async Task<List<Category>> GetCategoriesAsync()
+    public async Task<List<CategoryDto>> GetCategoriesAsync()
     {
-        return await context.Categories
+        List<Category> categories = await context.Categories
             .Include(c => c.ParentCategory)
             .Include(c => c.ChildCategories)
-            .ToListAsync();
+            .OrderBy(c => c.CategoryName)
+            .ToListAsync(); 
+        
+        return SortAndMapCategories(categories);
     }
 
     public async Task<Category?> GetCategoryByIdAsync(int id)
@@ -71,5 +75,26 @@ public class CategoryService(QuestionaireDbContext context) : ICategoryService
         context.Categories.Remove(category);
         await context.SaveChangesAsync();
         return true;
+    }
+    
+    private List<CategoryDto> SortAndMapCategories(IEnumerable<Category> categories)
+    {
+        return categories
+            .Where(c => c.ParentCategory == null)
+            .SelectMany(c => new[] { MapCategoriesToDto(c) }.Concat(SortAndMapCategories(c.ChildCategories)))
+            .ToList();
+    }
+
+    private CategoryDto MapCategoriesToDto(Category category)
+    {
+        return new CategoryDto
+        {
+            Id = category.Id,
+            CategoryName = category.CategoryName,
+            ParentCategoryId = category.ParentCategoryId,
+            ChildCategories = category.ChildCategories
+                .Select(MapCategoriesToDto)
+                .ToList()
+        };
     }
 }
