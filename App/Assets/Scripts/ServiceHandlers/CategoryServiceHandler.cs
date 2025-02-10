@@ -35,7 +35,10 @@ namespace ServiceHandlers
                 try 
                 {
                     string jsonResponse = webRequest.downloadHandler.text;
-                    List<Category> questions = JsonConvert.DeserializeObject<List<Category>>(jsonResponse);
+                    List<Category> questions = JsonConvert.DeserializeObject<List<Category>>(jsonResponse, new JsonSerializerSettings
+                    {
+                        ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                    });
                     onComplete?.Invoke(questions, string.Empty);
                 }
                 catch (Exception ex)

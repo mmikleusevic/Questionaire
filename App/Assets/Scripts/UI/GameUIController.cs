@@ -25,7 +25,7 @@ namespace UI
         private List<Question> questions;
         private List<int> currentCategoryIds;
         private int currentQuestionIndex;
-        private bool isDirectMode;
+        private bool isSingleAnswerMode;
     
         private void Start()
         {
@@ -63,8 +63,9 @@ namespace UI
     
         private void NextPressed() => NextQuestion();
     
-        public IEnumerator LoadQuestions(List<int> categories)
+        public IEnumerator LoadQuestions(List<int> categories, bool isSingleAnswerMode)
         {
+            this.isSingleAnswerMode = isSingleAnswerMode;
             loadingUIController.ShowLoadingMessage("Loading Questions...");
             
             int numberOfQuestionsToFetch = 40;
@@ -80,7 +81,7 @@ namespace UI
                 questions.Clear();
             }
         
-            yield return StartCoroutine(GameManager.Instance.GetUniqueQuestions(numberOfQuestionsToFetch, categories,(retrievedQuestions, message) =>
+            yield return StartCoroutine(GameManager.Instance.GetUniqueQuestions(numberOfQuestionsToFetch, categories, this.isSingleAnswerMode,(retrievedQuestions, message) =>
             {
                 loadingUIController.Hide();
             
@@ -93,7 +94,7 @@ namespace UI
         
                     Show();
 
-                    ShowAnswers(isDirectMode ? new[] { false, true, false } : new[] { true, true, true });
+                    ShowAnswers(isSingleAnswerMode ? new[] { false, true, false } : new[] { true, true, true });
                     SetNavigationButtons();
                     ShowQuestion();  
                 }
@@ -126,7 +127,7 @@ namespace UI
             question.isRead = true;
             questionText.text = question.QuestionText;
 
-            if (isDirectMode)
+            if (isSingleAnswerMode)
             {
                 Answer correctAnswer = question.Answers.FirstOrDefault(a => a.isCorrect);
 
@@ -182,11 +183,6 @@ namespace UI
         {
             RemoveCorrectAnswerBackground();
             gameUI.style.display = DisplayStyle.None;
-        }
-
-        public void SetIsDirectMode(bool isDirectMode)
-        {
-            this.isDirectMode = isDirectMode;
         }
     }
 }

@@ -1,12 +1,15 @@
-using System;
+using Newtonsoft.Json;
 
 namespace Models
 {
-    [Serializable]
+    [JsonObject]
     public class Answer
     {
+        [JsonProperty] 
         public int Id;
+        [JsonProperty] 
         public string AnswerText;
+        [JsonProperty] 
         public bool isCorrect;
     }
 }

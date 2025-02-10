@@ -1,16 +1,17 @@
 <engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/Style.uss?fileID=7433441132597879392&amp;guid=3d10b170ed6bc9845a37f7814cd118c9&amp;type=3#Style" />
     <engine:VisualElement name="playUI" class="background" style="flex-grow: 1; align-items: center; visibility: visible; display: flex;">
-        <engine:VisualElement name="playPart" style="flex-grow: 1; flex-shrink: 0; width: 100%; height: 50%; justify-content: flex-end; align-items: center; align-content: center; flex-direction: row;">
-            <engine:VisualElement name="playDirect" style="flex-grow: 1; width: 50%; height: 100%; align-items: center; justify-content: center;">
-                <engine:Button text="Play Direct" name="playDirectButton" class="button" style="width: 40%; height: 20%; overflow: hidden;" />
-            </engine:VisualElement>
-            <engine:VisualElement name="playOptions" style="flex-grow: 1; width: 50%; height: 100%; align-items: center; justify-content: center;">
-                <engine:Button text="Play Options" name="playOptionsButton" class="button" style="justify-content: space-between; align-items: center; align-content: center; width: 40%; height: 20%;" />
-            </engine:VisualElement>
+        <engine:VisualElement name="backPart" style="flex-grow: 1; height: 20%; width: 100%; flex-shrink: 0; align-items: center; justify-content: space-around; align-self: auto; flex-direction: row; border-bottom-width: 5px; border-left-color: rgb(255, 255, 255); border-right-color: rgb(255, 255, 255); border-top-color: rgb(255, 255, 255); border-bottom-color: rgb(255, 255, 255);">
+            <engine:Button text="Categories" name="categoriesButton" class="button" style="width: 20%; height: 60%;" />
+            <engine:Button text="Back" name="backButton" class="button" style="width: 20%; height: 60%;" />
         </engine:VisualElement>
-        <engine:VisualElement name="backPart" style="flex-grow: 1; height: 50%; width: 100%; flex-shrink: 0; align-items: center; justify-content: center;">
-            <engine:Button text="Back" name="backButton" class="button" style="width: 20%; height: 20%;" />
+        <engine:VisualElement name="playPart" style="flex-grow: 1; flex-shrink: 0; width: 100%; height: 80%; justify-content: flex-end; align-items: center; align-content: center; flex-direction: row; border-left-color: rgb(255, 255, 255); border-right-color: rgb(255, 255, 255); border-top-color: rgb(255, 255, 255); border-bottom-color: rgb(255, 255, 255); border-top-width: 5px;">
+            <engine:VisualElement name="playSingleAnswer" style="flex-grow: 1; width: 50%; height: 100%; align-items: center; justify-content: center; border-left-color: rgb(255, 255, 255); border-right-color: rgb(255, 255, 255); border-top-color: rgb(255, 255, 255); border-bottom-color: rgb(255, 255, 255); border-right-width: 5px;">
+                <engine:Button text="Play &#10;Single Answer" name="playSingleAnswerButton" class="button" style="width: 40%; height: 20%; overflow: hidden;" />
+            </engine:VisualElement>
+            <engine:VisualElement name="playMultipleChoice" style="flex-grow: 1; width: 50%; height: 100%; align-items: center; justify-content: center; border-left-color: rgb(255, 255, 255); border-right-color: rgb(255, 255, 255); border-top-color: rgb(255, 255, 255); border-bottom-color: rgb(255, 255, 255); border-left-width: 5px;">
+                <engine:Button text="Play &#10;Multiple Choice" name="playMultipleChoiceButton" class="button" style="justify-content: space-between; align-items: center; align-content: center; width: 40%; height: 20%;" />
+            </engine:VisualElement>
         </engine:VisualElement>
     </engine:VisualElement>
 </engine:UXML>

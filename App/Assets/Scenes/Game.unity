@@ -221,6 +221,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   categoriesUIController: {fileID: 1437421830}
+  gameUIController: {fileID: 1371320359}
+  errorModalUIController: {fileID: 1971910285}
 --- !u!1 &1163337174
 GameObject:
   m_ObjectHideFlags: 0

@@ -47,6 +47,7 @@ namespace UI
 
         private void PlayPressed()
         {
+            playUIController.LoadCategories();
             playUIController.Show();
         }
     

@@ -6,7 +6,6 @@ using QuestionaireApi.Models.Dto;
 namespace QuestionaireApi.Services;
 
 public class QuestionService(QuestionaireDbContext context, 
-    ICategoryService categoryService, 
     IUserQuestionHistoryService userQuestionHistoryService) : IQuestionService
 {
     public async Task<List<Question>> GetQuestionsAsync()
@@ -22,14 +21,12 @@ public class QuestionService(QuestionaireDbContext context,
 
     public async Task<List<QuestionDto>> GetRandomUniqueQuestions(GetRandomUniqueQuestionsRequest request)
     {
-        HashSet<int> selectedCategoryIds = await categoryService.GetSelectedCategoryIds(request.CategoryIds);
-
         IQueryable<Question> query = context.Questions
-            .Where(q => q.QuestionCategories.Any(qc => selectedCategoryIds.Contains(qc.CategoryId)))
+            .Where(q => q.QuestionCategories.Any(qc => request.CategoryIds.Contains(qc.CategoryId)))
             .Where(q => !context.UserQuestionHistory
                 .Any(h => h.UserId == request.UserId && h.QuestionId == q.Id));
     
-        List<QuestionDto> questions = await GetRandomQuestions(query, request.NumberOfQuestions);
+        List<QuestionDto> questions = await GetRandomQuestions(query, request.NumberOfQuestions, request.IsSingleAnswerMode);
 
         HashSet<int> fetchedQuestionIds = questions.Select(a => a.Id).ToHashSet();
     
@@ -40,7 +37,7 @@ public class QuestionService(QuestionaireDbContext context,
             int remainingQuestionsCount = request.NumberOfQuestions - questions.Count;
             query = query.Where(q => !fetchedQuestionIds.Contains(q.Id));
             
-            List<QuestionDto> additionalQuestions = await GetRandomQuestions(query, remainingQuestionsCount);
+            List<QuestionDto> additionalQuestions = await GetRandomQuestions(query, remainingQuestionsCount, request.IsSingleAnswerMode);
             questions.AddRange(additionalQuestions);
         }
     
@@ -49,7 +46,7 @@ public class QuestionService(QuestionaireDbContext context,
         return questions;
     }
     
-    private async Task<List<QuestionDto>> GetRandomQuestions(IQueryable<Question> query, int count)
+    private async Task<List<QuestionDto>> GetRandomQuestions(IQueryable<Question> query, int count, bool isSingleAnswerMode)
     {
         return await query
             .OrderBy(q => Guid.NewGuid())
@@ -60,7 +57,7 @@ public class QuestionService(QuestionaireDbContext context,
                 QuestionText = q.QuestionText,
                 Answers = q.Answers
                     .OrderBy(a => a.IsCorrect ? 0 : 1)
-                    .Take(3)
+                    .Take(isSingleAnswerMode ? 1 : 3)
                     .OrderBy(a => Guid.NewGuid())
                     .Select(a => new AnswerDto
                     {

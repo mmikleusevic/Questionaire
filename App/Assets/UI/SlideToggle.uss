@@ -1,0 +1,160 @@
+.slideToggleInput {
+    background-color: var(--unity-colors-slider_groove-background);
+    max-width: 35px;
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    overflow: visible;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-right-color: var(--unity-colors-slider_thumb-border);
+    border-top-color: var(--unity-colors-slider_thumb-border);
+    border-bottom-color: var(--unity-colors-slider_thumb-border);
+    max-height: 20px;
+    border-left-color: var(--unity-colors-slider_thumb-border);
+    transition-property: background-color;
+    transition-duration: 0.5s;
+    height: 20px;
+    justify-content: center;
+    align-items: flex-start;
+    align-content: auto;
+    flex-grow: 0;
+    flex-basis: auto;
+    width: 35px;
+    margin-left: 20px;
+    min-width: 35px;
+    min-height: 20px;
+    flex-shrink: 0;
+}
+
+.slideToggleInputKnob {
+    height: 20px;
+    width: 20px;
+    background-color: var(--unity-colors-slider_thumb-background);
+    position: absolute;
+    border-top-left-radius: 25px;
+    border-bottom-left-radius: 25px;
+    border-top-right-radius: 25px;
+    border-bottom-right-radius: 25px;
+    top: -1px;
+    transition-property: translate, background-color;
+    transition-duration: 0.5s, 0.5s;
+    translate: -1px 0;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-color: var(--unity-colors-slider_thumb-border);
+    border-right-color: var(--unity-colors-slider_thumb-border);
+    border-top-color: var(--unity-colors-slider_thumb-border);
+    border-bottom-color: var(--unity-colors-slider_thumb-border);
+    align-items: stretch;
+    justify-content: flex-start;
+    align-content: flex-start;
+}
+
+.slideToggleInputChecked {
+    background-color: rgb(212, 136, 50);
+}
+
+.slideToggleInputChecked > .slideToggleInputKnob {
+    translate: 18px 0;
+}
+
+.slideToggle:focus .slideToggleInputKnob {
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-color: var(--unity-colors-input_field-border-focus);
+    border-right-color: var(--unity-colors-input_field-border-focus);
+    border-top-color: var(--unity-colors-input_field-border-focus);
+    border-bottom-color: var(--unity-colors-input_field-border-focus);
+}
+
+.slideToggleInputLabel {
+    width: auto;
+    -unity-text-align: middle-left;
+    color: rgb(255, 255, 255);
+    -unity-font-style: bold;
+    font-size: 20px;
+    left: auto;
+    align-items: auto;
+    justify-content: flex-start;
+    align-content: auto;
+    align-self: auto;
+    flex-grow: 1;
+    margin-left: 50px;
+    margin-top: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+    max-height: none;
+    max-width: none;
+    flex-direction: row;
+    height: auto;
+    min-width: auto;
+    min-height: auto;
+    flex-shrink: 0;
+}
+
+.slideToggleContainer {
+    width: 100%;
+    flex-grow: 0;
+    height: auto;
+    align-items: center;
+    justify-content: center;
+    align-content: center;
+    flex-direction: row;
+    align-self: auto;
+    flex-shrink: 0;
+    margin-top: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    border-left-color: rgb(255, 255, 255);
+    border-right-color: rgb(255, 255, 255);
+    border-top-color: rgb(255, 255, 255);
+    border-bottom-color: rgb(255, 255, 255);
+    border-top-width: 0;
+    border-right-width: 0;
+    border-bottom-width: 0;
+    border-left-width: 0;
+}
+
+.child {
+    margin-left: 0;
+    width: 100%;
+    flex-grow: 0;
+    margin-top: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+    padding-left: 5%;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.slideToggle {
+    align-items: flex-start;
+    justify-content: center;
+    align-content: center;
+    height: auto;
+    border-top-width: 0;
+    border-right-width: 0;
+    border-bottom-width: 0;
+    border-left-width: 0;
+    border-left-color: rgb(255, 255, 255);
+    border-right-color: rgb(255, 255, 255);
+    border-top-color: rgb(255, 255, 255);
+    border-bottom-color: rgb(255, 255, 255);
+    margin-left: 0;
+    width: 100%;
+    flex-grow: 0;
+    flex-direction: column;
+    max-height: none;
+    margin-top: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+}

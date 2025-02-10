@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Models;
+using UI.CustomUIElements;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -15,49 +16,71 @@ namespace UI
         [SerializeField] private ErrorModalUIController errorModalUIController;
         [SerializeField] private LoadingUIController loadingUIController;
         
+        private Action selectAllHandler;
+        private Action deSelectAllHandler;
+        private Dictionary<SlideToggle, EventCallback<ChangeEvent<bool>>> valueChangedHandlers;
         private VisualElement categoriesUI;
         private VisualElement categoriesPart;
+        private ListView list;
         private Button selectAllButton;
+        private Button deSelectAllButton;
         private Button backButton;
-        private Button getQuestionsButton;
 
         private List<Category> categories;
         
         private void Start()
         {
+            valueChangedHandlers = new Dictionary<SlideToggle, EventCallback<ChangeEvent<bool>>>();
+            
             VisualElement root = GetComponent<UIDocument>().rootVisualElement;
             categoriesUI = root.Q("categoriesUI");
             categoriesPart = root.Q<VisualElement>("categoriesPart");
             selectAllButton = root.Q<Button>("selectAllButton");
+            deSelectAllButton = root.Q<Button>("deSelectAllButton");
             backButton = root.Q<Button>("backButton");
-            getQuestionsButton = root.Q<Button>("getQuestionsButton");
             
             Hide();
 
-            if (selectAllButton != null) selectAllButton.clicked += SelectAllCategories;
-            if (getQuestionsButton != null) getQuestionsButton.clicked += LoadQuestions;
+            if (selectAllButton != null)
+            {
+                selectAllHandler += () => SetValueAllCategories(true);
+                selectAllButton.clicked += selectAllHandler;
+            }
+
+            if (deSelectAllButton != null)
+            {
+                deSelectAllHandler += () => SetValueAllCategories(false);
+                deSelectAllButton.clicked += deSelectAllHandler;
+            }
             if (backButton != null) backButton.clicked += Hide;
         }
 
         private void OnDestroy()
         {
-            if (selectAllButton != null) selectAllButton.clicked -= SelectAllCategories;
-            if (getQuestionsButton != null) getQuestionsButton.clicked -= LoadQuestions;
+            if (selectAllButton != null) selectAllButton.clicked -= selectAllHandler;
+            if (deSelectAllButton != null) deSelectAllButton.clicked -= deSelectAllHandler;
             if (backButton != null) backButton.clicked -= Hide;
 
-            for (int i = 0; i < categoriesPart.childCount; i++)
+            CleanupToggle();
+        }
+        
+        private void CleanupToggle()
+        {
+            foreach (var (toggle, handler) in valueChangedHandlers)
             {
-                categoriesPart[i].UnregisterCallback<ChangeEvent<bool>>(OnCategoryChanged);
+                toggle?.UnregisterValueChangedCallback(handler);
             }
+    
+            valueChangedHandlers.Clear();
         }
 
-        public IEnumerator OpenCategories(bool isDirectMode)
+        public IEnumerator OpenCategories()
         {
-            gameUIController.SetIsDirectMode(isDirectMode);
-            
             yield return StartCoroutine(LoadCategoriesData());
 
-            if (categories != null) Show();
+            if (categories == null) yield break;
+
+            Show();
         }
 
         private IEnumerator LoadCategoriesData()
@@ -67,16 +90,20 @@ namespace UI
             yield return StartCoroutine(GetCategories());
         }
 
-        private void OnCategoryChanged(ChangeEvent<bool> evt)
+        private void OnCategoryValueChanged(ChangeEvent<bool> evt)
         {
-            VisualElement toggleVisualElement = evt.currentTarget as VisualElement;
-            
-            Category category = toggleVisualElement.userData as Category;
-            category.isUsed = !category.isUsed;
+            if (evt.currentTarget is VisualElement toggleVisualElement && 
+                toggleVisualElement.userData is Category category)
+            {
+                category.isSelected = evt.newValue;
+                Debug.Log(category.isSelected);
+            }
         }
 
-        private IEnumerator GetCategories()
+        public IEnumerator GetCategories()
         {
+            if (categories != null) yield break;
+            
             loadingUIController.ShowLoadingMessage("Loading Categories...");
             
             yield return StartCoroutine(GameManager.Instance.GetCategories((response, message) =>
@@ -86,7 +113,7 @@ namespace UI
                 if (response != null)
                 {
                     categories = response;
-
+                    
                     SetCategoryToggles();
                 }
                 else
@@ -98,47 +125,70 @@ namespace UI
 
         private void SetCategoryToggles()
         {
-            VisualTreeAsset categoryTemplateAsset = Resources.Load<VisualTreeAsset>("ToggleCategoryTemplate");
-                
-            foreach (Category category in categories)
+            list = categoriesUI.Q<ListView>("list");
+            list.itemsSource = categories;
+            
+            list.makeItem = () => new SlideToggle();
+            list.bindItem = (element, index) =>
             {
-                VisualElement template = categoryTemplateAsset.CloneTree();
-                VisualElement categoryTemplate = template.Children().First();
-                categoriesPart.Add(categoryTemplate);
-                    
-                categoryTemplate.userData = category;
-                categoryTemplate.Q<Label>().text = category.CategoryName;
-                categoryTemplate.Q<Toggle>().value = true;
-                    
-                categoryTemplate.RegisterCallback<ChangeEvent<bool>>(OnCategoryChanged);
-            }
+                if (element is not SlideToggle slideToggle) return;
+                
+                Category category = categories[index];
+                CreateCategoryToggle(category,slideToggle);
+            };
+            
+            list.Rebuild();
         }
 
-        private void SelectAllCategories()
+        private void CreateCategoryToggle(Category category, SlideToggle element)
         {
-            for (int i = 0; i < categoriesPart.childCount; i++)
-            {
-                Toggle categoryToggle = categoriesPart[i] as Toggle;
+            element.userData = category;
+            element.Q<Label>("textLabel").text = category.CategoryName;
+            element.value = category.isSelected;
 
-                if (categoryToggle.value) continue;
-                
-                categoryToggle.value = true;
+            var handler = new EventCallback<ChangeEvent<bool>>(OnCategoryValueChanged);
+            valueChangedHandlers[element] = handler;
+            element.RegisterValueChangedCallback(handler);
+
+            foreach (Category child in category.ChildCategories)
+            {
+                SlideToggle childToggle = list.itemTemplate.CloneTree().Children().First() as SlideToggle;
+                CreateCategoryToggle(child, childToggle);
+                childToggle.AddToClassList("child");
+                element.Add(childToggle);
             }
         }
-
-        private void LoadQuestions()
+        
+        private void SetValueAllCategories(bool value)
         {
-            List<int> categoryIds = categories.Where(a => a.isUsed).Select(a => a.Id).ToList();
-
-            if (categoryIds.Count == 0)
+            for (int i = 0; i < list.itemsSource.Count; i++)
             {
-                errorModalUIController.ShowMessage("You have to select at least one category!");
+                var element = list.GetRootElementForIndex(i);
+                if (element is SlideToggle categoryToggle)
+                {
+                    SetCategorySelected(categoryToggle, value);
+                }
             }
-            else
+        }
+        
+        private void SetCategorySelected(SlideToggle toggle, bool value)
+        {
+            toggle.value = value;
+            
+            foreach (VisualElement child in toggle.Children())
             {
-                StartCoroutine(gameUIController.LoadQuestions(categoryIds));
-                Hide();
+                if (child is SlideToggle childToggle)
+                {
+                    SetCategorySelected(childToggle, value);
+                }
             }
+        }
+        
+        public List<int> GetSelectedCategoryIds()
+        {
+            List<int> selectedCategoryIds = categories?.Where(a => a.isSelected).Select(a => a.Id).ToList();
+            
+            return selectedCategoryIds;
         }
 
         private void Show()

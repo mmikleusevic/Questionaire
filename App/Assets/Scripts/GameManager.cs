@@ -33,13 +33,14 @@ public class GameManager : MonoBehaviour
         uniqueID = SystemInfo.deviceUniqueIdentifier;
     }
 
-    public IEnumerator GetUniqueQuestions(int numberOfQuestions, List<int> categoryIds, Action<List<Question>, string> onComplete)
+    public IEnumerator GetUniqueQuestions(int numberOfQuestions, List<int> categoryIds, bool isSingleAnswerMode , Action<List<Question>, string> onComplete)
     {
         QuestionRequest request = new QuestionRequest
         {
             UserId = uniqueID,
             NumberOfQuestions = numberOfQuestions,
             CategoryIds = categoryIds.ToArray(),
+            IsSingleAnswerMode = isSingleAnswerMode
         };
         
         yield return StartCoroutine(questionServiceHandler.GetRandomUniqueQuestions(request,
