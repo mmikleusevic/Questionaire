@@ -8,7 +8,6 @@ namespace UI
     {
         [SerializeField] private CategoriesUIController categoriesUIController;
         [SerializeField] private GameUIController gameUIController;
-        [SerializeField] private ErrorModalUIController errorModalUIController;
         
         private VisualElement playUI;
         private Button playSingleAnswerButton;
@@ -62,13 +61,12 @@ namespace UI
 
             if (selectedCategoryIds == null || selectedCategoryIds.Count == 0)
             {
-                errorModalUIController.ShowMessage("You have to select at least one category!");
+                ErrorModalUIController.Instance.ShowMessage("You have to select at least one category!");
 
                 return;
             }
             
             StartCoroutine(gameUIController.LoadQuestions(selectedCategoryIds, isSingleAnswerMode));
-            Hide();
         }
 
         public void LoadCategories()

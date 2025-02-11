@@ -26,8 +26,11 @@ namespace ServiceHandlers
 
                 if (webRequest.result != UnityWebRequest.Result.Success)
                 {
-                    Debug.LogError($"Error: {webRequest.error}");
-                    onComplete?.Invoke(null, webRequest.error);
+                    string errorMessage = webRequest.downloadHandler.text;
+                    if (string.IsNullOrEmpty(errorMessage)) errorMessage = webRequest.error;
+
+                    Debug.LogError($"Error: {errorMessage}");
+                    onComplete?.Invoke(null, errorMessage);
                     yield break;
                 }
     

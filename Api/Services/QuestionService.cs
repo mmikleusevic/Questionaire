@@ -22,9 +22,13 @@ public class QuestionService(QuestionaireDbContext context,
     public async Task<List<QuestionDto>> GetRandomUniqueQuestions(GetRandomUniqueQuestionsRequest request)
     {
         IQueryable<Question> query = context.Questions
+            .Where(q => (request.IsSingleAnswerMode ? q.Answers.Count >= 1 : q.Answers.Count >= 3) 
+                        && q.Answers.Any(a => a.IsCorrect))
             .Where(q => q.QuestionCategories.Any(qc => request.CategoryIds.Contains(qc.CategoryId)))
             .Where(q => !context.UserQuestionHistory
                 .Any(h => h.UserId == request.UserId && h.QuestionId == q.Id));
+
+        if (!await query.AnyAsync()) return new List<QuestionDto>();
     
         List<QuestionDto> questions = await GetRandomQuestions(query, request.NumberOfQuestions, request.IsSingleAnswerMode);
 

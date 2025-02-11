@@ -9,9 +9,6 @@ namespace UI
 {
     public class GameUIController : SafeArea
     {
-        [SerializeField] private ErrorModalUIController errorModalUIController;
-        [SerializeField] private LoadingUIController loadingUIController;
-    
         private VisualElement gameUI;
         private Label questionText;
         private Label answer1Text;
@@ -66,7 +63,7 @@ namespace UI
         public IEnumerator LoadQuestions(List<int> categories, bool isSingleAnswerMode)
         {
             this.isSingleAnswerMode = isSingleAnswerMode;
-            loadingUIController.ShowLoadingMessage("Loading Questions...");
+            LoadingUIController.Instance.ShowLoadingMessage("Loading Questions...");
             
             int numberOfQuestionsToFetch = 40;
             if (currentCategoryIds.SequenceEqual(categories))
@@ -83,7 +80,7 @@ namespace UI
         
             yield return StartCoroutine(GameManager.Instance.GetUniqueQuestions(numberOfQuestionsToFetch, categories, this.isSingleAnswerMode,(retrievedQuestions, message) =>
             {
-                loadingUIController.Hide();
+                LoadingUIController.Instance.Hide();
             
                 if (retrievedQuestions != null)
                 {
@@ -100,7 +97,7 @@ namespace UI
                 }
                 else
                 {
-                    errorModalUIController.ShowMessage(message);
+                    ErrorModalUIController.Instance.ShowMessage(message);
                 }
             }));
         }

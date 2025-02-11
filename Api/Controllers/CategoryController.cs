@@ -13,7 +13,9 @@ public class CategoryController(ICategoryService categoryService) : ControllerBa
     [HttpGet]
     public async Task<ActionResult<List<CategoryDto>>> GetCategories()
     {
-        return Ok(await categoryService.GetCategoriesAsync());
+        List<CategoryDto> categories = await categoryService.GetCategoriesAsync();
+        if (categories.Count == 0) return NotFound("No categories found!");
+        return Ok(categories);
     }
 
     [HttpGet]

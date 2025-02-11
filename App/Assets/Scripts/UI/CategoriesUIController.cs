@@ -12,8 +12,6 @@ namespace UI
     public class CategoriesUIController : SafeArea
     {
         [SerializeField] private GameUIController gameUIController;
-        [SerializeField] private ErrorModalUIController errorModalUIController;
-        [SerializeField] private LoadingUIController loadingUIController;
         
         private Action selectAllHandler;
         private Action deSelectAllHandler;
@@ -106,11 +104,11 @@ namespace UI
         {
             if (categories != null) yield break;
             
-            loadingUIController.ShowLoadingMessage("Loading Categories...");
+            LoadingUIController.Instance.ShowLoadingMessage("Loading Categories...");
             
             yield return StartCoroutine(GameManager.Instance.GetCategories((response, message) =>
             {
-                loadingUIController.Hide();
+                LoadingUIController.Instance.Hide();
                 
                 if (response != null)
                 {
@@ -120,7 +118,7 @@ namespace UI
                 }
                 else
                 {
-                    errorModalUIController.ShowMessage(message);
+                    ErrorModalUIController.Instance.ShowMessage(message);
                 }
             }));
         }

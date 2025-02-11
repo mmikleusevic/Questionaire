@@ -30,7 +30,7 @@ public class QuestionController(IQuestionService questionService)  : ControllerB
         public async Task<ActionResult<QuestionDto>> GetRandomUniqueQuestions([FromBody] GetRandomUniqueQuestionsRequest request)
         {
                 List<QuestionDto> questions = await questionService.GetRandomUniqueQuestions(request);
-                if (questions.Count == 0) return NotFound();
+                if (questions.Count == 0) return NotFound("No questions found!");
                 return Ok(questions);
         }
 

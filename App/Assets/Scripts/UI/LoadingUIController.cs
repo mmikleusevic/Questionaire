@@ -1,12 +1,28 @@
+using System;
 using UnityEngine.UIElements;
 
 namespace UI
 {
     public class LoadingUIController : SafeArea
     {
+        public static LoadingUIController Instance { get; private set; }
+        
         private VisualElement loadingUI;
         private Label loadingText;
-        
+
+        private void Awake()
+        {
+            if (Instance == null)
+            {
+                Instance = this;
+                DontDestroyOnLoad(gameObject);
+            }
+            else
+            {
+                Destroy(gameObject);
+            }
+        }
+
         private void Start()
         {   
             loadingUI = GetComponent<UIDocument>().rootVisualElement.Q("loadingUI");
