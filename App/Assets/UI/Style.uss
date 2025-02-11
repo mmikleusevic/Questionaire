@@ -133,3 +133,11 @@
 
 #exitButton Image {
 }
+
+.unity-list-view__item,
+.unity-list-view__item:hover,
+.unity-list-view__item--selected,
+.unity-list-view__item--selected:hover{
+    background-color: transparent;
+}
+

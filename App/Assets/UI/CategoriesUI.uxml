@@ -11,8 +11,8 @@
                 <engine:Button text="Back" name="backButton" class="button" style="height: 75%; width: 100%;" />
             </engine:VisualElement>
         </engine:VisualElement>
-        <engine:VisualElement name="categoriesPart" style="flex-grow: 1; height: 70%; width: 100%; justify-content: flex-start; align-items: stretch; flex-direction: column; flex-wrap: wrap; align-content: center;">
-            <engine:ListView allow-add="false" allow-remove="false" virtualization-method="DynamicHeight" show-border="true" item-template="project://database/Assets/UI/CustomUIElements/SlideToggleUsage.uxml?fileID=9197481963319205126&amp;guid=6ca113a1ea2fbf3408af663d4895bce6&amp;type=3#SlideToggleUsage" name="list" picking-mode="Ignore" focusable="false" horizontal-scrolling="true" class="list" style="width: 100%;" />
+        <engine:VisualElement name="categoriesPart" picking-mode="Ignore" style="flex-grow: 1; height: 70%; width: 100%; justify-content: flex-start; align-items: stretch; flex-direction: column; flex-wrap: wrap; align-content: center;">
+            <engine:ListView allow-add="false" allow-remove="false" virtualization-method="DynamicHeight" show-border="true" item-template="project://database/Assets/UI/CustomUIElements/SlideToggleUsage.uxml?fileID=9197481963319205126&amp;guid=6ca113a1ea2fbf3408af663d4895bce6&amp;type=3#SlideToggleUsage" name="list" picking-mode="Ignore" focusable="false" horizontal-scrolling="true" selection-type="None" show-bound-collection-size="true" class="list" style="width: 100%;" />
         </engine:VisualElement>
     </engine:VisualElement>
 </engine:UXML>

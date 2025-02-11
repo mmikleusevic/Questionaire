@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Text;
 using Models;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -25,7 +25,7 @@ namespace ServiceHandlers
                 
                 // webRequest.certificateHandler = new CustomCertificateHandler(EnvironmentConfig.CertificateThumbprint);
                 
-                byte[] jsonToSend = new System.Text.UTF8Encoding().GetBytes(jsonRequestData);
+                byte[] jsonToSend = new UTF8Encoding().GetBytes(jsonRequestData);
                 webRequest.uploadHandler = new UploadHandlerRaw(jsonToSend);
                 webRequest.downloadHandler = new DownloadHandlerBuffer();
                 webRequest.SetRequestHeader("Content-Type", "application/json");

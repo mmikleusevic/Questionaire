@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Models;
 using UI.CustomUIElements;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -22,11 +21,13 @@ namespace UI
         private VisualElement categoriesUI;
         private VisualElement categoriesPart;
         private ListView list;
+        private ScrollView scrollView;
         private Button selectAllButton;
         private Button deSelectAllButton;
         private Button backButton;
 
         private List<Category> categories;
+        private float savedScrollPosition;
         
         private void Start()
         {
@@ -38,6 +39,8 @@ namespace UI
             selectAllButton = root.Q<Button>("selectAllButton");
             deSelectAllButton = root.Q<Button>("deSelectAllButton");
             backButton = root.Q<Button>("backButton");
+            list = categoriesUI.Q<ListView>("list");
+            scrollView = categoriesUI.Q<ScrollView>();
             
             Hide();
 
@@ -96,7 +99,6 @@ namespace UI
                 toggleVisualElement.userData is Category category)
             {
                 category.isSelected = evt.newValue;
-                Debug.Log(category.isSelected);
             }
         }
 
@@ -125,11 +127,9 @@ namespace UI
 
         private void SetCategoryToggles()
         {
-            list = categoriesUI.Q<ListView>("list");
             list.itemsSource = categories;
-            
             list.makeItem = () => new SlideToggle();
-            list.bindItem = (element, index) =>
+            list.bindItem = (element, index) => 
             {
                 if (element is not SlideToggle slideToggle) return;
                 
@@ -186,18 +186,52 @@ namespace UI
         
         public List<int> GetSelectedCategoryIds()
         {
-            List<int> selectedCategoryIds = categories?.Where(a => a.isSelected).Select(a => a.Id).ToList();
-            
-            return selectedCategoryIds;
+            return categories?
+                .SelectMany(GetSelectedCategoriesRecursive)
+                .Where(c => c.isSelected)
+                .Select(c => c.Id)
+                .ToList();
         }
 
+        private IEnumerable<Category> GetSelectedCategoriesRecursive(Category category)
+        {
+            return new[] { category }
+                .Concat(category.ChildCategories?
+                    .SelectMany(GetSelectedCategoriesRecursive) ?? Enumerable.Empty<Category>());
+        }
+        
+        private void RestoreScrollPosition()
+        {
+            scrollView.verticalScroller.slider.value = savedScrollPosition;
+        }
+
+        private void SaveScrollPosition()
+        {
+            savedScrollPosition = scrollView.verticalScroller.slider.value;
+        }
+        
+        private void SubscribeToGeometryChange()
+        {
+            categoriesUI.UnregisterCallback<GeometryChangedEvent>(OnGeometryChanged);
+            categoriesUI.RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
+        }
+
+        private void OnGeometryChanged(GeometryChangedEvent evt)
+        {
+            categoriesUI.schedule.Execute(RestoreScrollPosition);
+            categoriesUI.UnregisterCallback<GeometryChangedEvent>(OnGeometryChanged);
+        }
+        
         private void Show()
         {
             categoriesUI.style.display = DisplayStyle.Flex;
+            
+            SubscribeToGeometryChange();
         }
         
         private void Hide()
         {
+            SaveScrollPosition();
             categoriesUI.style.display = DisplayStyle.None;
         }
     }

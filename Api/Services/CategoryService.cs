@@ -51,7 +51,7 @@ public class CategoryService(QuestionaireDbContext context) : ICategoryService
         return true;
     }
     
-        private List<CategoryDto> SortAndMapCategories(IEnumerable<Category> categories)
+    private List<CategoryDto> SortAndMapCategories(IEnumerable<Category> categories)
     {
         return categories
             .Where(c => c.ParentCategory == null)

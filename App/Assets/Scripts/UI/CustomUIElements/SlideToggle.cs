@@ -1,4 +1,3 @@
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -92,9 +91,9 @@ namespace UI.CustomUIElements
             input.EnableInClassList(inputCheckedUssClassName, newValue);
         }
         
-        protected override void ExecuteDefaultActionAtTarget(EventBase evt)
+        protected override void HandleEventBubbleUp(EventBase evt)
         {
-            base.ExecuteDefaultActionAtTarget(evt);
+            base.HandleEventBubbleUp(evt);
             
             if (evt is ChangeEvent<bool> changeEvent)
             {
