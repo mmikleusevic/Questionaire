@@ -18,4 +18,9 @@
         <PackageReference Include="Scalar.AspNetCore" Version="1.2.76" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Remove="Migrations\20250212115929_AddedNewDatabaseModelsForUsersAndStoringPendingQuestions.cs" />
+      <Compile Remove="Migrations\20250212115929_AddedNewDatabaseModelsForUsersAndStoringPendingQuestions.Designer.cs" />
+    </ItemGroup>
+
 </Project>

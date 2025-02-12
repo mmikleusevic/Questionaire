@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using QuestionaireApi.Models;
+using QuestionaireApi.Models.Database;
 
 namespace QuestionaireApi;
 
@@ -10,7 +11,11 @@ public class QuestionaireDbContext(DbContextOptions<QuestionaireDbContext> optio
     public DbSet<Answer> Answers => Set<Answer>();
     public DbSet<QuestionCategory> QuestionCategories => Set<QuestionCategory>();
     public DbSet<UserQuestionHistory> UserQuestionHistory => Set<UserQuestionHistory>();
-
+    public DbSet<PendingQuestion> PendingQuestions => Set<PendingQuestion>();
+    public DbSet<PendingAnswer> PendingAnswers => Set<PendingAnswer>();
+    public DbSet<PendingQuestionCategory> PendingQuestionCategories => Set<PendingQuestionCategory>();
+    public DbSet<User> Users => Set<User>();
+    public DbSet<Role> Roles => Set<Role>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<QuestionCategory>()
@@ -19,12 +24,14 @@ public class QuestionaireDbContext(DbContextOptions<QuestionaireDbContext> optio
         modelBuilder.Entity<QuestionCategory>()
             .HasOne(qc => qc.Question)
             .WithMany(q => q.QuestionCategories)
-            .HasForeignKey(qc => qc.QuestionId);
+            .HasForeignKey(qc => qc.QuestionId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<QuestionCategory>()
             .HasOne(qc => qc.Category)
             .WithMany(c => c.QuestionCategories)
-            .HasForeignKey(qc => qc.CategoryId);
+            .HasForeignKey(qc => qc.CategoryId)
+            .OnDelete(DeleteBehavior.Restrict); 
         
         modelBuilder.Entity<Category>()
             .HasOne(c => c.ParentCategory)
@@ -36,6 +43,32 @@ public class QuestionaireDbContext(DbContextOptions<QuestionaireDbContext> optio
             .HasOne(a => a.Question)
             .WithMany(q => q.Answers)
             .OnDelete(DeleteBehavior.Cascade);
+        
+        modelBuilder.Entity<PendingAnswer>()
+            .HasOne(a => a.PendingQuestion)
+            .WithMany(q => q.Answers)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        modelBuilder.Entity<PendingQuestionCategory>()
+            .HasKey(qc => new { qc.PendingQuestionId, qc.CategoryId });
+        
+        modelBuilder.Entity<PendingQuestionCategory>()
+            .HasOne(qc => qc.PendingQuestion)
+            .WithMany(q => q.PendingQuestionCategories)
+            .HasForeignKey(qc => qc.PendingQuestionId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        modelBuilder.Entity<PendingQuestionCategory>()
+            .HasOne(qc => qc.Category)
+            .WithMany(c => c.PendingQuestionCategories)
+            .HasForeignKey(qc => qc.CategoryId)
+            .OnDelete(DeleteBehavior.Restrict);
+        
+        modelBuilder.Entity<User>()
+            .HasOne(a => a.Role)
+            .WithMany(a => a.Users)
+            .HasForeignKey(qc => qc.RoleId)
+            .OnDelete(DeleteBehavior.Restrict);
         
         modelBuilder.Entity<Category>().HasData(
             new Category { Id = 1, CategoryName = "General Knowledge" },
