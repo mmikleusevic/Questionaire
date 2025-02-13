@@ -8,40 +8,80 @@ public class AnswerService(QuestionaireDbContext context) : IAnswerService
 {
     public async Task<List<Answer>> GetAnswersAsync()
     {
-        return await context.Answers.ToListAsync();
+        try
+        {
+            return await context.Answers.ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            throw new ApplicationException("An error occurred while retrieving answers.", ex);
+        }
     }
 
     public async Task<Answer?> GetAnswerByIdAsync(int id)
     {
-        return await context.Answers.FindAsync(id);
+        try
+        {
+            return await context.Answers.FindAsync(id);
+        }
+        catch (Exception ex)
+        {
+            throw new ApplicationException("An error occurred while retrieving the answer by ID.", ex);
+        }
     }
 
-    public async Task<Answer> AddAnswerAsync(Answer answer)
+    public async Task CreateAnswerAsync(Answer answer)
     {
-        context.Answers.Add(answer);
-        await context.SaveChangesAsync();
-        return answer;
+        if (answer == null) throw new ArgumentNullException(nameof(answer), "Answer cannot be null.");
+
+        try
+        {
+            context.Answers.Add(answer);
+            await context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            throw new ApplicationException("An error occurred while creating the answer.", ex);
+        }
     }
 
     public async Task<bool> UpdateAnswerAsync(int id, Answer updatedAnswer)
     {
-        Answer answer = await context.Answers.FindAsync(id);
-        if (answer == null) return false;
+        if (updatedAnswer == null) throw new ArgumentNullException(nameof(updatedAnswer), "Updated answer cannot be null.");
 
-        answer.AnswerText = updatedAnswer.AnswerText;
-        answer.IsCorrect = updatedAnswer.IsCorrect;
-        
-        await context.SaveChangesAsync();
-        return true;
+        try
+        {
+            Answer? answer = await context.Answers.FindAsync(id);
+            if (answer == null) return false;
+            
+            answer.AnswerText = updatedAnswer.AnswerText;
+            answer.IsCorrect = updatedAnswer.IsCorrect;
+
+            await context.SaveChangesAsync();
+            
+            return true;
+        }
+        catch (Exception ex)
+        {
+            throw new ApplicationException("An error occurred while updating the answer.", ex);
+        }
     }
 
     public async Task<bool> DeleteAnswerAsync(int id)
     {
-        Answer answer = await context.Answers.FindAsync(id);
-        if (answer == null) return false;
+        try
+        {
+            Answer? answer = await context.Answers.FirstOrDefaultAsync(a => a.Id == id);
+            if (answer == null) return false;
 
-        context.Answers.Remove(answer);
-        await context.SaveChangesAsync();
-        return true;
+            context.Answers.Remove(answer);
+            await context.SaveChangesAsync();
+            
+            return true;
+        }
+        catch (Exception ex)
+        {
+            throw new ApplicationException("An error occurred while deleting the answer.", ex);
+        }
     }
 }

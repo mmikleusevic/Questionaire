@@ -12,6 +12,8 @@ DotNetEnv.Env.Load();
 
 // Add services to the container.
 
+builder.Services.AddLogging();
+
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -28,6 +30,9 @@ builder.Services.AddScoped<IAnswerService, AnswerService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IQuestionService, QuestionService>();
 builder.Services.AddScoped<IUserQuestionHistoryService, UserQuestionHistoryService>();
+builder.Services.AddScoped<IRoleService, RoleService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IPendingQuestionService, PendingQuestionService>();
 
 string applicationUrl = Environment.GetEnvironmentVariable("APPLICATION_URL");
 

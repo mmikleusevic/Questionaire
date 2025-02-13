@@ -3,61 +3,113 @@ using Microsoft.EntityFrameworkCore;
 using QuestionaireApi.Interfaces;
 using QuestionaireApi.Models;
 using QuestionaireApi.Models.Dto;
+using QuestionaireApi.Services;
 
 namespace QuestionaireApi.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class QuestionController(IQuestionService questionService)  : ControllerBase
+public class QuestionController(IQuestionService questionService,
+    ILogger<QuestionController> logger) : ControllerBase
 {
-        [HttpGet]
-        public async Task<ActionResult<List<Question>>> GetQuestions()
+    [HttpGet]
+    public async Task<ActionResult<List<QuestionDto>>> GetQuestions()
+    {
+        try
         {
-                return Ok(await questionService.GetQuestionsAsync());
+            List<Question> questions = await questionService.GetQuestionsAsync();
+            if (questions.Count == 0) return NotFound("No questions found!");
+            return Ok(questions);
         }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An error occurred while retrieving questions.");
+            return StatusCode(500, "An error occurred while retrieving questions.");
+        }
+    }
 
-        [HttpGet]
-        [Route("{id:int}")]
-        public async Task<ActionResult<Question>> GetQuestionById(int id)
+    [HttpGet("{id:int}")]
+    public async Task<ActionResult<QuestionDto>> GetQuestionById(int id)
+    {
+        try
         {
-                Question question = await questionService.GetQuestionByIdAsync(id);
-                if (question is null) return NotFound();
-                return Ok(question);
+            Question? question = await questionService.GetQuestionByIdAsync(id);
+            if (question is null) return NotFound($"Question with ID {id} not found.");
+            return Ok(question);
         }
-        
-        [HttpPost]
-        [Route("random")]
-        public async Task<ActionResult<QuestionDto>> GetRandomUniqueQuestions([FromBody] GetRandomUniqueQuestionsRequest request)
+        catch (Exception ex)
         {
-                List<QuestionDto> questions = await questionService.GetRandomUniqueQuestions(request);
-                if (questions.Count == 0) return NotFound("No questions found!");
-                return Ok(questions);
+            logger.LogError(ex, $"An error occurred while retrieving the question with ID {id}.");
+            return StatusCode(500, $"An error occurred while retrieving the question with ID {id}.");
         }
+    }
 
-        [HttpPost]
-        public async Task<ActionResult<Question>> AddQuestion(Question? newQuestion)
-        {
-                if (newQuestion is null) return BadRequest();
+    [HttpPost("random")]
+    public async Task<ActionResult<List<QuestionDto>>> GetRandomUniqueQuestions([FromBody] GetRandomUniqueQuestionsRequest? request)
+    {
+        if (request == null) return BadRequest("Get random unique questions data cannot be null.");
 
-                Question question = await questionService.AddQuestionAsync(newQuestion);
-                return CreatedAtAction(nameof(GetQuestionById), new { id = question.Id }, question);
-        }
-
-        [HttpPut("{id:int}")]
-        public async Task<IActionResult> UpdateQuestion(int id, Question? updatedQuestion)
+        try
         {
-                if (updatedQuestion is null) return BadRequest();
-        
-                bool success = await questionService.UpdateQuestionAsync(id, updatedQuestion);
-                if (!success) return NotFound();
-                return NoContent();
+            List<QuestionDto> questions = await questionService.GetRandomUniqueQuestions(request);
+            if (questions.Count == 0) return NotFound("No questions found.");
+            return Ok(questions);
         }
-
-        [HttpDelete("{id:int}")]
-        public async Task<IActionResult> DeleteQuestion(int id)
+        catch (Exception ex)
         {
-                bool success = await questionService.DeleteQuestionAsync(id);
-                if (!success) return NotFound();
-                return NoContent();
+            logger.LogError(ex, "An error occurred while retrieving random unique questions.");
+            return StatusCode(500, "An error occurred while retrieving random unique questions.");
         }
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<QuestionDto>> CreateQuestion([FromBody] Question? newQuestion)
+    {
+        if (newQuestion == null) return BadRequest("Question data cannot be null.");
+
+        try
+        {
+            await questionService.CreateQuestionAsync(newQuestion);
+            return CreatedAtAction(nameof(GetQuestionById), new { id = newQuestion.Id }, newQuestion);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An error occurred while creating the question.");
+            return StatusCode(500, "An error occurred while creating the question.");
+        }
+    }
+
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> UpdateQuestion(int id, [FromBody] QuestionDto? updatedQuestion)
+    {
+        if (updatedQuestion == null) return BadRequest("Updated question data cannot be null.");
+
+        try
+        {
+            bool success = await questionService.UpdateQuestionAsync(id, updatedQuestion);
+            if (!success) return NotFound();
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"An error occurred while updating the question with ID {id}.");
+            return StatusCode(500, $"An error occurred while updating the question with ID {id}.");
+        }
+    }
+
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> DeleteQuestion(int id)
+    {
+        try
+        {
+            bool success = await questionService.DeleteQuestionAsync(id);
+            if (!success) return NotFound();
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"An error occurred while deleting the question with ID {id}.");
+            return StatusCode(500, $"An error occurred while deleting the question with ID {id}.");
+        }
+    }
 }

@@ -8,49 +8,89 @@ namespace QuestionaireApi.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class CategoryController(ICategoryService categoryService) : ControllerBase
+public class CategoryController(ICategoryService categoryService,
+    ILogger<CategoryController> logger) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<List<CategoryDto>>> GetCategories()
     {
-        List<CategoryDto> categories = await categoryService.GetCategoriesAsync();
-        if (categories.Count == 0) return NotFound("No categories found!");
-        return Ok(categories);
+        try
+        {
+            List<CategoryDto> categories = await categoryService.GetCategoriesAsync();
+            if (categories.Count == 0) return NotFound("No categories found.");
+            return Ok(categories);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An error occurred while retrieving categories.");
+            return StatusCode(500, "An error occurred while retrieving categories.");
+        }
     }
 
-    [HttpGet]
-    [Route("{id:int}")]
-    public async Task<ActionResult<Category>> GetCategoryById(int id)
+    [HttpGet("{id:int}")]
+    public async Task<ActionResult<CategoryDto>> GetCategoryById(int id)
     {
-        Category category = await categoryService.GetCategoryByIdAsync(id);
-        if (category is null) return NotFound();
-        return Ok(category);
+        try
+        {
+            Category? category = await categoryService.GetCategoryByIdAsync(id);
+            if (category is null) return NotFound($"Category with ID {id} not found.");
+            return Ok(category);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"An error occurred while retrieving the category with ID {id}.");
+            return StatusCode(500, $"An error occurred while retrieving the category with ID {id}.");
+        }
     }
 
     [HttpPost]
-    public async Task<ActionResult<Category>> AddCategory(Category? newCategory)
+    public async Task<ActionResult<CategoryDto>> CreateCategory([FromBody] Category? newCategory)
     {
-        if (newCategory is null) return BadRequest();
-        
-        Category category = await categoryService.AddCategoryAsync(newCategory);
-        return CreatedAtAction(nameof(GetCategoryById), new { id = category.Id }, category);
+        if (newCategory == null) return BadRequest("Category data cannot be null.");
+
+        try
+        {
+            await categoryService.CreateCategoryAsync(newCategory);
+            return CreatedAtAction(nameof(GetCategoryById), new { newCategory = newCategory.Id }, newCategory);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An error occurred while creating the category.");
+            return StatusCode(500, "An error occurred while creating the category.");
+        }
     }
 
     [HttpPut("{id:int}")]
-    public async Task<IActionResult> UpdateCategory(int id, Category? updatedCategory)
+    public async Task<IActionResult> UpdateCategory(int id, [FromBody] Category? updatedCategory)
     {
-        if (updatedCategory is null) return BadRequest();
-        
-        bool success = await categoryService.UpdateCategoryAsync(id, updatedCategory);
-        if (!success) return NotFound();
-        return NoContent();
+        if (updatedCategory == null) return BadRequest("Updated category data cannot be null.");
+
+        try
+        {
+            bool success = await categoryService.UpdateCategoryAsync(id, updatedCategory);
+            if (!success) return NotFound();
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"An error occurred while updating the category with ID {id}.");
+            return StatusCode(500, $"An error occurred while updating the category with ID {id}.");
+        }
     }
 
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteCategory(int id)
     {
-        bool success = await categoryService.DeleteCategoryAsync(id);
-        if (!success) return NotFound();
-        return NoContent();
+        try
+        {
+            bool success = await categoryService.DeleteCategoryAsync(id);
+            if (!success) return NotFound();
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"An error occurred while deleting the category with ID {id}.");
+            return StatusCode(500, $"An error occurred while deleting the category with ID {id}.");
+        }
     }
 }

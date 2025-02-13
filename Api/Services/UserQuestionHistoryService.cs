@@ -9,23 +9,34 @@ public class UserQuestionHistoryService(QuestionaireDbContext context) : IUserQu
 {
     public async Task ResetUserQuestionHistory(string userId)
     {
-        await context.UserQuestionHistory
-            .Where(h => h.UserId == userId)
-            .ExecuteDeleteAsync();
-        
-        await context.SaveChangesAsync();
+        try
+        {
+            await context.UserQuestionHistory
+                .Where(h => h.UserId == userId)
+                .ExecuteDeleteAsync();
+        }
+        catch (Exception ex)
+        {
+            throw new ApplicationException($"An error occurred while resetting question history for user with ID {userId}.", ex);
+        }
     }
 
-    public async Task SaveUserQuestionHistory(string userId, List<QuestionDto> questions)
+    public async Task CreateUserQuestionHistory(string userId, List<Question> questions)
     {
-        List<UserQuestionHistory> newHistory = questions.Select(q => new UserQuestionHistory
+        try
         {
-            UserId = userId,
-            QuestionId = q.Id,
-            RoundNumber = 1
-        }).ToList();
-        
-        await context.UserQuestionHistory.AddRangeAsync(newHistory);
-        await context.SaveChangesAsync();
+            await context.UserQuestionHistory.AddRangeAsync(questions.Select(q => new UserQuestionHistory
+            {
+                UserId = userId,
+                QuestionId = q.Id,
+                RoundNumber = 1
+            }));
+
+            await context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            throw new ApplicationException($"An error occurred while creating question history for user with ID {userId}.", ex);
+        }
     }
 }

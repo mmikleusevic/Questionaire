@@ -6,5 +6,5 @@ namespace QuestionaireApi.Interfaces;
 public interface IUserQuestionHistoryService
 {
     Task ResetUserQuestionHistory(string userId);
-    Task SaveUserQuestionHistory(string userId, List<QuestionDto> questions);
+    Task CreateUserQuestionHistory(string userId, List<Question> questions);
 }

@@ -9,57 +9,101 @@ public class CategoryService(QuestionaireDbContext context) : ICategoryService
 {
     public async Task<List<CategoryDto>> GetCategoriesAsync()
     {
-        List<Category> categories = await context.Categories
-            .Include(c => c.ParentCategory)
-            .Include(c => c.ChildCategories)
-            .OrderBy(c => c.CategoryName)
-            .ToListAsync(); 
-        
-        return SortAndMapCategories(categories);
+        try
+        {
+            List<Category> categories = await context.Categories
+                .Include(c => c.ParentCategory)
+                .Include(c => c.ChildCategories)
+                .OrderBy(c => c.CategoryName)
+                .ToListAsync(); 
+
+            return SortAndMapCategories(categories);
+        }
+        catch (Exception ex)
+        {
+            throw new ApplicationException("An error occurred while retrieving categories.", ex);
+        }
     }
 
     public async Task<Category?> GetCategoryByIdAsync(int id)
     {
-        return await context.Categories.FindAsync(id);
+        try
+        {
+            return await context.Categories.FindAsync(id);
+        }
+        catch (Exception ex)
+        {
+            throw new ApplicationException($"An error occurred while retrieving the category with ID {id}.", ex);
+        }
     }
     
-    public async Task<Category> AddCategoryAsync(Category category)
+    public async Task CreateCategoryAsync(Category category)
     {
-        context.Categories.Add(category);
-        await context.SaveChangesAsync();
-        return category;
+        try
+        {
+            context.Categories.Add(category);
+            await context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            throw new ApplicationException("An error occurred while creating the category.", ex);
+        }
     }
 
     public async Task<bool> UpdateCategoryAsync(int id, Category updatedCategory)
     {
-        Category category = await context.Categories.FindAsync(id);
-        if (category == null) return false;
+        try
+        {
+            Category? category = await context.Categories.FirstOrDefaultAsync(a =>a.Id == id);
 
-        category.CategoryName = updatedCategory.CategoryName;
-        
-        await context.SaveChangesAsync();
-        return true;
+            if (category == null) return false;
+            
+            category.CategoryName = updatedCategory.CategoryName;
+            
+            await context.SaveChangesAsync();
+            
+            return true;
+        }
+        catch (Exception ex)
+        {
+            throw new ApplicationException($"An error occurred while updating the category with ID {id}.", ex);
+        }
     }
 
     public async Task<bool> DeleteCategoryAsync(int id)
     {
-        Category category = await context.Categories.FindAsync(id);
-        if (category == null) return false;
+        try
+        {
+            Category? category = await context.Categories.FirstOrDefaultAsync(a => a.Id == id);
+            if (category == null) return false;
 
-        context.Categories.Remove(category);
-        await context.SaveChangesAsync();
-        return true;
+            context.Categories.Remove(category);
+            await context.SaveChangesAsync();
+            
+            return true;
+        }
+        catch (Exception ex)
+        {
+            throw new ApplicationException($"An error occurred while deleting the category with ID {id}.", ex);
+        }
     }
     
     private List<CategoryDto> SortAndMapCategories(IEnumerable<Category> categories)
     {
-        return categories
-            .Where(c => c.ParentCategory == null)
-            .SelectMany(c => new[] { MapCategoriesToDto(c) }.Concat(SortAndMapCategories(c.ChildCategories)))
-            .ToList();
+        try
+        {
+            return categories
+                .Where(c => c.ParentCategory == null)
+                .SelectMany(c => new[] { MapCategoriesToDto(c) }.Concat(SortAndMapCategories(c.ChildCategories)))
+                .ToList();
+        }
+        catch (Exception ex)
+        {
+            throw new ApplicationException("An error occurred while sorting and mapping categories.", ex);
+        }
     }
 
-    private CategoryDto MapCategoriesToDto(Category category)
+    private static CategoryDto MapCategoriesToDto(Category category)
     {
         return new CategoryDto
         {
