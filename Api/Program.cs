@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using QuestionaireApi;
 using QuestionaireApi.Interfaces;
@@ -52,6 +53,18 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        context.Response.StatusCode = 500;
+        context.Response.ContentType = "application/json";
+        
+        await context.Response.WriteAsJsonAsync("An application error has occurred. Try again later.");
+    });
+});
+
 
 using (var scope = app.Services.CreateScope())
 {

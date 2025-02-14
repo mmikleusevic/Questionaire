@@ -22,8 +22,9 @@ public class CategoryController(ICategoryService categoryService,
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An error occurred while retrieving categories.");
-            return StatusCode(500, "An error occurred while retrieving categories.");
+            string message = "An error occurred while retrieving categories.";
+            logger.LogError(ex, message);
+            return StatusCode(500, message);
         }
     }
 
@@ -38,8 +39,9 @@ public class CategoryController(ICategoryService categoryService,
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"An error occurred while retrieving the category with ID {id}.");
-            return StatusCode(500, $"An error occurred while retrieving the category with ID {id}.");
+            string message = $"An error occurred while retrieving the category with ID {id}.";
+            logger.LogError(ex, message);
+            return StatusCode(500, message);
         }
     }
 
@@ -55,8 +57,9 @@ public class CategoryController(ICategoryService categoryService,
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An error occurred while creating the category.");
-            return StatusCode(500, "An error occurred while creating the category.");
+            string message = "An error occurred while creating the category.";
+            logger.LogError(ex, message);
+            return StatusCode(500, message);
         }
     }
 
@@ -73,8 +76,9 @@ public class CategoryController(ICategoryService categoryService,
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"An error occurred while updating the category with ID {id}.");
-            return StatusCode(500, $"An error occurred while updating the category with ID {id}.");
+            string message = $"An error occurred while updating the category with ID {id}.";
+            logger.LogError(ex, message);
+            return StatusCode(500, message);
         }
     }
 
@@ -89,8 +93,9 @@ public class CategoryController(ICategoryService categoryService,
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"An error occurred while deleting the category with ID {id}.");
-            return StatusCode(500, $"An error occurred while deleting the category with ID {id}.");
+            string message = $"An error occurred while deleting the category with ID {id}.";
+            logger.LogError(ex, message);
+            return StatusCode(500, message);
         }
     }
 }

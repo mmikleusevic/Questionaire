@@ -21,8 +21,9 @@ public class PendingQuestionController(IPendingQuestionService pendingQuestionSe
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An error occurred while retrieving the questions.");
-            return StatusCode(500, new { Message = "An error occurred while retrieving the questions.", Details = ex.Message });
+            string message = "An error occurred while retrieving the questions.";
+            logger.LogError(ex, message);
+            return StatusCode(500, message);
         }
     }
     
@@ -37,8 +38,9 @@ public class PendingQuestionController(IPendingQuestionService pendingQuestionSe
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"An error occurred while retrieving the pending question with ID {pendingQuestionId}.");
-            return StatusCode(500, new { Message = $"An error occurred while retrieving the pending question with ID {pendingQuestionId}.", Details = ex.Message });
+            string message = $"An error occurred while retrieving the pending question with ID {pendingQuestionId}.";
+            logger.LogError(ex, message);
+            return StatusCode(500, message);
         }
     }
     
@@ -52,8 +54,9 @@ public class PendingQuestionController(IPendingQuestionService pendingQuestionSe
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"An error occurred while approving the pending question with ID {pendingQuestionId}.");
-            return StatusCode(500, new { Message = $"An error occurred while approving the pending question with ID {pendingQuestionId}.", Details = ex.Message });
+            string message = $"An error occurred while approving the pending question with ID {pendingQuestionId}.";
+            logger.LogError(ex, message);
+            return StatusCode(500, message);
         }
     }
 
@@ -69,8 +72,9 @@ public class PendingQuestionController(IPendingQuestionService pendingQuestionSe
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An error occurred while saving the pending question.");
-            return StatusCode(500, new { Message = "An error occurred while saving the pending question.", Details = ex.Message });
+            string message = "An error occurred while saving the pending question.";
+            logger.LogError(ex, message);
+            return StatusCode(500, message);
         }
     }
 
@@ -87,8 +91,9 @@ public class PendingQuestionController(IPendingQuestionService pendingQuestionSe
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"An error occurred while updating the pending question with ID {pendingQuestionId}.");
-            return StatusCode(500, new { Message = $"An error occurred while updating the pending question with ID {pendingQuestionId}.", Details = ex.Message });
+            string message = $"An error occurred while updating the pending question with ID {pendingQuestionId}.";
+            logger.LogError(ex, message);
+            return StatusCode(500, message);
         }
     }
     
@@ -103,8 +108,9 @@ public class PendingQuestionController(IPendingQuestionService pendingQuestionSe
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"An error occurred while deleting the pending question with ID {pendingQuestionId}.");
-            return StatusCode(500, new { Message = $"An error occurred while deleting the pending question with ID {pendingQuestionId}.", Details = ex.Message });
+            string message = $"An error occurred while deleting the pending question with ID {pendingQuestionId}.";
+            logger.LogError(ex, message);
+            return StatusCode(500, message);
         }
     }
 }

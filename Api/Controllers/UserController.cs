@@ -20,8 +20,9 @@ public class UserController(IUserService userService,
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "An error occurred while retrieving the users");
-                return StatusCode(500, new { Message = "An error occurred while retrieving the users", Details = ex.Message });
+                string message =  "An error occurred while retrieving the users";
+                logger.LogError(ex, message);
+                return StatusCode(500, message);
             }
         }
         
@@ -36,8 +37,9 @@ public class UserController(IUserService userService,
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, $"An error occurred while retrieving the user with ID {userId}.");
-                return StatusCode(500, new { Message = $"An error occurred while retrieving the user with ID {userId}.", Details = ex.Message });
+                string message = $"An error occurred while retrieving the user with ID {userId}.";
+                logger.LogError(ex, message);
+                return StatusCode(500, message);
             }
         }
         
@@ -53,8 +55,9 @@ public class UserController(IUserService userService,
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "An error occurred while saving the user.");
-                return StatusCode(500, new { Message = "An error occurred while saving the user.", Details = ex.Message });
+                string message = "An error occurred while saving the user.";
+                logger.LogError(ex, message);
+                return StatusCode(500, message);
             }
         }
         
@@ -71,8 +74,9 @@ public class UserController(IUserService userService,
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, $"An error occurred while updating the user with ID {userId}.");
-                return StatusCode(500, new { Message = $"An error occurred while updating the user with ID {userId}.", Details = ex.Message });
+                string message = $"An error occurred while updating the user with ID {userId}.";
+                logger.LogError(ex, message);
+                return StatusCode(500, message);
             }
         }
         
@@ -88,8 +92,9 @@ public class UserController(IUserService userService,
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, $"An error occurred while deleting the user with ID {userId}.");
-                return StatusCode(500, new { Message = $"An error occurred while deleting the user with ID {userId}.", Details = ex.Message });
+                string message = $"An error occurred while deleting the user with ID {userId}.";
+                logger.LogError(ex, message);
+                return StatusCode(500, message);
             }
         }
 }

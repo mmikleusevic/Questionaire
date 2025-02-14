@@ -35,7 +35,9 @@ namespace ServiceHandlers
                 if (webRequest.result != UnityWebRequest.Result.Success)
                 {
                     string errorMessage = webRequest.downloadHandler.text;
-                    if (string.IsNullOrEmpty(errorMessage)) errorMessage = webRequest.error;
+                    errorMessage = Helper.StripQuotationMarks(errorMessage);
+                    
+                    if (string.IsNullOrEmpty(errorMessage)) errorMessage = "An error has occurred fetching questions. Try again later.";
                     
                     Debug.LogError($"Error: {errorMessage}");
                     onComplete?.Invoke(null, errorMessage);

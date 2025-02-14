@@ -134,10 +134,110 @@
 #exitButton Image {
 }
 
-.unity-list-view__item,
-.unity-list-view__item:hover,
-.unity-list-view__item--selected,
-.unity-list-view__item--selected:hover{
+.unity-list-view__item {
     background-color: transparent;
 }
 
+.unity-list-view__item:hover {
+    background-color: transparent;
+}
+
+.unity-list-view__item--selected {
+    background-color: transparent;
+}
+
+.unity-list-view__item--selected:hover {
+    background-color: transparent;
+}
+
+#errorScrollView #unity-content-container {
+    height: auto;
+    width: auto;
+    flex-grow: 1;
+}
+
+#errorScrollView .unity-scroll-view__vertical-scroller {
+    width: auto;
+    overflow: hidden;
+    background-color: rgb(255, 255, 255);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+
+#errorScrollView #unity-tracker {
+    background-color: rgb(255, 255, 255);
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+    max-height: none;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    height: 16px;
+    top: 0;
+}
+
+#errorScrollView #unity-slider {
+    background-color: rgb(255, 255, 255);
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+    height: auto;
+    margin: 0;
+    border-radius: 15px;
+    overflow: visible;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+#errorScrollView .unity-base-slider--vertical:focus .unity-base-slider__dragger {
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+}
+
+#errorScrollView #unity-dragger {
+    -unity-background-image-tint-color: rgb(255, 255, 255);
+    background-color: rgb(110, 114, 132);
+    height: 14px;
+    top: 1px;
+    position: absolute;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+    border-radius: 15px;
+    overflow: visible;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+
+#errorScrollView #unity-dragger:hover {
+    background-color: rgb(49, 60, 113);
+}
+
+#errorScrollView Scroller #unity-low-button {
+    overflow: hidden;
+    width: 0;
+    height: 0;
+}
+
+#errorScrollView Scroller #unity-high-button {
+    overflow: hidden;
+    width: 0;
+    height: 0;
+}

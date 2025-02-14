@@ -23,8 +23,9 @@ public class QuestionController(IQuestionService questionService,
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An error occurred while retrieving questions.");
-            return StatusCode(500, "An error occurred while retrieving questions.");
+            string message = "An error occurred while retrieving questions.";
+            logger.LogError(ex, message);
+            return StatusCode(500, message);
         }
     }
 
@@ -39,8 +40,9 @@ public class QuestionController(IQuestionService questionService,
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"An error occurred while retrieving the question with ID {id}.");
-            return StatusCode(500, $"An error occurred while retrieving the question with ID {id}.");
+            string message = $"An error occurred while retrieving the question with ID {id}.";
+            logger.LogError(ex, message);
+            return StatusCode(500, message);
         }
     }
 
@@ -57,8 +59,9 @@ public class QuestionController(IQuestionService questionService,
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An error occurred while retrieving random unique questions.");
-            return StatusCode(500, "An error occurred while retrieving random unique questions.");
+            string message = "An error occurred while retrieving random unique questions.";
+            logger.LogError(ex, message);
+            return StatusCode(500, message);
         }
     }
 
@@ -74,8 +77,9 @@ public class QuestionController(IQuestionService questionService,
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An error occurred while creating the question.");
-            return StatusCode(500, "An error occurred while creating the question.");
+            string message = "An error occurred while creating the question.";
+            logger.LogError(ex, message);
+            return StatusCode(500, message);
         }
     }
 
@@ -92,8 +96,9 @@ public class QuestionController(IQuestionService questionService,
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"An error occurred while updating the question with ID {id}.");
-            return StatusCode(500, $"An error occurred while updating the question with ID {id}.");
+            string message =  $"An error occurred while updating the question with ID {id}.";
+            logger.LogError(ex, message);
+            return StatusCode(500, message);
         }
     }
 
@@ -108,8 +113,9 @@ public class QuestionController(IQuestionService questionService,
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"An error occurred while deleting the question with ID {id}.");
-            return StatusCode(500, $"An error occurred while deleting the question with ID {id}.");
+            string message =  $"An error occurred while deleting the question with ID {id}.";
+            logger.LogError(ex, message);
+            return StatusCode(500, message);
         }
     }
 }

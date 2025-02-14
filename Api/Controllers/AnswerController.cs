@@ -21,8 +21,9 @@ public class AnswerController(IAnswerService answerService,
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An unexpected error occurred while retrieving the answers.");
-            return StatusCode(500, "An unexpected error occurred while retrieving answers.");
+            string message = "An unexpected error occurred while retrieving the answers.";
+            logger.LogError(ex, message);
+            return StatusCode(500, message);
         }
     }
 
@@ -38,8 +39,9 @@ public class AnswerController(IAnswerService answerService,
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"An unexpected error occurred while retrieving the answer with ID {id}.");
-            return StatusCode(500, $"An unexpected error occurred while retrieving the answer with ID {id}.");
+            string message = $"An unexpected error occurred while retrieving the answer with ID {id}.";
+            logger.LogError(ex, message);
+            return StatusCode(500, message);
         }
     }
 
@@ -55,8 +57,9 @@ public class AnswerController(IAnswerService answerService,
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An unexpected error occurred while creating the answer.");
-            return StatusCode(500, "An unexpected error occurred while creating the answer.");
+            string message = "An unexpected error occurred while creating the answer.";
+            logger.LogError(ex, message);
+            return StatusCode(500, message);
         }
     }
 
@@ -73,8 +76,9 @@ public class AnswerController(IAnswerService answerService,
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"An unexpected error occurred while updating the answer with ID {id}.");
-            return StatusCode(500, $"An unexpected error occurred while updating the answer with ID {id}.");
+            string message = $"An unexpected error occurred while updating the answer with ID {id}.";
+            logger.LogError(ex, message);
+            return StatusCode(500, message);
         }
     }
 
@@ -89,8 +93,9 @@ public class AnswerController(IAnswerService answerService,
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"An unexpected error occurred while deleting the answer with ID {id}.");
-            return StatusCode(500, $"An unexpected error occurred while deleting the answer with ID {id}.");
+            string message = $"An unexpected error occurred while deleting the answer with ID {id}.";
+            logger.LogError(ex, message);
+            return StatusCode(500, message);
         }
     }
 }
