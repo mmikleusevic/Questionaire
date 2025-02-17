@@ -1,7 +1,9 @@
 using System.Diagnostics;
+using System.Text;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using QuestionaireApi;
 using QuestionaireApi.Interfaces;
 using QuestionaireApi.Services;
@@ -45,11 +47,11 @@ if (!string.IsNullOrEmpty(applicationUrl))
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: "Cors", policy =>
-            {
-                policy.AllowAnyHeader()
-                .AllowAnyOrigin()
-                .AllowAnyMethod();
-            });
+    {
+        policy.AllowAnyHeader()
+            .AllowAnyOrigin()
+            .AllowAnyMethod();
+    });
 });
 
 var app = builder.Build();
@@ -64,7 +66,6 @@ app.UseExceptionHandler(errorApp =>
         await context.Response.WriteAsJsonAsync("An application error has occurred. Try again later.");
     });
 });
-
 
 using (var scope = app.Services.CreateScope())
 {
@@ -85,9 +86,11 @@ else
 
 app.UseHttpsRedirection();
 
+app.UseRouting();
+
 app.UseCors("Cors");
 
-app.UseRouting();
+app.UseAuthentication();
 
 app.MapControllers();
 

@@ -1,6 +1,15 @@
 using Web.Components;
+using Web.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+
+ApiSettings? apiSettings = builder.Configuration.GetSection("ApiSettings").Get<ApiSettings>();
+builder.Services.AddSingleton(apiSettings);
+
+builder.Services.AddHttpClient("ApiClient", client =>
+{
+    client.BaseAddress = new Uri(apiSettings.BaseUrl);
+});
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
@@ -17,7 +26,6 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 
 app.UseAntiforgery();
 

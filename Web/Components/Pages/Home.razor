@@ -1,7 +1,40 @@
 ﻿@page "/"
+@using Web.Models
+@inject IHttpClientFactory HttpClientFactory
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>Home Page</h1>
 
-Welcome to your new app.
+@if (categories is null)
+{
+    <p>Loading categories...</p>
+}
+else if (categories.Count == 0)
+{
+    <p>No categories found.</p>
+}
+else
+{
+    <ul>
+        @foreach (var category in categories)
+        {
+            <li>@category.CategoryName</li>
+        }
+    </ul>
+}
+
+@code {
+    private List<Category>? categories;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCategories();
+    }
+
+    private async Task LoadCategories()
+    {
+        HttpClient? client = HttpClientFactory.CreateClient("ApiClient");
+        categories = await client.GetFromJsonAsync<List<Category>>("api/Category");
+    }
+}
