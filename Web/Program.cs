@@ -1,27 +1,29 @@
 using Web.Components;
+using Web.Interfaces;
 using Web.Models;
+using Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 ApiSettings? apiSettings = builder.Configuration.GetSection("ApiSettings").Get<ApiSettings>();
+
+builder.Services.AddLogging();
+
 builder.Services.AddSingleton(apiSettings);
 
-builder.Services.AddHttpClient("ApiClient", client =>
-{
-    client.BaseAddress = new Uri(apiSettings.BaseUrl);
+builder.Services.AddScoped(sp => new HttpClient { 
+    BaseAddress = new Uri(apiSettings.BaseUrl)
 });
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 
-// Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 

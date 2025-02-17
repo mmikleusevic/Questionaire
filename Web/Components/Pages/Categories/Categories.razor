@@ -1,0 +1,31 @@
+@page "/categories"
+@using Web.Models
+
+<PageTitle>Categories</PageTitle>
+<div class="categories-header">
+    <h3>Categories</h3>
+    <button type="submit" class="btn btn-create" @onclick="CreateCategory">Create</button>
+</div>
+
+
+@if (categories == null)
+{
+    <p><em>Loading...</em></p>
+}
+else if (categories.Count == 0)
+{
+    <p>No categories found.</p>
+}
+else
+{
+    <div class="category-header">
+        <div class="category-name-header">Category Name</div>
+        <div class="actions-header">Actions</div>
+    </div>
+    <ul class="category-list">
+        @foreach (Category category in categories)
+        {
+            <CategoryItem Category="category" />
+        }
+    </ul>
+}
