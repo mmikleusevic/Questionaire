@@ -1,6 +1,7 @@
 using BlazorBootstrap;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Web.Components.Pages.Categories.CategoryModals;
 using Web.Interfaces;
 using Web.Models;
 
@@ -10,6 +11,7 @@ public partial class Categories : ComponentBase
 {
     [Inject] private ICategoryService? CategoryService { get; set; }
 
+    private EventCallback onCategoryUpdated => EventCallback.Factory.Create(this, GetCategories);
     private Modal modal = default!;
     private List<Category>? categories;
     private List<Category> flatCategories;

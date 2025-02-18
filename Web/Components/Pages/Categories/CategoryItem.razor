@@ -3,7 +3,7 @@
         <span class="category-name">@Category.CategoryName</span>
 
         <button class="btn btn-update" @onclick="UpdateCategory">Update</button>
-        <button class="btn btn-remove" @onclick="RemoveCategory">Remove</button>
+        <button class="btn btn-delete" @onclick="DeleteCategory">Delete</button>
     </div>
     
     @if (Category.ChildCategories?.Any() == true)
@@ -11,7 +11,7 @@
         <ul class="child-categories">
             @foreach (var childCategory in Category.ChildCategories)
             {
-                <CategoryItem Category="childCategory" />
+                <CategoryItem Category="childCategory" Modal="Modal" OnCategoryCreated="OnCategoryCreated" />
             }
         </ul>
     }

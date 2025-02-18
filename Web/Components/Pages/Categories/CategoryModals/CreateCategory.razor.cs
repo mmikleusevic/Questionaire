@@ -1,11 +1,9 @@
 using BlazorBootstrap;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Forms;
-using Microsoft.AspNetCore.Components.Web;
 using Web.Interfaces;
 using Web.Models;
 
-namespace Web.Components.Pages.Categories;
+namespace Web.Components.Pages.Categories.CategoryModals;
 
 public partial class CreateCategory : ComponentBase
 {
@@ -24,11 +22,6 @@ public partial class CreateCategory : ComponentBase
     }
     
     public async Task HandleValidSubmit()
-    {
-        await SaveChanges();
-    }
-    
-    private async Task SaveChanges()
     {
         await CategoryService.CreateCategory(category);
         await Hide();

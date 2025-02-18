@@ -37,13 +37,13 @@
     background-color: #45a049;
 }
 
-.btn-remove {
+.btn-delete {
     margin: 5px;
     background-color: #f44336;
     color: white;
 }
 
-.btn-remove:hover {
+.btn-delete:hover {
     background-color: #e53935;
 }
 
