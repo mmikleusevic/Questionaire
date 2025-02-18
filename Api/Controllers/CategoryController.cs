@@ -46,14 +46,14 @@ public class CategoryController(ICategoryService categoryService,
     }
 
     [HttpPost]
-    public async Task<ActionResult<CategoryDto>> CreateCategory([FromBody] Category? newCategory)
+    public async Task<IActionResult> CreateCategory([FromBody] Category? newCategory)
     {
         if (newCategory == null) return BadRequest("Category data cannot be null.");
 
         try
         {
             await categoryService.CreateCategoryAsync(newCategory);
-            return CreatedAtAction(nameof(GetCategoryById), new { newCategory = newCategory.Id }, newCategory);
+            return Created();
         }
         catch (Exception ex)
         {

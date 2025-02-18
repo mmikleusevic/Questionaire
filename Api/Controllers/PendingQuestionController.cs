@@ -68,7 +68,7 @@ public class PendingQuestionController(IPendingQuestionService pendingQuestionSe
         try
         {
             await pendingQuestionService.CreatePendingQuestion(pendingQuestion);
-            return CreatedAtAction(nameof(GetPendingQuestionById), new { id = pendingQuestion.Id }, pendingQuestion);
+            return Created();
         }
         catch (Exception ex)
         {

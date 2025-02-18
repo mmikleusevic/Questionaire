@@ -1,19 +1,20 @@
 ﻿@inherits LayoutComponentBase
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu/>
-    </div>
+<div class="bb-page">
+
+    <Sidebar2 Href="/"
+              IconName="IconName.Question"
+              Title="Questionaire"
+              DataProvider="Sidebar2DataProvider"/>
 
     <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
+        <div class="bb-top-row px-4 d-flex justify-content-end"></div>
 
         <article class="content px-4">
-            @Body
+            <div class="py-2">@Body</div>
         </article>
     </main>
+
 </div>
 
 <div id="blazor-error-ui" data-nosnippet>
@@ -21,3 +22,24 @@
     <a href="." class="reload">Reload</a>
     <span class="dismiss">🗙</span>
 </div>
+
+@code {
+    IEnumerable<NavItem>? navItems;
+
+    private async Task<Sidebar2DataProviderResult> Sidebar2DataProvider(Sidebar2DataProviderRequest request)
+    {
+        if (navItems is null) navItems = GetNavItems();
+
+        return await Task.FromResult(request.ApplyTo(navItems));
+    }
+
+    private IEnumerable<NavItem> GetNavItems()
+    {
+        navItems = new List<NavItem>
+        {
+            new NavItem { Id = "1", Href = "/", IconName = IconName.HouseDoorFill, Text = "Categories"},
+        };
+
+        return navItems;
+    }
+}

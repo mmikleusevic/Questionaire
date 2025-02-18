@@ -1,5 +1,4 @@
-using Blazored.Modal;
-using Blazored.Toast;
+using Microsoft.AspNetCore.Components;
 using Web.Components;
 using Web.Interfaces;
 using Web.Models;
@@ -10,10 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 ApiSettings? apiSettings = builder.Configuration.GetSection("ApiSettings").Get<ApiSettings>();
 
 builder.Services.AddLogging();
-builder.Services.AddBlazoredModal();
-builder.Services.AddBlazoredToast();
-
-builder.Services.AddSingleton(apiSettings);
+builder.Services.AddBlazorBootstrap();
 
 builder.Services.AddScoped(sp => new HttpClient { 
     BaseAddress = new Uri(apiSettings.BaseUrl)

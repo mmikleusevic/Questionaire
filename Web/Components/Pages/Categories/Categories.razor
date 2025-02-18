@@ -1,12 +1,13 @@
-@page "/categories"
+@page "/"
 @using Web.Models
+
+<Modal @ref="modal" UseStaticBackdrop="true" CloseOnEscape="true" IsVerticallyCentered="true" Size="ModalSize.Large"/>
 
 <PageTitle>Categories</PageTitle>
 <div class="categories-header">
     <h3>Categories</h3>
-    <button type="submit" class="btn btn-create" @onclick="CreateCategory">Create</button>
+    <button class="btn btn-create" @onclick="OpenCreateCategoryModal">Create</button>
 </div>
-
 
 @if (categories == null)
 {

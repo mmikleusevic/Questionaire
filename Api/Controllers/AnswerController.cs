@@ -46,14 +46,14 @@ public class AnswerController(IAnswerService answerService,
     }
 
     [HttpPost]
-    public async Task<ActionResult<Answer>> CreateAnswer(Answer? newAnswer)
+    public async Task<IActionResult> CreateAnswer(Answer? newAnswer)
     {
         if (newAnswer == null) return BadRequest("Answer data cannot be null.");
 
         try
         {
             await answerService.CreateAnswerAsync(newAnswer);
-            return CreatedAtAction(nameof(GetAnswerById), new { id = newAnswer.Id }, newAnswer);
+            return Created();
         }
         catch (Exception ex)
         {

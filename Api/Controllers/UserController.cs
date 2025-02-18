@@ -51,7 +51,7 @@ public class UserController(IUserService userService,
             try
             {
                 await userService.CreateUserAsync(user);
-                return CreatedAtAction(nameof(GetUser), new { userId = user.Id }, user);
+                return Created();
             }
             catch (Exception ex)
             {

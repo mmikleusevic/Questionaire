@@ -66,14 +66,14 @@ public class QuestionController(IQuestionService questionService,
     }
 
     [HttpPost]
-    public async Task<ActionResult<QuestionDto>> CreateQuestion([FromBody] Question? newQuestion)
+    public async Task<IActionResult> CreateQuestion([FromBody] Question? newQuestion)
     {
         if (newQuestion == null) return BadRequest("Question data cannot be null.");
 
         try
         {
             await questionService.CreateQuestionAsync(newQuestion);
-            return CreatedAtAction(nameof(GetQuestionById), new { id = newQuestion.Id }, newQuestion);
+            return Created();
         }
         catch (Exception ex)
         {
