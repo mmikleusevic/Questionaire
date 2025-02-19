@@ -1,0 +1,134 @@
+.modal {
+    background-color: rgba(0, 0, 0, 0.5);
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    border: none;
+}
+
+.modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    padding: 1rem 1.5rem;
+}
+
+.modal-title {
+    font-weight: 600;
+    color: #495057;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.form-container {
+    max-width: 100%;
+}
+
+.form-label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: #495057;
+}
+
+.form-control:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.modal-footer {
+    background-color: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #0069d9;
+    border-color: #0062cc;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+}
+
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+.validation-message {
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+@media (max-width: 576px) {
+    .modal-dialog {
+        margin: 0.5rem;
+        max-width: calc(100% - 1rem);
+    }
+
+    .modal-body {
+        padding: 1rem;
+    }
+
+    .modal-footer {
+        padding: 0.75rem 1rem;
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+        margin: 0.25rem 0;
+    }
+}
+
+.valid.modified:not([type=checkbox]) {
+    outline: 1px solid #26b050;
+}
+
+.invalid {
+    outline: 1px solid red;
+}
+
+.validation-message {
+    color: red;
+}
+
+.category-name,
+.parent-category-dropdown
+{
+    display: flex;
+    align-items: center;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: end;
+}

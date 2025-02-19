@@ -17,7 +17,7 @@ public class UserQuestionHistoryService(QuestionaireDbContext context) : IUserQu
         }
         catch (Exception ex)
         {
-            throw new ApplicationException($"An error occurred while resetting question history for user with ID {userId}.", ex);
+            throw new InvalidOperationException($"An error occurred while resetting question history for user with ID {userId}.", ex);
         }
     }
 
@@ -36,7 +36,7 @@ public class UserQuestionHistoryService(QuestionaireDbContext context) : IUserQu
         }
         catch (Exception ex)
         {
-            throw new ApplicationException($"An error occurred while creating question history for user with ID {userId}.", ex);
+            throw new InvalidOperationException($"An error occurred while creating question history for user with ID {userId}.", ex);
         }
     }
 }

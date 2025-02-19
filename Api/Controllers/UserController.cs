@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using QuestionaireApi.Interfaces;
 using QuestionaireApi.Models.Database;
+using QuestionaireApi.Models.Dto;
 
 namespace QuestionaireApi.Controllers;
 
@@ -15,42 +16,42 @@ public class UserController(IUserService userService,
             try
             {
                 List<User> users = await userService.GetUsersAsync();
-                if (users.Count == 0) return NotFound("No users found!");
+                if (users.Count == 0) return NotFound("No users found.");
                 return Ok(users);
             }
             catch (Exception ex)
             {
-                string message =  "An error occurred while retrieving the users";
+                string message =  "An error occurred while retrieving the users.";
                 logger.LogError(ex, message);
                 return StatusCode(500, message);
             }
         }
         
-        [HttpGet("{userId}")]
-        public async Task<IActionResult> GetUser(int userId)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetUser(int id)
         {
             try
             {
-                User? user = await userService.GetUserByIdAsync(userId);
-                if (user == null) return NotFound($"User with ID {userId} not found.");
+                UserDto? user = await userService.GetUserByIdAsync(id);
+                if (user == null) return NotFound($"User with ID {id} not found.");
                 return Ok(user);
             }
             catch (Exception ex)
             {
-                string message = $"An error occurred while retrieving the user with ID {userId}.";
+                string message = $"An error occurred while retrieving the user with ID {id}.";
                 logger.LogError(ex, message);
                 return StatusCode(500, message);
             }
         }
         
         [HttpPost]
-        public async Task<IActionResult> CreateUser([FromBody] User? user)
+        public async Task<IActionResult> CreateUser([FromBody] User? newUser)
         {
-            if (user == null) return BadRequest("User data cannot be null.");
+            if (newUser == null) return BadRequest("User data cannot be null.");
             
             try
             {
-                await userService.CreateUserAsync(user);
+                await userService.CreateUserAsync(newUser);
                 return Created();
             }
             catch (Exception ex)
@@ -61,38 +62,38 @@ public class UserController(IUserService userService,
             }
         }
         
-        [HttpPut("{userId}")]
-        public async Task<IActionResult> UpdateUser(int userId, [FromBody] User? updatedUser)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateUser(int id, [FromBody] User? updatedUser)
         {
             if (updatedUser == null) return BadRequest("Update user data cannot be null.");
             
             try
             {
-                bool success = await userService.UpdateUserAsync(userId, updatedUser);
-                if (!success) return NotFound();
-                return NoContent();
+                bool success = await userService.UpdateUserAsync(id, updatedUser);
+                if (!success) return NotFound($"User with ID {id} not found.");
+                return Ok($"User with ID {id} updated successfully.");
             }
             catch (Exception ex)
             {
-                string message = $"An error occurred while updating the user with ID {userId}.";
+                string message = $"An error occurred while updating the user with ID {id}.";
                 logger.LogError(ex, message);
                 return StatusCode(500, message);
             }
         }
         
-        [HttpDelete("{userId}")]
-        public async Task<IActionResult> DeleteUser(int userId)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteUser(int id)
         {
             try
             {
-                bool success = await userService.DeleteUserAsync(userId);
-                if (!success) return NotFound();
+                bool success = await userService.DeleteUserAsync(id);
+                if (!success) return NotFound($"User with ID {id} not found.");
                 
-                return NoContent();
+                return Ok($"User with ID {id} deleted successfully.");
             }
             catch (Exception ex)
             {
-                string message = $"An error occurred while deleting the user with ID {userId}.";
+                string message = $"An error occurred while deleting the user with ID {id}.";
                 logger.LogError(ex, message);
                 return StatusCode(500, message);
             }

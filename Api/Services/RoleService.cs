@@ -14,7 +14,7 @@ namespace QuestionaireApi.Services
             }
             catch (Exception ex)
             {
-                throw new ApplicationException("An error occurred while retrieving roles.", ex);
+                throw new InvalidOperationException("An error occurred while retrieving roles.", ex);
             }
         }
         
@@ -28,14 +28,12 @@ namespace QuestionaireApi.Services
             }
             catch (Exception ex)
             {
-                throw new ApplicationException($"An error occurred while retrieving role with ID {id}.", ex);
+                throw new InvalidOperationException($"An error occurred while retrieving role with ID {id}.", ex);
             }
         }
         
         public async Task CreateRoleAsync(Role role)
         {
-            if (role == null) throw new ArgumentNullException(nameof(role), "Role cannot be null.");
-
             try
             {
                 context.Roles.Add(role);
@@ -43,14 +41,12 @@ namespace QuestionaireApi.Services
             }
             catch (Exception ex)
             {
-                throw new ApplicationException("An error occurred while adding the new role.", ex);
+                throw new InvalidOperationException("An error occurred while adding the new role.", ex);
             }
         }
         
         public async Task<bool> UpdateRoleAsync(int id, Role updatedRole)
         {
-            if (updatedRole == null) throw new ArgumentNullException(nameof(updatedRole), "Updated role cannot be null.");
-
             try
             {
                 Role? existingRole = await context.Roles.FirstOrDefaultAsync(r => r.Id == id);
@@ -66,7 +62,7 @@ namespace QuestionaireApi.Services
             }
             catch (Exception ex)
             {
-                throw new ApplicationException($"An error occurred while updating the role with ID {id}.", ex);
+                throw new InvalidOperationException($"An error occurred while updating the role with ID {id}.", ex);
             }
         }
         
@@ -85,7 +81,7 @@ namespace QuestionaireApi.Services
             }
             catch (Exception ex)
             {
-                throw new ApplicationException($"An error occurred while deleting the role with ID {id}.", ex);
+                throw new InvalidOperationException($"An error occurred while deleting the role with ID {id}.", ex);
             }
         }
     }

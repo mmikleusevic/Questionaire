@@ -14,7 +14,7 @@ public class AnswerService(QuestionaireDbContext context) : IAnswerService
         }
         catch (Exception ex)
         {
-            throw new ApplicationException("An error occurred while retrieving answers.", ex);
+            throw new InvalidOperationException("An error occurred while retrieving answers.", ex);
         }
     }
 
@@ -26,14 +26,12 @@ public class AnswerService(QuestionaireDbContext context) : IAnswerService
         }
         catch (Exception ex)
         {
-            throw new ApplicationException("An error occurred while retrieving the answer by ID.", ex);
+            throw new InvalidOperationException("An error occurred while retrieving the answer by ID.", ex);
         }
     }
 
     public async Task CreateAnswerAsync(Answer answer)
     {
-        if (answer == null) throw new ArgumentNullException(nameof(answer), "Answer cannot be null.");
-
         try
         {
             context.Answers.Add(answer);
@@ -41,14 +39,12 @@ public class AnswerService(QuestionaireDbContext context) : IAnswerService
         }
         catch (Exception ex)
         {
-            throw new ApplicationException("An error occurred while creating the answer.", ex);
+            throw new InvalidOperationException("An error occurred while creating the answer.", ex);
         }
     }
 
     public async Task<bool> UpdateAnswerAsync(int id, Answer updatedAnswer)
     {
-        if (updatedAnswer == null) throw new ArgumentNullException(nameof(updatedAnswer), "Updated answer cannot be null.");
-
         try
         {
             Answer? answer = await context.Answers.FindAsync(id);
@@ -63,7 +59,7 @@ public class AnswerService(QuestionaireDbContext context) : IAnswerService
         }
         catch (Exception ex)
         {
-            throw new ApplicationException("An error occurred while updating the answer.", ex);
+            throw new InvalidOperationException("An error occurred while updating the answer.", ex);
         }
     }
 
@@ -81,7 +77,7 @@ public class AnswerService(QuestionaireDbContext context) : IAnswerService
         }
         catch (Exception ex)
         {
-            throw new ApplicationException("An error occurred while deleting the answer.", ex);
+            throw new InvalidOperationException("An error occurred while deleting the answer.", ex);
         }
     }
 }

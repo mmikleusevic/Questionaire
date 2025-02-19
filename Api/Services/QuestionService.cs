@@ -19,7 +19,7 @@ public class QuestionService(QuestionaireDbContext context,
         }
         catch (Exception ex)
         {
-            throw new ApplicationException("An error occurred while retrieving the list of questions.", ex);
+            throw new InvalidOperationException("An error occurred while retrieving the list of questions.", ex);
         }
     }
 
@@ -32,69 +32,90 @@ public class QuestionService(QuestionaireDbContext context,
         }
         catch (Exception ex)
         {
-            throw new ApplicationException($"An error occurred while retrieving the question with ID {id}.", ex);
+            throw new InvalidOperationException($"An error occurred while retrieving the question with ID {id}.", ex);
         }
     }
     
-    public async Task<List<QuestionDto>> GetRandomUniqueQuestions(GetRandomUniqueQuestionsRequest request)
+    public async Task<List<QuestionDto>> GetRandomUniqueQuestions(GetRandomUniqueQuestionsRequestDto requestDto)
     {
-        IQueryable<Question> baseQuery = context.Questions
-            .Include(q => q.Answers)
-            .Where(q => q.Answers.Count >= (request.IsSingleAnswerMode ? 1 : 3))
-            .Where(q => q.Answers.Any(a => a.IsCorrect))
-            .Where(q => q.QuestionCategories.Any(qc => request.CategoryIds.Contains(qc.CategoryId)))
-            .Where(q => !context.UserQuestionHistory.Any(h => h.UserId == request.UserId && h.QuestionId == q.Id));
-        
-        List<Question> questions = await FetchRandomQuestions(baseQuery, request.NumberOfQuestions, null);
-        
-        if (questions.Count < request.NumberOfQuestions)
+        try
         {
-            await userQuestionHistoryService.ResetUserQuestionHistory(request.UserId);
+            IQueryable<Question> baseQuery = context.Questions
+                .Include(q => q.Answers)
+                .Where(q => q.Answers.Count >= (requestDto.IsSingleAnswerMode ? 1 : 3))
+                .Where(q => q.Answers.Any(a => a.IsCorrect))
+                .Where(q => q.QuestionCategories.Any(qc => requestDto.CategoryIds.Contains(qc.CategoryId)))
+                .Where(q => !context.UserQuestionHistory.Any(h => h.UserId == requestDto.UserId && h.QuestionId == q.Id));
+        
+            List<Question> questions = await FetchRandomQuestions(baseQuery, requestDto.NumberOfQuestions, null);
+        
+            if (questions.Count < requestDto.NumberOfQuestions)
+            {
+                await userQuestionHistoryService.ResetUserQuestionHistory(requestDto.UserId);
 
-            int remainingQuestionsCount = request.NumberOfQuestions - questions.Count;
-            HashSet<int> idsToExclude = questions.Select(q => q.Id).ToHashSet();
-            List<Question> additionalQuestions = await FetchRandomQuestions(baseQuery, remainingQuestionsCount, idsToExclude);
+                int remainingQuestionsCount = requestDto.NumberOfQuestions - questions.Count;
+                HashSet<int> idsToExclude = questions.Select(q => q.Id).ToHashSet();
+                List<Question> additionalQuestions = await FetchRandomQuestions(baseQuery, remainingQuestionsCount, idsToExclude);
 
-            questions.AddRange(additionalQuestions);
+                questions.AddRange(additionalQuestions);
+            }
+        
+            await userQuestionHistoryService.CreateUserQuestionHistory(requestDto.UserId, questions);
+        
+            return MapQuestionsToDtos(questions, requestDto.IsSingleAnswerMode);
         }
-        
-        await userQuestionHistoryService.CreateUserQuestionHistory(request.UserId, questions);
-        
-        return MapQuestionsToDtos(questions, request.IsSingleAnswerMode);
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException($"An error occurred while retrieving the random questions.", ex);
+        }
     }
 
     private async Task<List<Question>> FetchRandomQuestions(IQueryable<Question> query, int count, HashSet<int>? excludeIds)
     {
-        if (excludeIds != null) query = query.Where(q => !excludeIds.Contains(q.Id));
+        try
+        {
+            if (excludeIds != null) query = query.Where(q => !excludeIds.Contains(q.Id));
 
-        return await query
-            .OrderBy(q => Guid.NewGuid())
-            .Take(count)
-            .ToListAsync();
+            return await query
+                .OrderBy(q => Guid.NewGuid())
+                .Take(count)
+                .ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException($"An error occurred while parsing random questions.", ex);
+        }
     }
 
     private List<QuestionDto> MapQuestionsToDtos(List<Question> questions, bool isSingleAnswerMode)
     {
-        Random random = new Random();
+        try
+        {
+            Random random = new Random();
 
-        return questions
-            .Select(q => new QuestionDto
-            {
-                Id = q.Id,
-                QuestionText = q.QuestionText,
-                Answers = q.Answers
-                    .OrderBy(a => a.IsCorrect ? 0 : 1) 
-                    .Take(isSingleAnswerMode ? 1 : 3) 
-                    .OrderBy(a => random.Next())
-                    .Select(a => new AnswerDto
-                    {
-                        Id = a.Id,
-                        AnswerText = a.AnswerText,
-                        IsCorrect = a.IsCorrect
-                    })
-                    .ToList()
-            })
-            .ToList();
+            return questions
+                .Select(q => new QuestionDto
+                {
+                    Id = q.Id,
+                    QuestionText = q.QuestionText,
+                    Answers = q.Answers
+                        .OrderBy(a => a.IsCorrect ? 0 : 1) 
+                        .Take(isSingleAnswerMode ? 1 : 3) 
+                        .OrderBy(a => random.Next())
+                        .Select(a => new AnswerDto
+                        {
+                            Id = a.Id,
+                            AnswerText = a.AnswerText,
+                            IsCorrect = a.IsCorrect
+                        })
+                        .ToList()
+                })
+                .ToList();
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException($"An error occurred while mapping random questions", ex);
+        }
     }
     
     public async Task CreateQuestionAsync(Question question)
@@ -124,7 +145,7 @@ public class QuestionService(QuestionaireDbContext context,
         }
         catch (Exception ex)
         {
-            throw new ApplicationException($"An error occurred while updating the question with ID {id}.", ex);
+            throw new InvalidOperationException($"An error occurred while updating the question with ID {id}.", ex);
         }
     }
 
@@ -142,7 +163,7 @@ public class QuestionService(QuestionaireDbContext context,
         }
         catch (Exception ex)
         {
-            throw new ApplicationException($"An error occurred while deleting the question with ID {id}.", ex);
+            throw new InvalidOperationException($"An error occurred while deleting the question with ID {id}.", ex);
         }
     }
 }

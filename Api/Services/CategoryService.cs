@@ -21,7 +21,7 @@ public class CategoryService(QuestionaireDbContext context) : ICategoryService
         }
         catch (Exception ex)
         {
-            throw new ApplicationException("An error occurred while retrieving categories.", ex);
+            throw new InvalidOperationException("An error occurred while retrieving categories.", ex);
         }
     }
 
@@ -33,7 +33,7 @@ public class CategoryService(QuestionaireDbContext context) : ICategoryService
         }
         catch (Exception ex)
         {
-            throw new ApplicationException($"An error occurred while retrieving the category with ID {id}.", ex);
+            throw new InvalidOperationException($"An error occurred while retrieving the category with ID {id}.", ex);
         }
     }
     
@@ -46,7 +46,7 @@ public class CategoryService(QuestionaireDbContext context) : ICategoryService
         }
         catch (Exception ex)
         {
-            throw new ApplicationException("An error occurred while creating the category.", ex);
+            throw new InvalidOperationException("An error occurred while creating the category.", ex);
         }
     }
 
@@ -59,6 +59,7 @@ public class CategoryService(QuestionaireDbContext context) : ICategoryService
             if (category == null) return false;
             
             category.CategoryName = updatedCategory.CategoryName;
+            category.ParentCategoryId = updatedCategory.ParentCategoryId;
             
             await context.SaveChangesAsync();
             
@@ -66,7 +67,7 @@ public class CategoryService(QuestionaireDbContext context) : ICategoryService
         }
         catch (Exception ex)
         {
-            throw new ApplicationException($"An error occurred while updating the category with ID {id}.", ex);
+            throw new InvalidOperationException($"An error occurred while updating the category with ID {id}.", ex);
         }
     }
 
@@ -84,7 +85,7 @@ public class CategoryService(QuestionaireDbContext context) : ICategoryService
         }
         catch (Exception ex)
         {
-            throw new ApplicationException($"An error occurred while deleting the category with ID {id}.", ex);
+            throw new InvalidOperationException($"An error occurred while deleting the category with ID {id}.", ex);
         }
     }
     
@@ -99,20 +100,27 @@ public class CategoryService(QuestionaireDbContext context) : ICategoryService
         }
         catch (Exception ex)
         {
-            throw new ApplicationException("An error occurred while sorting and mapping categories.", ex);
+            throw new InvalidOperationException("An error occurred while sorting and mapping categories.", ex);
         }
     }
 
     private static CategoryDto MapCategoriesToDto(Category category)
     {
-        return new CategoryDto
+        try
         {
-            Id = category.Id,
-            CategoryName = category.CategoryName,
-            ParentCategoryId = category.ParentCategoryId,
-            ChildCategories = category.ChildCategories
-                .Select(MapCategoriesToDto)
-                .ToList()
-        };
+            return new CategoryDto
+            {
+                Id = category.Id,
+                CategoryName = category.CategoryName,
+                ParentCategoryId = category.ParentCategoryId,
+                ChildCategories = category.ChildCategories
+                    .Select(MapCategoriesToDto)
+                    .ToList()
+            };
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException("An error occurred while mapping categories.", ex);
+        }
     }
 }

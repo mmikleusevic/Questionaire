@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using QuestionaireApi.Interfaces;
 using QuestionaireApi.Models.Database;
 using System;
+using QuestionaireApi.Models.Dto;
 
 namespace QuestionaireApi.Services;
 
@@ -17,21 +18,27 @@ public class UserService(QuestionaireDbContext context) : IUserService
         }
         catch (Exception ex)
         {
-            throw new ApplicationException("An error occurred while fetching users.", ex);
+            throw new InvalidOperationException("An error occurred while fetching users.", ex);
         }
     }
 
-    public async Task<User?> GetUserByIdAsync(int userId)
+    public async Task<UserDto?> GetUserByIdAsync(int id)
     {
         try
         {
             return await context.Users
                 .Include(u => u.Role)
-                .FirstOrDefaultAsync(u => u.Id == userId);
+                .Select(u => new UserDto
+                {
+                    Id = u.Id,
+                    Name = u.Name,
+                    RoleId = u.RoleId,
+                })
+                .FirstOrDefaultAsync(u => u.Id == id);
         }
         catch (Exception ex)
         {
-            throw new ApplicationException($"An error occurred while fetching the user with ID {userId}.", ex);
+            throw new InvalidOperationException($"An error occurred while fetching the user with ID {id}.", ex);
         }
     }
 
@@ -44,15 +51,15 @@ public class UserService(QuestionaireDbContext context) : IUserService
         }
         catch (Exception ex)
         {
-            throw new ApplicationException("An error occurred while creating the user.", ex);
+            throw new InvalidOperationException("An error occurred while creating the user.", ex);
         }
     }
 
-    public async Task<bool> UpdateUserAsync(int userId, User updatedUser)
+    public async Task<bool> UpdateUserAsync(int id, User updatedUser)
     {
         try
         {
-            User? user = await context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            User? user = await context.Users.FirstOrDefaultAsync(u => u.Id == id);
 
             if (user == null) return false;
 
@@ -66,15 +73,15 @@ public class UserService(QuestionaireDbContext context) : IUserService
         }
         catch (Exception ex)
         {
-            throw new ApplicationException($"An error occurred while updating the user with ID {userId}.", ex);
+            throw new InvalidOperationException($"An error occurred while updating the user with ID {id}.", ex);
         }
     }
 
-    public async Task<bool> DeleteUserAsync(int userId)
+    public async Task<bool> DeleteUserAsync(int id)
     {
         try
         {
-            User? user = await context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            User? user = await context.Users.FirstOrDefaultAsync(u => u.Id == id);
 
             if (user == null) return false;
 
@@ -85,7 +92,7 @@ public class UserService(QuestionaireDbContext context) : IUserService
         }
         catch (Exception ex)
         {
-            throw new ApplicationException($"An error occurred while deleting the user with ID {userId}.", ex);
+            throw new InvalidOperationException($"An error occurred while deleting the user with ID {id}.", ex);
         }
     }
 }

@@ -18,7 +18,7 @@ public class QuestionController(IQuestionService questionService,
         try
         {
             List<Question> questions = await questionService.GetQuestionsAsync();
-            if (questions.Count == 0) return NotFound("No questions found!");
+            if (questions.Count == 0) return NotFound("No questions found.");
             return Ok(questions);
         }
         catch (Exception ex)
@@ -47,7 +47,7 @@ public class QuestionController(IQuestionService questionService,
     }
 
     [HttpPost("random")]
-    public async Task<ActionResult<List<QuestionDto>>> GetRandomUniqueQuestions([FromBody] GetRandomUniqueQuestionsRequest? request)
+    public async Task<ActionResult<List<QuestionDto>>> GetRandomUniqueQuestions([FromBody] GetRandomUniqueQuestionsRequestDto? request)
     {
         if (request == null) return BadRequest("Get random unique questions data cannot be null.");
 
@@ -91,8 +91,8 @@ public class QuestionController(IQuestionService questionService,
         try
         {
             bool success = await questionService.UpdateQuestionAsync(id, updatedQuestion);
-            if (!success) return NotFound();
-            return NoContent();
+            if (!success) return NotFound($"Question with ID {id} not found.");
+            return Ok($"Question with ID {id} updated successfully.");
         }
         catch (Exception ex)
         {
@@ -108,8 +108,8 @@ public class QuestionController(IQuestionService questionService,
         try
         {
             bool success = await questionService.DeleteQuestionAsync(id);
-            if (!success) return NotFound();
-            return NoContent();
+            if (!success) return NotFound($"Question with ID {id} not found.");
+            return Ok($"Question with ID {id} deleted successfully.");
         }
         catch (Exception ex)
         {

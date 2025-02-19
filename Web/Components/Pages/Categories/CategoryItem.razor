@@ -11,7 +11,7 @@
         <ul class="child-categories">
             @foreach (var childCategory in Category.ChildCategories)
             {
-                <CategoryItem Category="childCategory" Modal="Modal" OnCategoryCreated="OnCategoryCreated" />
+                <CategoryItem Category="childCategory" Modal="Modal" OnCategoryCreated="OnCategoryCreated" FlatCategories="FlatCategories" />
             }
         </ul>
     }

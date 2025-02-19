@@ -71,8 +71,8 @@ public class CategoryController(ICategoryService categoryService,
         try
         {
             bool success = await categoryService.UpdateCategoryAsync(id, updatedCategory);
-            if (!success) return NotFound();
-            return NoContent();
+            if (!success) return NotFound($"Category with ID {id} not found.");
+            return Ok($"Category with ID {id} updated successfully.");
         }
         catch (Exception ex)
         {
@@ -88,8 +88,8 @@ public class CategoryController(ICategoryService categoryService,
         try
         {
             bool success = await categoryService.DeleteCategoryAsync(id);
-            if (!success) return NotFound();
-            return NoContent();
+            if (!success) return NotFound($"Category with ID {id} not found.");
+            return Ok($"Category with ID {id} deleted successfully.");
         }
         catch (Exception ex)
         {

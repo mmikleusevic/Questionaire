@@ -16,7 +16,7 @@ public class PendingQuestionController(IPendingQuestionService pendingQuestionSe
         try
         {
             List<PendingQuestion> pendingQuestions = await pendingQuestionService.GetPendingQuestionsAsync();
-            if (pendingQuestions.Count == 0) return NotFound("No pending questions found!");
+            if (pendingQuestions.Count == 0) return NotFound("No pending questions found.");
             return Ok(pendingQuestions);
         }
         catch (Exception ex)
@@ -27,47 +27,47 @@ public class PendingQuestionController(IPendingQuestionService pendingQuestionSe
         }
     }
     
-    [HttpGet("{pendingQuestionId}")]
-    public async Task<IActionResult> GetPendingQuestionById(int pendingQuestionId)
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetPendingQuestionById(int id)
     {
         try
         {
-            PendingQuestion? pendingQuestion = await pendingQuestionService.GetPendingQuestionAsync(pendingQuestionId);
-            if (pendingQuestion == null) return NotFound($"Question with ID {pendingQuestionId} not found.");
+            PendingQuestion? pendingQuestion = await pendingQuestionService.GetPendingQuestionAsync(id);
+            if (pendingQuestion == null) return NotFound($"Question with ID {id} not found.");
             return Ok(pendingQuestion);
         }
         catch (Exception ex)
         {
-            string message = $"An error occurred while retrieving the pending question with ID {pendingQuestionId}.";
+            string message = $"An error occurred while retrieving the pending question with ID {id}.";
             logger.LogError(ex, message);
             return StatusCode(500, message);
         }
     }
     
-    [HttpPost("{pendingQuestionId}")]
-    public async Task<ActionResult<List<PendingQuestion>>> ApproveQuestion(int pendingQuestionId)
+    [HttpPost("{id}")]
+    public async Task<ActionResult<List<PendingQuestion>>> ApproveQuestion(int id)
     {
         try
         {
-            await pendingQuestionService.ApproveQuestion(pendingQuestionId);
+            await pendingQuestionService.ApproveQuestion(id);
             return Ok(new { Message = "Question approved successfully." });
         }
         catch (Exception ex)
         {
-            string message = $"An error occurred while approving the pending question with ID {pendingQuestionId}.";
+            string message = $"An error occurred while approving the pending question with ID {id}.";
             logger.LogError(ex, message);
             return StatusCode(500, message);
         }
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreatePendingQuestion([FromBody] PendingQuestion? pendingQuestion)
+    public async Task<IActionResult> CreatePendingQuestion([FromBody] PendingQuestion? newPendingQuestion)
     {
-        if (pendingQuestion == null) return BadRequest("Pending question data cannot be null.");
+        if (newPendingQuestion == null) return BadRequest("Pending question data cannot be null.");
         
         try
         {
-            await pendingQuestionService.CreatePendingQuestion(pendingQuestion);
+            await pendingQuestionService.CreatePendingQuestion(newPendingQuestion);
             return Created();
         }
         catch (Exception ex)
@@ -78,37 +78,37 @@ public class PendingQuestionController(IPendingQuestionService pendingQuestionSe
         }
     }
 
-    [HttpPut("{pendingQuestionId}")]
-    public async Task<IActionResult> UpdatePendingQuestion(int pendingQuestionId, [FromBody] UpdatePendingQuestionRequestDto? updateRequest)
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdatePendingQuestion(int id, [FromBody] UpdatePendingQuestionRequestDto? updateRequest)
     {
         if (updateRequest == null) return BadRequest("Update pending question data cannot be null.");
         
         try
         {
-            bool success = await pendingQuestionService.UpdatePendingQuestion(pendingQuestionId, updateRequest);
-            if (!success) return NotFound();
-            return NoContent();
+            bool success = await pendingQuestionService.UpdatePendingQuestion(id, updateRequest);
+            if (!success) return NotFound($"Pending question with ID {id} not found.");
+            return Ok($"Pending question with ID {id} updated successfully.");
         }
         catch (Exception ex)
         {
-            string message = $"An error occurred while updating the pending question with ID {pendingQuestionId}.";
+            string message = $"An error occurred while updating the pending question with ID {id}.";
             logger.LogError(ex, message);
             return StatusCode(500, message);
         }
     }
     
-    [HttpDelete("{pendingQuestionId}")]
-    public async Task<IActionResult> DeletePendingQuestion(int pendingQuestionId)
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeletePendingQuestion(int id)
     {
         try
         {
-            bool success = await pendingQuestionService.DeletePendingQuestion(pendingQuestionId);
-            if (!success) return NotFound();
-            return NoContent();
+            bool success = await pendingQuestionService.DeletePendingQuestion(id);
+            if (!success) return NotFound($"Pending question with ID {id} not found.");
+            return Ok($"Pending question with ID {id} deleted successfully.");
         }
         catch (Exception ex)
         {
-            string message = $"An error occurred while deleting the pending question with ID {pendingQuestionId}.";
+            string message = $"An error occurred while deleting the pending question with ID {id}.";
             logger.LogError(ex, message);
             return StatusCode(500, message);
         }

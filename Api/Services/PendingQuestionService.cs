@@ -20,11 +20,11 @@ public class PendingQuestionService(QuestionaireDbContext context) : IPendingQue
         }
         catch (Exception ex)
         {
-            throw new ApplicationException("An error occurred while retrieving pending questions.", ex);
+            throw new InvalidOperationException("An error occurred while retrieving pending questions.", ex);
         }
     }
     
-    public async Task<PendingQuestion?> GetPendingQuestionAsync(int pendingQuestionId)
+    public async Task<PendingQuestion?> GetPendingQuestionAsync(int id)
     {
         try
         {
@@ -32,22 +32,22 @@ public class PendingQuestionService(QuestionaireDbContext context) : IPendingQue
                 .Include(q => q.Answers)
                 .Include(q => q.PendingQuestionCategories)
                 .ThenInclude(q => q.Category)
-                .FirstOrDefaultAsync(q => q.Id == pendingQuestionId);
+                .FirstOrDefaultAsync(q => q.Id == id);
         }
         catch (Exception ex)
         {
-            throw new ApplicationException($"An error occurred while retrieving the pending question with ID {pendingQuestionId}.", ex);
+            throw new InvalidOperationException($"An error occurred while retrieving the pending question with ID {id}.", ex);
         }
     }
     
-    public async Task ApproveQuestion(int pendingQuestionId)
+    public async Task ApproveQuestion(int id)
     {
         try
         {
             PendingQuestion? pendingQuestion = await context.PendingQuestions
                 .Include(q => q.Answers)
                 .Include(q => q.PendingQuestionCategories)
-                .FirstOrDefaultAsync(q => q.Id == pendingQuestionId);
+                .FirstOrDefaultAsync(q => q.Id == id);
 
             if (pendingQuestion == null) throw new InvalidOperationException("Pending question not found.");
             
@@ -88,38 +88,38 @@ public class PendingQuestionService(QuestionaireDbContext context) : IPendingQue
         }
         catch (Exception ex)
         {
-            throw new ApplicationException("An error occurred while approving the question.", ex);
+            throw new InvalidOperationException("An error occurred while approving the question.", ex);
         }
     }
     
-    public async Task CreatePendingQuestion(PendingQuestion pendingQuestion)
+    public async Task CreatePendingQuestion(PendingQuestion updatedPendingQuestion)
     {
         try
         {
-            if (pendingQuestion.Answers.Count != 3 || 
-                !pendingQuestion.Answers.Any(a => a.IsCorrect) || 
-                pendingQuestion.PendingQuestionCategories.Count == 0)
+            if (updatedPendingQuestion.Answers.Count != 3 || 
+                !updatedPendingQuestion.Answers.Any(a => a.IsCorrect) || 
+                updatedPendingQuestion.PendingQuestionCategories.Count == 0)
             {
                 throw new InvalidOperationException("Invalid question: must have exactly 3 answers, 1 correct answer and at least one category.");
             }
             
-            context.PendingQuestions.Add(pendingQuestion);
+            context.PendingQuestions.Add(updatedPendingQuestion);
             await context.SaveChangesAsync();
         }
         catch (Exception ex)
         {
-            throw new ApplicationException("An error occurred while creating the pending question.", ex);
+            throw new InvalidOperationException("An error occurred while creating the pending question.", ex);
         }
     }
     
-    public async Task<bool> UpdatePendingQuestion(int pendingQuestionId, UpdatePendingQuestionRequestDto updateRequest)
+    public async Task<bool> UpdatePendingQuestion(int id, UpdatePendingQuestionRequestDto updateRequest)
     {
         try
         {
             PendingQuestion? pendingQuestion = await context.PendingQuestions
                 .Include(q => q.Answers)
                 .Include(q => q.PendingQuestionCategories)
-                .FirstOrDefaultAsync(q => q.Id == pendingQuestionId);
+                .FirstOrDefaultAsync(q => q.Id == id);
 
             if (pendingQuestion == null) return false;
             
@@ -161,18 +161,18 @@ public class PendingQuestionService(QuestionaireDbContext context) : IPendingQue
         }
         catch (Exception ex)
         {
-            throw new ApplicationException($"An error occurred while updating the pending question with ID {pendingQuestionId}.", ex);
+            throw new InvalidOperationException($"An error occurred while updating the pending question with ID {id}.", ex);
         }
     }
     
-    public async Task<bool> DeletePendingQuestion(int pendingQuestionId)
+    public async Task<bool> DeletePendingQuestion(int id)
     {
         try
         {
             PendingQuestion? pendingQuestion = await context.PendingQuestions
                 .Include(q => q.Answers)
                 .Include(q => q.PendingQuestionCategories)
-                .FirstOrDefaultAsync(q => q.Id == pendingQuestionId);
+                .FirstOrDefaultAsync(q => q.Id == id);
             
             if (pendingQuestion == null) return false;
             
@@ -186,7 +186,7 @@ public class PendingQuestionService(QuestionaireDbContext context) : IPendingQue
         }
         catch (Exception ex)
         {
-            throw new ApplicationException("An error occurred while deleting the pending question.", ex);
+            throw new InvalidOperationException("An error occurred while deleting the pending question.", ex);
         }
     }
 }

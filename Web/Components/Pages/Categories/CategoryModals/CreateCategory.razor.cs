@@ -7,18 +7,26 @@ namespace Web.Components.Pages.Categories.CategoryModals;
 
 public partial class CreateCategory : ComponentBase
 {
-    private Category category = new Category();
-    private Category selectedParentCategory;
-    
     [Inject] private ICategoryService? CategoryService { get; set; }
     [Parameter] public List<Category>? FlatCategories { get; set; }
     [Parameter] public Modal Modal { get; set; }
     [Parameter] public EventCallback OnCategoryCreated { get; set; }
 
-    private void SelectCategory(Category selectedCategory)
+    private Category category = new Category();
+    private Category selectedParentCategory;
+    
+    private void SelectParentCategory(Category? selectedCategory)
     {
         selectedParentCategory = selectedCategory;
-        category.ParentCategoryId = selectedCategory.Id;
+
+        if (selectedCategory == null)
+        {
+            category.ParentCategoryId = null;
+        }
+        else
+        {
+            category.ParentCategoryId = selectedCategory.Id;
+        }
     }
     
     public async Task HandleValidSubmit()
@@ -30,6 +38,7 @@ public partial class CreateCategory : ComponentBase
 
     private async Task Hide()
     {
+        selectedParentCategory = null;
         await Modal.HideAsync();
     }
 }

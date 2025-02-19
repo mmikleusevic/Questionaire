@@ -1,6 +1,6 @@
 namespace QuestionaireApi.Models;
 
-public class GetRandomUniqueQuestionsRequest
+public class GetRandomUniqueQuestionsRequestDto
 {
     public string UserId { get; set; }
     public int NumberOfQuestions { get; set; }

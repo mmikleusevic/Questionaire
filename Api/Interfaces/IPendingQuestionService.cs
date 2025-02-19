@@ -6,10 +6,10 @@ namespace QuestionaireApi.Interfaces;
 public interface IPendingQuestionService
 {
     Task<List<PendingQuestion>> GetPendingQuestionsAsync();
-    Task<PendingQuestion?> GetPendingQuestionAsync(int pendingQuestionId);
-    Task ApproveQuestion(int pendingQuestionId);
-    Task CreatePendingQuestion(PendingQuestion pendingQuestion);
-    Task<bool> DeletePendingQuestion(int pendingQuestionId);
-    Task<bool> UpdatePendingQuestion(int pendingQuestionId, UpdatePendingQuestionRequestDto updateRequest);
+    Task<PendingQuestion?> GetPendingQuestionAsync(int id);
+    Task ApproveQuestion(int id);
+    Task CreatePendingQuestion(PendingQuestion updatedPendingQuestion);
+    Task<bool> DeletePendingQuestion(int id);
+    Task<bool> UpdatePendingQuestion(int id, UpdatePendingQuestionRequestDto updateRequest);
 
 }

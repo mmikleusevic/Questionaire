@@ -60,10 +60,15 @@ public class CategoryService(HttpClient httpClient, ILogger<CategoryService> log
         try
         {
             string? jsonContent = JsonConvert.SerializeObject(category);
-        
             StringContent? content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+            
             HttpResponseMessage? response = await httpClient.PostAsync("api/Category", content);
             string responseResult = await response.Content.ReadAsStringAsync();
+
+            if (string.IsNullOrEmpty(responseResult))
+            {
+                responseResult = "Category created successfully";
+            }
             
             Console.WriteLine(responseResult);
 
@@ -75,14 +80,14 @@ public class CategoryService(HttpClient httpClient, ILogger<CategoryService> log
         }
     }
     
-    public async Task UpdateCategory(Category category, int id)
+    public async Task UpdateCategory(Category category)
     {
         try
         {
             string? jsonContent = JsonConvert.SerializeObject(category);
-        
             StringContent? content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-            HttpResponseMessage? response = await httpClient.PostAsync($"api/Category{id}", content);
+            
+            HttpResponseMessage? response = await httpClient.PutAsync($"api/Category/{category.Id}", content);
             string responseResult = await response.Content.ReadAsStringAsync();
             
             Console.WriteLine(responseResult);
