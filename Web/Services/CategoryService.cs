@@ -22,13 +22,11 @@ public class CategoryService(HttpClient httpClient,
                 string? responseData = await response.Content.ReadAsStringAsync();
                 List<Category>? categories = JsonConvert.DeserializeObject<List<Category>>(responseData);
 
-                if (categories != null){ return categories;}
+                return categories ?? new List<Category>();
             }
-            else
-            {
-                string? responseResult = await response.Content.ReadAsStringAsync();
-                Helper.ShowToast(toastService, response.StatusCode, responseResult ,responseResult);
-            }
+            
+            string? responseResult = await response.Content.ReadAsStringAsync();
+            Helper.ShowToast(toastService, response.StatusCode, responseResult ,responseResult);
         }
         catch (Exception ex)
         {
@@ -50,14 +48,11 @@ public class CategoryService(HttpClient httpClient,
                 string responseStream = await response.Content.ReadAsStringAsync();
                 Category? result = JsonConvert.DeserializeObject<Category>(responseStream);
 
-                if (result != null) return result;
+                return result ?? new Category();
             }
-            else
-            {
-                string? responseResult = await response.Content.ReadAsStringAsync();
-                Helper.ShowToast(toastService, response.StatusCode, responseResult ,responseResult);
-            }
-
+            
+            string? responseResult = await response.Content.ReadAsStringAsync();
+            Helper.ShowToast(toastService, response.StatusCode, responseResult ,responseResult);
         }
         catch (Exception ex)
         {
@@ -78,7 +73,7 @@ public class CategoryService(HttpClient httpClient,
             HttpResponseMessage? response = await httpClient.PostAsync("api/Category", content);
             string responseResult = await response.Content.ReadAsStringAsync();
 
-            if (string.IsNullOrEmpty(responseResult)) responseResult = "Category created successfully";
+            if (response.StatusCode == HttpStatusCode.Created) responseResult = "Category created successfully";
             
             Helper.ShowToast(toastService, response.StatusCode, responseResult ,responseResult);
         }
