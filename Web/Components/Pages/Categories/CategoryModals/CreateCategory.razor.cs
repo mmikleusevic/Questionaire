@@ -9,11 +9,19 @@ public partial class CreateCategory : ComponentBase
 {
     [Inject] private ICategoryService? CategoryService { get; set; }
     [Parameter] public List<Category>? FlatCategories { get; set; }
-    [Parameter] public Modal Modal { get; set; }
+    [Parameter] public Modal? Modal { get; set; }
     [Parameter] public EventCallback OnCategoryCreated { get; set; }
 
-    private Category category = new Category();
-    private Category selectedParentCategory;
+    private readonly Category category = new Category();
+    private Category? selectedParentCategory;
+    
+    protected override async Task OnParametersSetAsync()
+    {
+        category.CategoryName = string.Empty;
+        selectedParentCategory = null;
+        
+        await base.OnParametersSetAsync();
+    }
     
     private void SelectParentCategory(Category? selectedCategory)
     {
@@ -31,14 +39,17 @@ public partial class CreateCategory : ComponentBase
     
     public async Task HandleValidSubmit()
     {
+        if (CategoryService == null) return;
+        
         await CategoryService.CreateCategory(category);
-        await Hide();
         await OnCategoryCreated.InvokeAsync();
+        await Hide();
     }
 
     private async Task Hide()
     {
-        selectedParentCategory = null;
+        if (Modal == null) return;
+        
         await Modal.HideAsync();
     }
 }

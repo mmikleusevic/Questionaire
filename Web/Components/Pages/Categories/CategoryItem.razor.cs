@@ -7,13 +7,15 @@ namespace Web.Components.Pages.Categories;
 
 public partial class CategoryItem : ComponentBase
 {
-    [Parameter] public Category Category { get; set; }
-    [Parameter] public Modal Modal { get; set; }
+    [Parameter] public Category? Category { get; set; }
+    [Parameter] public Modal? Modal { get; set; }
     [Parameter] public EventCallback<Category> OnCategoryCreated { get; set; }
-    [Parameter] public List<Category> FlatCategories { get; set; }
+    [Parameter] public List<Category>? FlatCategories { get; set; }
     
     private async Task UpdateCategory()
     {
+        if (Modal == null || FlatCategories == null || Category == null) return;
+        
         Dictionary<string, object> parameters = new Dictionary<string, object>
         {
             { "Modal", Modal },
@@ -27,6 +29,8 @@ public partial class CategoryItem : ComponentBase
 
     private async Task DeleteCategory()
     {
+        if (Modal == null || Category == null) return;
+        
         Dictionary<string, object> parameters = new Dictionary<string, object>
         {
             { "Modal", Modal },

@@ -8,7 +8,7 @@ namespace Web.Models;
 public class Category
 {
     [JsonProperty] 
-    public int Id { get; set; }
+    public int Id { get; private set; }
     [JsonProperty] 
     [Required(ErrorMessage = "Category Name is required")]
     [StringLength(100, ErrorMessage = "Category Name must be between 1 and 100 characters", MinimumLength = 1)]

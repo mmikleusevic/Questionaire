@@ -11,10 +11,10 @@ public partial class Categories : ComponentBase
 {
     [Inject] private ICategoryService? CategoryService { get; set; }
 
-    private EventCallback onCategoryUpdated => EventCallback.Factory.Create(this, GetCategories);
-    private Modal modal = default!;
+    private EventCallback OnCategoryUpdated => EventCallback.Factory.Create(this, GetCategories);
+    private Modal modal = null!;
     private List<Category>? categories;
-    private List<Category> flatCategories;
+    private List<Category>? flatCategories;
     
     protected override async Task OnInitializedAsync()
     {
@@ -23,6 +23,8 @@ public partial class Categories : ComponentBase
     
     private async Task OpenCreateCategoryModal()
     {
+        if (flatCategories == null) return;
+        
         Dictionary<string, object> parameters = new Dictionary<string, object>
         {
             { "FlatCategories", flatCategories },
@@ -35,14 +37,18 @@ public partial class Categories : ComponentBase
 
     private async Task GetCategories()
     {
+        if (CategoryService == null) return;
+        
         categories = await CategoryService.GetCategories();
 
         if (categories != null) flatCategories = GetFlatCategories(categories);
     }
 
-    private List<Category> GetFlatCategories(List<Category> categories)
+    private List<Category> GetFlatCategories(List<Category>? parentCategories)
     {
-        return categories.SelectMany(c => new[] { c }
+        if (parentCategories == null) return new List<Category>();
+        
+        return parentCategories.SelectMany(c => new[] { c }
             .Concat(GetFlatCategories(c.ChildCategories ?? new List<Category>()))).ToList();
     }
 }
