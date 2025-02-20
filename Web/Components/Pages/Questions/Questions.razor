@@ -1,0 +1,43 @@
+@page "/questions"
+
+<PageTitle>Questions</PageTitle>
+<div>
+    <div>
+        <h3>Questions</h3>
+        <button class="btn btn-create" @onclick="ShowCreateQuestion">Create</button>
+    </div>
+</div>
+
+@if (questions == null)
+{
+    <p><em>Loading...</em></p>
+}
+else if (questions.Count == 0)
+{
+    <p>No questions found.</p>
+}
+else
+{
+    <div class="questions-container">
+        @foreach (var question in questions)
+        {
+            <div class="question-card">
+                <div class="question-header">
+                    <div class="question-text">@question.QuestionText</div>
+                </div>
+                <ul class="answers-list">
+                    @foreach (var answer in question.Answers)
+                    {
+                        <li class="@GetAnswerRowClass(answer.IsCorrect)">
+                            @answer.AnswerText
+                        </li>
+                    }
+                </ul>
+                <div class="actions">
+                    <button class="btn-update" @onclick="() => ShowUpdateQuestion(question.Id)">Update</button>
+                    <button class="btn-delete" @onclick="() => ShowDeleteQuestion(question.Id)">Delete</button>
+                </div>
+            </div>
+        }
+    </div>
+}

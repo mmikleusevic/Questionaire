@@ -63,11 +63,11 @@ public class CategoryService(HttpClient httpClient,
         return new Category();
     }
     
-    public async Task CreateCategory(Category category)
+    public async Task CreateCategory(Category newCategory)
     {
         try
         {
-            string? jsonContent = JsonConvert.SerializeObject(category);
+            string? jsonContent = JsonConvert.SerializeObject(newCategory);
             StringContent? content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
             
             HttpResponseMessage? response = await httpClient.PostAsync("api/Category", content);
@@ -84,14 +84,14 @@ public class CategoryService(HttpClient httpClient,
         }
     }
     
-    public async Task UpdateCategory(Category category)
+    public async Task UpdateCategory(Category updatedCategory)
     {
         try
         {
-            string? jsonContent = JsonConvert.SerializeObject(category);
+            string? jsonContent = JsonConvert.SerializeObject(updatedCategory);
             StringContent? content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
             
-            HttpResponseMessage? response = await httpClient.PutAsync($"api/Category/{category.Id}", content);
+            HttpResponseMessage? response = await httpClient.PutAsync($"api/Category/{updatedCategory.Id}", content);
             string responseResult = await response.Content.ReadAsStringAsync();
             
             Helper.ShowToast(toastService, response.StatusCode, responseResult ,responseResult);

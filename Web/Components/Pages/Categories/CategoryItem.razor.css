@@ -20,33 +20,6 @@
     font-weight: bold;
 }
 
-.btn {
-    padding: 5px 10px;
-    cursor: pointer;
-    font-size: 14px;
-    border-radius: 4px;
-}
-
-.btn-update {
-    margin: 5px;
-    background-color: #4CAF50;
-    color: white;
-}
-
-.btn-update:hover {
-    background-color: #45a049;
-}
-
-.btn-delete {
-    margin: 5px;
-    background-color: #f44336;
-    color: white;
-}
-
-.btn-delete:hover {
-    background-color: #e53935;
-}
-
 .category-content {
     border: 1px solid #ddd;
     display: flex;

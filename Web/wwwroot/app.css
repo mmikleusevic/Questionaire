@@ -6,12 +6,6 @@ a, .btn-link {
     color: #006bb7;
 }
 
-.btn-primary {
-    color: #fff;
-    background-color: #1b6ec2;
-    border-color: #1861ac;
-}
-
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
     box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
@@ -59,6 +53,58 @@ h1:focus {
     text-align: start;
 }
 
+.btn {
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 14px;
+    border-radius: 4px;
+    margin: 5px;
+}
+
+.btn-create {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btn-create:hover {
+    background-color: #0056b3;
+}
+
+.btn-create:active {
+    background-color: #004085;
+    transform: translateY(0);
+}
+
+button.btn-create {
+    margin-top: 15px;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.btn-update {
+    background-color: #00b808;
+    color: white;
+}
+
+.btn-update:hover {
+    background-color: #008c06;
+}
+
+.btn-delete {
+    background-color: #ba0012;
+    color: white;
+}
+
+.btn-delete:hover {
+    background-color: #87000b;
+}
+
 .btn, h3{
     font-weight: bold;
 }
@@ -66,4 +112,24 @@ h1:focus {
 .btn:hover {
     transform: translateY(-2px);
     transition: background-color 0.3s, transform 0.3s;
+    color:white;
+}
+
+.btn-delete, 
+.btn-update {
+    width: 100px;
+    min-width: 100px;
+    padding: 8px 0;
+    text-align: center;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    margin: 10px 0;
+    padding: 10px 0;
+    background-color: #f4f4f4;
+    border-radius: 5px 5px 0 0;
+    border: 1px solid #ddd;
 }

@@ -3,13 +3,13 @@
 <div class="bb-page">
 
     <Sidebar2 Href="/"
-              IconName="IconName.Question"
+              IconName="IconName.PatchQuestionFill"
               Title="Questionaire"
               DataProvider="Sidebar2DataProvider"/>
 
     <main>
         <div class="bb-top-row px-4 d-flex justify-content-end"></div>
-
+        
         <article class="content px-4">
             <div class="py-2">@Body</div>
         </article>
@@ -39,7 +39,8 @@
     {
         navItems = new List<NavItem>
         {
-            new NavItem { Id = "1", Href = "/", IconName = IconName.HouseDoorFill, Text = "Categories"},
+            new NavItem { Id = "1", Href = "/", IconName = IconName.FolderFill, Text = "Categories", IconColor = IconColor.Primary, Match=NavLinkMatch.All},
+            new NavItem { Id = "2", Href = "/Questions", IconName = IconName.QuestionCircleFill, Text = "Questions", IconColor = IconColor.Success}
         };
 
         return navItems;

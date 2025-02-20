@@ -12,7 +12,7 @@ public partial class CategoryItem : ComponentBase
     [Parameter] public EventCallback<Category> OnCategoryCreated { get; set; }
     [Parameter] public List<Category>? FlatCategories { get; set; }
     
-    private async Task UpdateCategory()
+    private async Task ShowUpdateCategory()
     {
         if (Modal == null || FlatCategories == null || Category == null) return;
         
@@ -27,7 +27,7 @@ public partial class CategoryItem : ComponentBase
         await Modal.ShowAsync<UpdateCategory>($"Update \"{Category.CategoryName}\" Category",  parameters: parameters);
     }
 
-    private async Task DeleteCategory()
+    private async Task ShowDeleteCategory()
     {
         if (Modal == null || Category == null) return;
         

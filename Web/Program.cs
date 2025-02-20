@@ -15,6 +15,7 @@ builder.Services.AddScoped(sp => new HttpClient {
     BaseAddress = new Uri(apiSettings.BaseUrl)
 });
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IQuestionService, QuestionService>();
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();

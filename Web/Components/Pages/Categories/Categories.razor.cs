@@ -21,7 +21,7 @@ public partial class Categories : ComponentBase
         await GetCategories();
     }
     
-    private async Task OpenCreateCategoryModal()
+    private async Task ShowCreateCategory()
     {
         if (flatCategories == null) return;
         
