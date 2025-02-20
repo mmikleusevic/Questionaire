@@ -128,7 +128,7 @@ button.btn-create {
     justify-content: space-between;
     font-weight: bold;
     margin: 10px 0;
-    padding: 10px 0;
+    padding: 10px;
     background-color: #f4f4f4;
     border-radius: 5px 5px 0 0;
     border: 1px solid #ddd;
