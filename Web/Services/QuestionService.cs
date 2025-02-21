@@ -11,18 +11,19 @@ public class QuestionService(HttpClient httpClient,
     ILogger<QuestionService> logger,
     ToastService toastService) : IQuestionService
 {
-    public async Task<List<Question>> GetQuestions()
+    public async Task<PaginatedResponse<Question>> GetQuestions(int currentPage, int pageSize)
     {
         try
         {
-            HttpResponseMessage? response = await httpClient.GetAsync("api/Question");
+            HttpResponseMessage? response = await httpClient.GetAsync(
+                $"api/Question?pageNumber={currentPage}&pageSize={pageSize}");
         
             if (response.IsSuccessStatusCode)
             {
                 string? responseData = await response.Content.ReadAsStringAsync();
-                List<Question>? questions = JsonConvert.DeserializeObject<List<Question>>(responseData);
+                PaginatedResponse<Question>? paginatedResponse = JsonConvert.DeserializeObject<PaginatedResponse<Question>>(responseData);
 
-                return questions ?? new List<Question>();
+                return paginatedResponse ?? new PaginatedResponse<Question>();
             }
             
             string? responseResult = await response.Content.ReadAsStringAsync();
@@ -34,7 +35,7 @@ public class QuestionService(HttpClient httpClient,
             logger.LogError(ex, "Error fetching questions");
         }
         
-        return new List<Question>();
+        return new PaginatedResponse<Question>();
     }
     
     public async Task<Question> GetQuestion(int id)

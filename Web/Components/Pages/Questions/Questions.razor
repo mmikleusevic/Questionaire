@@ -1,7 +1,10 @@
 @page "/questions"
+@inject IJSRuntime JS
+
+<Modal @ref="modal" UseStaticBackdrop="true" CloseOnEscape="true" IsVerticallyCentered="true" Size="ModalSize.Large"/>
 
 <PageTitle>Questions</PageTitle>
-<div>
+<div id="topElement">
     <div>
         <h3>Questions</h3>
         <button class="btn btn-create" @onclick="ShowCreateQuestion">Create</button>
@@ -42,5 +45,17 @@ else
                 </div>
             </div>
         }
+    </div>
+    
+    <div class="pagination-row">
+        <Pagination ActivePageNumber="currentPage"
+                    TotalPages="totalPages"
+                    DisplayPages="5"
+                    FirstLinkIcon="IconName.ChevronDoubleLeft"
+                    PreviousLinkIcon="IconName.ChevronLeft"
+                    NextLinkIcon="IconName.ChevronRight"
+                    LastLinkIcon="IconName.ChevronDoubleRight"
+                    PageChanged="OnPageChanged"
+                    Alignment="Alignment.Center"/>
     </div>
 }

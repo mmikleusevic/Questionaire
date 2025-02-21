@@ -1,4 +1,7 @@
+using BlazorBootstrap;
 using Microsoft.AspNetCore.Components;
+
+using Web.Components.Pages.Questions.QuestionModals;
 using Web.Interfaces;
 using Web.Models;
 
@@ -6,9 +9,13 @@ namespace Web.Components.Pages.Questions;
 
 public partial class Questions : ComponentBase
 {
+    private const int PageSize = 50;
     [Inject] private IQuestionService? QuestionService { get; set; }
     
+    private Modal modal = null!;
     private List<Question>? questions;
+    private int currentPage = 1;
+    private int totalPages = 1;
 
     protected override async Task OnInitializedAsync()
     {
@@ -19,18 +26,29 @@ public partial class Questions : ComponentBase
     {
         if (QuestionService == null) return;
         
-        questions = await QuestionService.GetQuestions();
-    }
-    
-    private void ShowCreateQuestion()
-    {
-        Console.WriteLine($"Create a question");
+        PaginatedResponse<Question> paginatedResponse = await QuestionService.GetQuestions(currentPage, PageSize);
+        questions = paginatedResponse.Items;
+        totalPages = paginatedResponse.TotalPages;
     }
 
-    private string GetAnswerRowClass(bool isCorrect)
+    private async Task OnPageChanged(int newPage)
     {
-        return isCorrect ? "correct-answer" : "incorrect-answer";
+        currentPage = newPage;
+        await GetQuestions();
     }
+    
+    private async Task ShowCreateQuestion()
+    {
+        Dictionary<string, object> parameters = new Dictionary<string, object>
+        {
+            { "Modal", modal },
+            { "OnQuestionCreated", EventCallback.Factory.Create(this, GetQuestions) }
+        };
+        
+        await modal.ShowAsync<CreateQuestion>(title: "Create New Question", parameters: parameters);
+    }
+
+    private string GetAnswerRowClass(bool isCorrect) => isCorrect ? "correct-answer" : "incorrect-answer";
 
     private void ShowUpdateQuestion(int id)
     {

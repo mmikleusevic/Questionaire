@@ -5,7 +5,7 @@ namespace QuestionaireApi.Interfaces;
 
 public interface IQuestionService
 {
-    Task<List<Question>> GetQuestionsAsync();
+    Task<PaginatedResponse<QuestionDto>> GetQuestionsAsync(int pageNumber, int pageSize);
     Task<Question?> GetQuestionByIdAsync(int id);
     Task<List<QuestionDto>> GetRandomUniqueQuestions(GetRandomUniqueQuestionsRequestDto requestDto);
     Task CreateQuestionAsync(Question question);

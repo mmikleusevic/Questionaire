@@ -10,12 +10,38 @@ namespace QuestionaireApi.Services;
 public class QuestionService(QuestionaireDbContext context, 
     IUserQuestionHistoryService userQuestionHistoryService) : IQuestionService
 {
-    public async Task<List<Question>> GetQuestionsAsync()
+    public async Task<PaginatedResponse<QuestionDto>> GetQuestionsAsync(int pageNumber, int pageSize)
     {
         try
         {
-            return await context.Questions.Include(a => a.Answers)
+            List<Question> questions = await context.Questions
+                .Include(a => a.Answers)
+                .OrderBy(q => q.Id)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
+            
+            int totalQuestions = await context.Questions.CountAsync();;
+
+            PaginatedResponse<QuestionDto> response = new PaginatedResponse<QuestionDto>
+            {
+                Items = questions.Select(q => new QuestionDto
+                {
+                    Id = q.Id,
+                    QuestionText = q.QuestionText,
+                    Answers = q.Answers.Select(a => new AnswerDto
+                    {
+                        Id = a.Id,
+                        AnswerText = a.AnswerText,
+                        IsCorrect = a.IsCorrect
+                    }).ToList()
+                }).ToList(),
+                TotalCount = totalQuestions,
+                PageSize = pageSize,
+                TotalPages = (int)Math.Ceiling((double)totalQuestions / pageSize)
+            };
+            
+            return response;
         }
         catch (Exception ex)
         {

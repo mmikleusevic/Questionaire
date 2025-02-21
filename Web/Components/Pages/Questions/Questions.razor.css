@@ -72,12 +72,14 @@
 }
 
 .answers-list span  {
-    width: 100%;
     padding: 8px 12px;
     border-radius: 4px;
     text-align: center;
     box-sizing: border-box;
     font-weight: bold;
+    display: inline-block;
+    width: 80%;
+    margin: 0 auto;
 }
 
 .correct-answer {
@@ -99,4 +101,8 @@
     justify-content: center;
     border-radius: 10px;
     background-color: rgba(1,1,1,0.05);
+}
+
+.pagination-row {
+    margin: 10px 0;
 }
