@@ -1,6 +1,5 @@
 using BlazorBootstrap;
 using Microsoft.AspNetCore.Components;
-
 using Web.Components.Pages.Questions.QuestionModals;
 using Web.Interfaces;
 using Web.Models;
@@ -35,8 +34,9 @@ public partial class Questions : ComponentBase
     {
         currentPage = newPage;
         await GetQuestions();
+        Navigation.NavigateTo(Navigation.Uri.Split('#')[0] + "#topElement", forceLoad: false);
     }
-    
+
     private async Task ShowCreateQuestion()
     {
         Dictionary<string, object> parameters = new Dictionary<string, object>
