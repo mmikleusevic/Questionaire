@@ -1,5 +1,6 @@
 using BlazorBootstrap;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Forms;
 using Web.Interfaces;
 using Web.Models;
 
@@ -14,11 +15,14 @@ public partial class CreateCategory : ComponentBase
 
     private readonly Category category = new Category();
     private Category? selectedParentCategory;
+    private EditContext? editContext;
     
     protected override async Task OnParametersSetAsync()
     {
         category.CategoryName = string.Empty;
         selectedParentCategory = null;
+        
+        editContext = new EditContext(category);
         
         await base.OnParametersSetAsync();
     }

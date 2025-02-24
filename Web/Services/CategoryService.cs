@@ -37,6 +37,32 @@ public class CategoryService(HttpClient httpClient,
         return new List<Category>();
     }
     
+    public async Task<List<Category>> GetFlatCategories()
+    {
+        try
+        {
+            HttpResponseMessage? response = await httpClient.GetAsync("api/Category/flat");
+        
+            if (response.IsSuccessStatusCode)
+            {
+                string? responseData = await response.Content.ReadAsStringAsync();
+                List<Category>? categories = JsonConvert.DeserializeObject<List<Category>>(responseData);
+
+                return categories ?? new List<Category>();
+            }
+            
+            string? responseResult = await response.Content.ReadAsStringAsync();
+            Helper.ShowToast(toastService, response.StatusCode, responseResult ,responseResult);
+        }
+        catch (Exception ex)
+        {
+            Helper.ShowToast(toastService, HttpStatusCode.InternalServerError, "Error fetching categories", ex.Message);
+            logger.LogError(ex, "Error fetching categories");
+        }
+        
+        return new List<Category>();
+    }
+    
     public async Task<Category> GetCategory(int id)
     {
         try

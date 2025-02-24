@@ -27,6 +27,23 @@ public class CategoryController(ICategoryService categoryService,
             return StatusCode(500, message);
         }
     }
+    
+    [HttpGet("flat")]
+    public async Task<ActionResult<List<CategoryDto>>> GetFlatCategories()
+    {
+        try
+        {
+            List<CategoryDto> categories = await categoryService.GetFlatCategoriesAsync();
+            if (categories.Count == 0) return NotFound("No categories found.");
+            return Ok(categories);
+        }
+        catch (Exception ex)
+        {
+            string message = "An error occurred while retrieving categories.";
+            logger.LogError(ex, message);
+            return StatusCode(500, message);
+        }
+    }
 
     [HttpGet("{id:int}")]
     public async Task<ActionResult<CategoryDto>> GetCategoryById(int id)

@@ -10,15 +10,18 @@ public partial class Questions : ComponentBase
 {
     private const int PageSize = 50;
     [Inject] private IQuestionService? QuestionService { get; set; }
+    [Inject] private ICategoryService? CategoryService { get; set; }
     
     private Modal modal = null!;
     private List<Question>? questions;
+    private List<Category>? flatCategories;
     private int currentPage = 1;
     private int totalPages = 1;
 
     protected override async Task OnInitializedAsync()
     {
         await GetQuestions();
+        await GetFlatCategories();
     }
 
     private async Task GetQuestions()
@@ -28,6 +31,13 @@ public partial class Questions : ComponentBase
         PaginatedResponse<Question> paginatedResponse = await QuestionService.GetQuestions(currentPage, PageSize);
         questions = paginatedResponse.Items;
         totalPages = paginatedResponse.TotalPages;
+    }
+    
+    private async Task GetFlatCategories()
+    {
+        if (CategoryService == null) return;
+        
+        flatCategories = await CategoryService.GetFlatCategories();
     }
 
     private async Task OnPageChanged(int newPage)
@@ -41,8 +51,9 @@ public partial class Questions : ComponentBase
     {
         Dictionary<string, object> parameters = new Dictionary<string, object>
         {
-            { "Modal", modal },
-            { "OnQuestionCreated", EventCallback.Factory.Create(this, GetQuestions) }
+            { "OnQuestionCreated", EventCallback.Factory.Create(this, GetQuestions) },
+            { "FlatCategories", flatCategories },
+            { "Modal", modal }
         };
         
         await modal.ShowAsync<CreateQuestion>(title: "Create New Question", parameters: parameters);

@@ -28,7 +28,10 @@ else
     <ul class="category-list">
         @foreach (Category category in categories)
         {
-            <CategoryItem Category="category" Modal="modal" OnCategoryCreated="OnCategoryUpdated" FlatCategories="flatCategories"/>
+            <CategoryItem Category="category" 
+                          Modal="modal" 
+                          OnCategoryCreated="OnCategoryUpdated" 
+                          FlatCategories="flatCategories"/>
         }
     </ul>
 }

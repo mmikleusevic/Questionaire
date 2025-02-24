@@ -73,7 +73,7 @@ public class QuestionController(IQuestionService questionService,
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateQuestion([FromBody] Question? newQuestion)
+    public async Task<IActionResult> CreateQuestion([FromBody] QuestionDto? newQuestion)
     {
         if (newQuestion == null) return BadRequest("Question data cannot be null.");
 

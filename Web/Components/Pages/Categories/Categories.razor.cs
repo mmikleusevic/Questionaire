@@ -19,6 +19,7 @@ public partial class Categories : ComponentBase
     protected override async Task OnInitializedAsync()
     {
         await GetCategories();
+        await GetFlatCategories();
     }
     
     private async Task ShowCreateCategory()
@@ -40,15 +41,12 @@ public partial class Categories : ComponentBase
         if (CategoryService == null) return;
         
         categories = await CategoryService.GetCategories();
-
-        if (categories != null) flatCategories = GetFlatCategories(categories);
     }
 
-    private List<Category> GetFlatCategories(List<Category>? parentCategories)
+    private async Task GetFlatCategories()
     {
-        if (parentCategories == null) return new List<Category>();
+        if (CategoryService == null) return;
         
-        return parentCategories.SelectMany(c => new[] { c }
-            .Concat(GetFlatCategories(c.ChildCategories ?? new List<Category>()))).ToList();
+        flatCategories = await CategoryService.GetFlatCategories();
     }
 }

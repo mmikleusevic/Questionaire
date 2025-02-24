@@ -13,5 +13,9 @@ public class Question
     [StringLength(500, ErrorMessage = "Question Text must be between 1 and 500 characters", MinimumLength = 1)]
     public string QuestionText { get; set; }
     [JsonProperty]
-    public List<Answer> Answers { get; set; }
+    [ValidateComplexType]
+    public List<Answer> Answers { get; set; } = new List<Answer>();
+    [JsonProperty]
+    [ValidateComplexType]
+    public List<Category> Categories { get; set; } = new List<Category>();
 }

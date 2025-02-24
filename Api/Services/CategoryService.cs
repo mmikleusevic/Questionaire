@@ -25,6 +25,29 @@ public class CategoryService(QuestionaireDbContext context) : ICategoryService
         }
     }
 
+    public async Task<List<CategoryDto>> GetFlatCategoriesAsync()
+    {
+        try
+        {
+            List<Category> categories = await context.Categories
+                .Include(c => c.ParentCategory)
+                .Include(c => c.ChildCategories)
+                .OrderBy(c => c.CategoryName)
+                .ToListAsync(); 
+            
+            List<CategoryDto> categoryDtos = SortAndMapCategories(categories);
+            
+            return categoryDtos
+                .SelectMany(c => new[] { c }
+                    .Concat(GetFlatCategories(c.ChildCategories ?? new List<CategoryDto>())))
+                .ToList();
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException("An error occurred while retrieving categories.", ex);
+        }
+    }
+    
     public async Task<Category?> GetCategoryByIdAsync(int id)
     {
         try
@@ -102,6 +125,12 @@ public class CategoryService(QuestionaireDbContext context) : ICategoryService
         {
             throw new InvalidOperationException("An error occurred while sorting and mapping categories.", ex);
         }
+    }
+    
+    private IEnumerable<CategoryDto> GetFlatCategories(List<CategoryDto> categories)
+    {
+        return categories.SelectMany(c => new[] { c }
+            .Concat(GetFlatCategories(c.ChildCategories ?? new List<CategoryDto>())));
     }
 
     private static CategoryDto MapCategoriesToDto(Category category)

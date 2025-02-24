@@ -1,7 +1,135 @@
+using BlazorBootstrap;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Forms;
+using Web.Interfaces;
+using Web.Models;
 
 namespace Web.Components.Pages.Questions.QuestionModals;
 
 public partial class CreateQuestion : ComponentBase
 {
+    [Inject] private IQuestionService? QuestionService { get; set; }
+    [Parameter] public EventCallback OnQuestionCreated { get; set; }
+    [Parameter] public List<Category> FlatCategories { get; set; }
+    [Parameter] public Modal? Modal { get; set; }
+    
+    private List<string> validationMessages = new List<string>();
+    private EditContext? editContext;
+    private readonly Question question = new Question();
+    private readonly List<Category> selectedCategories = new List<Category>();
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        SetAnswers();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+        
+        question.QuestionText = string.Empty;
+        
+        selectedCategories.Clear();
+        selectedCategories.Add(new Category());
+
+        if (question?.Answers == null || question.Answers.Count == 0)
+        {
+            SetAnswers();
+        }
+        else
+        {
+            foreach (Answer answer in question.Answers)
+            {
+                answer.AnswerText = string.Empty;
+                answer.IsCorrect = false;
+            }
+        }
+        
+        validationMessages.Clear();
+        
+        editContext = new EditContext(question);
+    }
+    
+    public async Task HandleValidSubmit()
+    {
+        if (QuestionService == null) return;
+        
+        List<string> errorMessages = new List<string>();
+        
+        int correctAnswers = question.Answers.Count(a => a.IsCorrect);
+        if (correctAnswers != 1)
+        {
+            errorMessages.Add("You have to mark exactly one answer as correct and 2 as incorrect!");
+        }
+
+        int numberOfCategories = selectedCategories.Select(a => a.Id).Count(a => a != 0);
+        if (numberOfCategories == 0)
+        {
+            errorMessages.Add("You have to add at least one category!");
+        }
+        
+        if (errorMessages.Any())
+        {
+            validationMessages = errorMessages;
+            return;
+        }
+        
+        question.Categories = selectedCategories;
+        await QuestionService.CreateQuestion(question);
+        await OnQuestionCreated.InvokeAsync();
+        await Hide();
+    }
+    
+    private void SetAnswers()
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            question?.Answers?.Add(new Answer { AnswerText = string.Empty });
+        }
+    }
+    
+    private void AddCategoryDropdown()
+    {
+        selectedCategories.Add(new Category());
+    }
+    
+    private void RemoveCategoryDropdown()
+    {
+        if (selectedCategories.Count > 1)
+        {
+            selectedCategories.RemoveAt(selectedCategories.Count - 1);
+        }
+    }
+    
+    private void SelectCategory(Category currentCategory, Category? newCategory)
+    {
+        if (newCategory == null)
+        {
+            Category categoryToRemove = selectedCategories.FirstOrDefault(c => c == currentCategory);
+            if (categoryToRemove != null)
+            {
+                selectedCategories.Remove(categoryToRemove);
+            }
+        }
+        else
+        {
+            int categoryIndex = selectedCategories.IndexOf(currentCategory);
+            if (categoryIndex >= 0)
+            {
+                selectedCategories[categoryIndex] = newCategory;
+            }
+            else
+            {
+                selectedCategories.Add(newCategory);
+            }
+        }
+    }
+    
+    private async Task Hide()
+    {
+        if (Modal == null) return;
+        
+        await Modal.HideAsync();
+    }
 }

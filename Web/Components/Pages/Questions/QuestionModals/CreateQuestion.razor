@@ -1,1 +1,97 @@
-<h3>CreateQuestion</h3>
+<EditForm OnValidSubmit="HandleValidSubmit" EditContext="editContext">
+    <ObjectGraphDataAnnotationsValidator />
+    <ValidationSummary class="alert alert-danger" />
+
+    @if (validationMessages.Any())
+    {
+        <div class="alert alert-danger" >
+            @foreach (var message in validationMessages)
+            {
+                <div>@message</div>
+            }
+        </div>
+    }
+
+    <div class="form-group row mb-3 question-text">
+        <div class="col-md-12">
+            <label class="col-md-3 col-form-label">Question Text:<span class="text-danger">*</span></label>
+            <div class="col-lg-12">
+                <TextAreaInput @bind-Value="@question.QuestionText"
+                               TextAlignment="Alignment.Center"
+                               Placeholder="Enter question text here"
+                               MaxLength="500"
+                               Rows="3"/>
+                <ValidationMessage For="@(() => question.QuestionText)" class="alert alert-danger"/>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <label class="col-form-label">Answers:<span class="text-danger">*</span></label>
+            <div class="row">
+                @foreach (var answer in question.Answers)
+                {
+                    <div class="col-md-10">
+                        <div class="input-group">
+                            <TextInput @bind-Value="answer.AnswerText"
+                                       Placeholder="Enter answer text"
+                                       MaxLength="100"/>
+                        </div>
+                        <ValidationMessage For="@(() => answer.AnswerText)" class="alert alert-danger"/>
+                    </div>
+                    <div class="col-md-2 dropdown-row">
+                        <Dropdown Class="flex-fill" Color="@(answer.IsCorrect ? DropdownColor.Success : DropdownColor.Danger)" >
+                            <DropdownToggleButton >
+                                @(answer.IsCorrect ? "Correct" : "Incorrect")
+                            </DropdownToggleButton>
+                            <DropdownMenu>
+                                <DropdownItem @onclick="@(() => answer.IsCorrect = false)">
+                                    Incorrect
+                                </DropdownItem>
+                                <DropdownItem @onclick="@(() => answer.IsCorrect = true)">
+                                    Correct
+                                </DropdownItem>
+                            </DropdownMenu>
+                        </Dropdown>
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="col-md-12">
+            <label class="col-form-label">Categories:<span class="text-danger">*</span></label>
+            <div class="categories">
+                @foreach (var selectedCategory in selectedCategories)
+                {
+                    <div>
+                        <Dropdown Color="DropdownColor.Secondary">
+                            <DropdownToggleButton>
+                                @(selectedCategory?.CategoryName ?? "None")
+                            </DropdownToggleButton>
+                            <DropdownMenu>
+                                <DropdownItem @onclick="() => SelectCategory(selectedCategory, null)">
+                                    None
+                                </DropdownItem>
+                                @foreach (var freeCategory in FlatCategories
+                                              .Where(a => !selectedCategories
+                                                  .Select(b => b.Id).Contains(a.Id)))
+                                {
+                                    <DropdownItem @onclick="() => SelectCategory(selectedCategory, freeCategory)">
+                                        @freeCategory.CategoryName
+                                    </DropdownItem>
+                                }
+                            </DropdownMenu>
+                        </Dropdown>
+                    </div>
+                }
+            </div>
+            <div class="col-md-12">
+                <Button Color="ButtonColor.Primary" @onclick="AddCategoryDropdown">+ Add Category</Button>
+                <Button Color="ButtonColor.Warning" Disabled="@(selectedCategories.Count <= 1)" @onclick="RemoveCategoryDropdown">- Remove Category</Button>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 text-right modal-buttons">
+            <Button Type="ButtonType.Submit" Color="ButtonColor.Primary" Class="float-end me-2">Submit</Button>
+            <Button Type="ButtonType.Button" Color="ButtonColor.Danger" Class="float-end" @onclick="Hide">Close</Button>
+        </div>
+    </div>
+</EditForm>

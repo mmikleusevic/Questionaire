@@ -1,17 +1,20 @@
 <li class="category-item">
     <div class="category-content">
-        <span class="category-name">@Category.CategoryName</span>
+        <span class="category-name">@Category?.CategoryName</span>
 
         <button class="btn btn-update" @onclick="ShowUpdateCategory">Update</button>
         <button class="btn btn-delete" @onclick="ShowDeleteCategory">Delete</button>
     </div>
     
-    @if (Category.ChildCategories?.Any() == true)
+    @if (Category?.ChildCategories?.Any() == true)
     {
         <ul class="child-categories">
             @foreach (var childCategory in Category.ChildCategories)
             {
-                <CategoryItem Category="childCategory" Modal="Modal" OnCategoryCreated="OnCategoryCreated" FlatCategories="FlatCategories" />
+                <CategoryItem Category="childCategory" 
+                              Modal="Modal" 
+                              OnCategoryCreated="OnCategoryCreated" 
+                              FlatCategories="FlatCategories" />
             }
         </ul>
     }
