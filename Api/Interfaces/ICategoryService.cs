@@ -5,10 +5,11 @@ namespace QuestionaireApi.Interfaces;
 
 public interface ICategoryService
 {
-    Task<List<CategoryDto>> GetCategoriesAsync();
-    Task<List<CategoryDto>> GetFlatCategoriesAsync();
-    Task<Category?> GetCategoryByIdAsync(int id);
-    Task CreateCategoryAsync(Category category);
-    Task<bool> UpdateCategoryAsync(int id, Category updatedCategory);
-    Task<bool> DeleteCategoryAsync(int id);
+    Task<CategoriesDto> GetCategories();
+    Task<List<CategoryDto>> GetNestedCategories();
+    Task<List<CategoryDto>> GetFlatCategories();
+    Task<Category?> GetCategoryById(int id);
+    Task CreateCategory(Category category);
+    Task<bool> UpdateCategory(int id, Category updatedCategory);
+    Task<bool> DeleteCategory(int id);
 }

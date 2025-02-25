@@ -5,9 +5,9 @@ namespace QuestionaireApi.Interfaces;
 
 public interface IUserService
 {
-    Task<List<User>> GetUsersAsync();
-    Task<UserDto?> GetUserByIdAsync(int id);
-    Task CreateUserAsync(User user);
-    Task<bool> UpdateUserAsync(int id, User updatedUser);
-    Task<bool> DeleteUserAsync(int id);
+    Task<List<User>> GetUsers();
+    Task<UserDto?> GetUserById(int id);
+    Task CreateUser(User user);
+    Task<bool> UpdateUser(int id, User updatedUser);
+    Task<bool> DeleteUser(int id);
 }

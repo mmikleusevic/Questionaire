@@ -5,9 +5,9 @@ namespace QuestionaireApi.Interfaces;
 
 public interface IAnswerService
 {
-    Task<List<Answer>> GetAnswersAsync();
-    Task<Answer?> GetAnswerByIdAsync(int id);
-    Task CreateAnswerAsync(Answer answer);
-    Task<bool> UpdateAnswerAsync(int id, Answer updatedAnswer);
-    Task<bool> DeleteAnswerAsync(int id);
+    Task<List<Answer>> GetAnswers();
+    Task<Answer?> GetAnswerById(int id);
+    Task CreateAnswer(Answer answer);
+    Task<bool> UpdateAnswer(int id, Answer updatedAnswer);
+    Task<bool> DeleteAnswer(int id);
 }

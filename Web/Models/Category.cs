@@ -16,5 +16,5 @@ public class Category
     [JsonProperty] 
     public int? ParentCategoryId { get; set; }
     [JsonProperty] 
-    public List<Category>? ChildCategories { get; set; } = new List<Category>();
+    public List<Category> ChildCategories { get; set; } = new List<Category>();
 }

@@ -8,7 +8,7 @@ namespace QuestionaireApi.Services;
 
 public class PendingQuestionService(QuestionaireDbContext context) : IPendingQuestionService
 {
-    public async Task<List<PendingQuestion>> GetPendingQuestionsAsync()
+    public async Task<List<PendingQuestion>> GetPendingQuestions()
     {
         try
         {
@@ -24,7 +24,7 @@ public class PendingQuestionService(QuestionaireDbContext context) : IPendingQue
         }
     }
     
-    public async Task<PendingQuestion?> GetPendingQuestionAsync(int id)
+    public async Task<PendingQuestion?> GetPendingQuestion(int id)
     {
         try
         {

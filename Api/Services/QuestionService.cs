@@ -11,7 +11,7 @@ namespace QuestionaireApi.Services;
 public class QuestionService(QuestionaireDbContext context, 
     IUserQuestionHistoryService userQuestionHistoryService) : IQuestionService
 {
-    public async Task<PaginatedResponse<QuestionDto>> GetQuestionsAsync(int pageNumber, int pageSize)
+    public async Task<PaginatedResponse<QuestionDto>> GetQuestions(int pageNumber, int pageSize)
     {
         try
         {
@@ -22,7 +22,7 @@ public class QuestionService(QuestionaireDbContext context,
                 .Take(pageSize)
                 .ToListAsync();
             
-            int totalQuestions = await context.Questions.CountAsync();;
+            int totalQuestions = await context.Questions.CountAsync();
 
             PaginatedResponse<QuestionDto> response = new PaginatedResponse<QuestionDto>
             {
@@ -50,7 +50,7 @@ public class QuestionService(QuestionaireDbContext context,
         }
     }
 
-    public async Task<Question?> GetQuestionByIdAsync(int id)
+    public async Task<Question?> GetQuestionById(int id)
     {
         try
         {
@@ -145,7 +145,7 @@ public class QuestionService(QuestionaireDbContext context,
         }
     }
     
-    public async Task CreateQuestionAsync(QuestionDto question)
+    public async Task CreateQuestion(QuestionDto question)
     {
         if (question.Answers.Count != 3 || 
             !question.Answers.Any(a => a.IsCorrect) || 
@@ -193,7 +193,7 @@ public class QuestionService(QuestionaireDbContext context,
         }
     }
 
-    public async Task<bool> UpdateQuestionAsync(int id, QuestionDto updatedQuestion)
+    public async Task<bool> UpdateQuestion(int id, QuestionDto updatedQuestion)
     {
         try
         {
@@ -211,7 +211,7 @@ public class QuestionService(QuestionaireDbContext context,
         }
     }
 
-    public async Task<bool> DeleteQuestionAsync(int id)
+    public async Task<bool> DeleteQuestion(int id)
     {
         try
         {

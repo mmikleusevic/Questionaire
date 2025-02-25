@@ -1,4 +1,4 @@
-.header{
+.header {
     gap:10px;
 }
 
@@ -103,6 +103,17 @@
     background-color: rgba(1,1,1,0.05);
 }
 
-.pagination-row {
-    margin: 10px 0;
+.pagination-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: white;
+    z-index: 9999;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+    padding: 10px 0;
+}
+
+.pagination-footer ::deep nav ul {
+    margin: 0 !important;
 }

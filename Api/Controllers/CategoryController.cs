@@ -16,7 +16,26 @@ public class CategoryController(ICategoryService categoryService,
     {
         try
         {
-            List<CategoryDto> categories = await categoryService.GetCategoriesAsync();
+            CategoriesDto categoriesDto = await categoryService.GetCategories();
+            if (categoriesDto.FlatCategories.Count == 0 || 
+                categoriesDto.NestedCategories.Count == 0) return NotFound("No categories found.");
+            
+            return Ok(categoriesDto);
+        }
+        catch (Exception ex)
+        {
+            string message = "An error occurred while retrieving categories.";
+            logger.LogError(ex, message);
+            return StatusCode(500, message);
+        }
+    }
+    
+    [HttpGet("nested")]
+    public async Task<ActionResult<List<CategoryDto>>> GetNestedCategories()
+    {
+        try
+        {
+            List<CategoryDto> categories = await categoryService.GetNestedCategories();
             if (categories.Count == 0) return NotFound("No categories found.");
             return Ok(categories);
         }
@@ -33,7 +52,7 @@ public class CategoryController(ICategoryService categoryService,
     {
         try
         {
-            List<CategoryDto> categories = await categoryService.GetFlatCategoriesAsync();
+            List<CategoryDto> categories = await categoryService.GetFlatCategories();
             if (categories.Count == 0) return NotFound("No categories found.");
             return Ok(categories);
         }
@@ -50,7 +69,7 @@ public class CategoryController(ICategoryService categoryService,
     {
         try
         {
-            Category? category = await categoryService.GetCategoryByIdAsync(id);
+            Category? category = await categoryService.GetCategoryById(id);
             if (category is null) return NotFound($"Category with ID {id} not found.");
             return Ok(category);
         }
@@ -69,7 +88,7 @@ public class CategoryController(ICategoryService categoryService,
 
         try
         {
-            await categoryService.CreateCategoryAsync(newCategory);
+            await categoryService.CreateCategory(newCategory);
             return Created();
         }
         catch (Exception ex)
@@ -87,7 +106,7 @@ public class CategoryController(ICategoryService categoryService,
 
         try
         {
-            bool success = await categoryService.UpdateCategoryAsync(id, updatedCategory);
+            bool success = await categoryService.UpdateCategory(id, updatedCategory);
             if (!success) return NotFound($"Category with ID {id} not found.");
             return Ok($"Category with ID {id} updated successfully.");
         }
@@ -104,7 +123,7 @@ public class CategoryController(ICategoryService categoryService,
     {
         try
         {
-            bool success = await categoryService.DeleteCategoryAsync(id);
+            bool success = await categoryService.DeleteCategory(id);
             if (!success) return NotFound($"Category with ID {id} not found.");
             return Ok($"Category with ID {id} deleted successfully.");
         }

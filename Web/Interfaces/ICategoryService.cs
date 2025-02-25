@@ -1,10 +1,12 @@
 using Web.Models;
+using Categories = Web.Components.Pages.Categories.Categories;
 
 namespace Web.Interfaces;
 
 public interface ICategoryService
 {
-    Task<List<Category>> GetCategories();
+    Task<CategoryLists> GetCategories();
+    Task<List<Category>> GetNestedCategories();
     Task<List<Category>> GetFlatCategories();
     Task<Category> GetCategory(int id);
     Task CreateCategory(Category newCategory);

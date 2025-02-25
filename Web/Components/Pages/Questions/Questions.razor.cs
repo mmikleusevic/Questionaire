@@ -8,13 +8,13 @@ namespace Web.Components.Pages.Questions;
 
 public partial class Questions : ComponentBase
 {
-    private const int PageSize = 50;
     [Inject] private IQuestionService? QuestionService { get; set; }
     [Inject] private ICategoryService? CategoryService { get; set; }
     
     private Modal modal = null!;
     private List<Question>? questions;
     private List<Category>? flatCategories;
+    private const int PageSize = 50;
     private int currentPage = 1;
     private int totalPages = 1;
 

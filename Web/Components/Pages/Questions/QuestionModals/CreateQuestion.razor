@@ -1,3 +1,4 @@
+@using Web.Models
 <EditForm OnValidSubmit="HandleValidSubmit" EditContext="editContext">
     <ObjectGraphDataAnnotationsValidator />
     <ValidationSummary class="alert alert-danger" />
@@ -66,7 +67,7 @@
                                 @(selectedCategory?.CategoryName ?? "None")
                             </DropdownToggleButton>
                             <DropdownMenu>
-                                <DropdownItem @onclick="() => SelectCategory(selectedCategory, null)">
+                                <DropdownItem @onclick="() => SelectCategory(selectedCategory, new Category())">
                                     None
                                 </DropdownItem>
                                 @foreach (var freeCategory in FlatCategories

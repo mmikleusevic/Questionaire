@@ -11,13 +11,14 @@ public class QuestionService(HttpClient httpClient,
     ILogger<QuestionService> logger,
     ToastService toastService) : IQuestionService
 {
+    
     public async Task<PaginatedResponse<Question>> GetQuestions(int currentPage, int pageSize)
     {
         try
         {
             HttpResponseMessage? response = await httpClient.GetAsync(
                 $"api/Question?pageNumber={currentPage}&pageSize={pageSize}");
-        
+
             if (response.IsSuccessStatusCode)
             {
                 string? responseData = await response.Content.ReadAsStringAsync();
@@ -25,9 +26,9 @@ public class QuestionService(HttpClient httpClient,
 
                 return paginatedResponse ?? new PaginatedResponse<Question>();
             }
-            
+
             string? responseResult = await response.Content.ReadAsStringAsync();
-            Helper.ShowToast(toastService, response.StatusCode, responseResult ,responseResult);
+            Helper.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
         }
         catch (Exception ex)
         {

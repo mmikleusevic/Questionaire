@@ -5,8 +5,8 @@ namespace QuestionaireApi.Interfaces;
 
 public interface IPendingQuestionService
 {
-    Task<List<PendingQuestion>> GetPendingQuestionsAsync();
-    Task<PendingQuestion?> GetPendingQuestionAsync(int id);
+    Task<List<PendingQuestion>> GetPendingQuestions();
+    Task<PendingQuestion?> GetPendingQuestion(int id);
     Task ApproveQuestion(int id);
     Task CreatePendingQuestion(PendingQuestion updatedPendingQuestion);
     Task<bool> DeletePendingQuestion(int id);

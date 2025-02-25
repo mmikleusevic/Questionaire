@@ -3,6 +3,12 @@
 
 <Modal @ref="modal" UseStaticBackdrop="true" CloseOnEscape="true" IsVerticallyCentered="true" Size="ModalSize.ExtraLarge"/>
 
+<style scoped>
+    body {
+        padding-bottom: 60px;
+    }
+</style>
+
 <PageTitle>Questions</PageTitle>
 <div id="topElement">
     <div>
@@ -47,7 +53,7 @@ else
         }
     </div>
     
-    <div class="pagination-row">
+    <div class="pagination-footer">
         <Pagination ActivePageNumber="currentPage"
                     TotalPages="totalPages"
                     DisplayPages="5"

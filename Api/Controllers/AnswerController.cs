@@ -15,7 +15,7 @@ public class AnswerController(IAnswerService answerService,
     {
         try
         {
-            List<Answer> answers = await answerService.GetAnswersAsync();
+            List<Answer> answers = await answerService.GetAnswers();
             if (answers.Count == 0) return NotFound("No answers found.");
             return Ok(answers);
         }
@@ -32,7 +32,7 @@ public class AnswerController(IAnswerService answerService,
     {
         try
         {
-            Answer? answer = await answerService.GetAnswerByIdAsync(id);
+            Answer? answer = await answerService.GetAnswerById(id);
             if (answer == null) return NotFound($"Answer with ID {id} not found.");
 
             return Ok(answer);
@@ -52,7 +52,7 @@ public class AnswerController(IAnswerService answerService,
 
         try
         {
-            await answerService.CreateAnswerAsync(newAnswer);
+            await answerService.CreateAnswer(newAnswer);
             return Created();
         }
         catch (Exception ex)
@@ -70,7 +70,7 @@ public class AnswerController(IAnswerService answerService,
 
         try
         {
-            bool success = await answerService.UpdateAnswerAsync(id, updatedAnswer);
+            bool success = await answerService.UpdateAnswer(id, updatedAnswer);
             if (!success) return NotFound($"Answer with ID {id} not found.");
             return Ok($"Answer with ID {id} updated successfully.");
         }
@@ -87,7 +87,7 @@ public class AnswerController(IAnswerService answerService,
     {
         try
         {
-            bool success = await answerService.DeleteAnswerAsync(id);
+            bool success = await answerService.DeleteAnswer(id);
             if (!success) return NotFound($"Answer with ID {id} not found.");
             return Ok($"Answer with ID {id} deleted successfully.");
         }

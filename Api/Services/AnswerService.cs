@@ -6,7 +6,7 @@ namespace QuestionaireApi.Services;
 
 public class AnswerService(QuestionaireDbContext context) : IAnswerService
 {
-    public async Task<List<Answer>> GetAnswersAsync()
+    public async Task<List<Answer>> GetAnswers()
     {
         try
         {
@@ -18,7 +18,7 @@ public class AnswerService(QuestionaireDbContext context) : IAnswerService
         }
     }
 
-    public async Task<Answer?> GetAnswerByIdAsync(int id)
+    public async Task<Answer?> GetAnswerById(int id)
     {
         try
         {
@@ -30,7 +30,7 @@ public class AnswerService(QuestionaireDbContext context) : IAnswerService
         }
     }
 
-    public async Task CreateAnswerAsync(Answer answer)
+    public async Task CreateAnswer(Answer answer)
     {
         try
         {
@@ -43,7 +43,7 @@ public class AnswerService(QuestionaireDbContext context) : IAnswerService
         }
     }
 
-    public async Task<bool> UpdateAnswerAsync(int id, Answer updatedAnswer)
+    public async Task<bool> UpdateAnswer(int id, Answer updatedAnswer)
     {
         try
         {
@@ -63,7 +63,7 @@ public class AnswerService(QuestionaireDbContext context) : IAnswerService
         }
     }
 
-    public async Task<bool> DeleteAnswerAsync(int id)
+    public async Task<bool> DeleteAnswer(int id)
     {
         try
         {

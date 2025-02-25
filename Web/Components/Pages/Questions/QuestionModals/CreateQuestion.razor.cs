@@ -75,7 +75,7 @@ public partial class CreateQuestion : ComponentBase
             return;
         }
         
-        question.Categories = selectedCategories;
+        question.Categories = selectedCategories.Where(a => a.Id != 0).ToList();
         await QuestionService.CreateQuestion(question);
         await OnQuestionCreated.InvokeAsync();
         await Hide();
@@ -102,28 +102,11 @@ public partial class CreateQuestion : ComponentBase
         }
     }
     
-    private void SelectCategory(Category currentCategory, Category? newCategory)
+    private void SelectCategory(Category currentCategory, Category newCategory)
     {
-        if (newCategory == null)
-        {
-            Category categoryToRemove = selectedCategories.FirstOrDefault(c => c == currentCategory);
-            if (categoryToRemove != null)
-            {
-                selectedCategories.Remove(categoryToRemove);
-            }
-        }
-        else
-        {
-            int categoryIndex = selectedCategories.IndexOf(currentCategory);
-            if (categoryIndex >= 0)
-            {
-                selectedCategories[categoryIndex] = newCategory;
-            }
-            else
-            {
-                selectedCategories.Add(newCategory);
-            }
-        }
+        int categoryIndex = selectedCategories.IndexOf(currentCategory);
+        
+        selectedCategories[categoryIndex] = newCategory;
     }
     
     private async Task Hide()

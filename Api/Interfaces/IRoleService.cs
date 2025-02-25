@@ -4,9 +4,9 @@ namespace QuestionaireApi.Interfaces;
 
 public interface IRoleService
 {
-    Task<List<Role>> GetRolesAsync();
-    Task<Role?> GetRoleByIdAsync(int id);
-    Task CreateRoleAsync(Role role);
-    Task<bool> UpdateRoleAsync(int id, Role updatedRole);
-    Task<bool> DeleteRoleAsync(int id);
+    Task<List<Role>> GetRoles();
+    Task<Role?> GetRoleById(int id);
+    Task CreateRole(Role role);
+    Task<bool> UpdateRole(int id, Role updatedRole);
+    Task<bool> DeleteRole(int id);
 }

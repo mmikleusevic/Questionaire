@@ -19,19 +19,19 @@
 {
     <p><em>Loading...</em></p>
 }
-else if (categories.Count == 0)
+else if (categories.NestedCategories.Count == 0)
 {
     <p>No categories found.</p>
 }
 else
 {
     <ul class="category-list">
-        @foreach (Category category in categories)
+        @foreach (Category category in categories.NestedCategories)
         {
             <CategoryItem Category="category" 
                           Modal="modal" 
                           OnCategoryCreated="OnCategoryUpdated" 
-                          FlatCategories="flatCategories"/>
+                          FlatCategories="categories.FlatCategories"/>
         }
     </ul>
 }

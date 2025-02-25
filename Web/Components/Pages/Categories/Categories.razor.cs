@@ -1,6 +1,5 @@
 using BlazorBootstrap;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 using Web.Components.Pages.Categories.CategoryModals;
 using Web.Interfaces;
 using Web.Models;
@@ -13,22 +12,20 @@ public partial class Categories : ComponentBase
 
     private EventCallback OnCategoryUpdated => EventCallback.Factory.Create(this, GetCategories);
     private Modal modal = null!;
-    private List<Category>? categories;
-    private List<Category>? flatCategories;
+    private CategoryLists categories;
     
     protected override async Task OnInitializedAsync()
     {
         await GetCategories();
-        await GetFlatCategories();
     }
     
     private async Task ShowCreateCategory()
     {
-        if (flatCategories == null) return;
+        if (categories == null) return;
         
         Dictionary<string, object> parameters = new Dictionary<string, object>
         {
-            { "FlatCategories", flatCategories },
+            { "FlatCategories", categories.FlatCategories },
             { "Modal", modal },
             { "OnCategoryCreated", EventCallback.Factory.Create(this, GetCategories) }
         };
@@ -41,12 +38,5 @@ public partial class Categories : ComponentBase
         if (CategoryService == null) return;
         
         categories = await CategoryService.GetCategories();
-    }
-
-    private async Task GetFlatCategories()
-    {
-        if (CategoryService == null) return;
-        
-        flatCategories = await CategoryService.GetFlatCategories();
     }
 }

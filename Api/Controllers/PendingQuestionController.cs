@@ -15,7 +15,7 @@ public class PendingQuestionController(IPendingQuestionService pendingQuestionSe
     {
         try
         {
-            List<PendingQuestion> pendingQuestions = await pendingQuestionService.GetPendingQuestionsAsync();
+            List<PendingQuestion> pendingQuestions = await pendingQuestionService.GetPendingQuestions();
             if (pendingQuestions.Count == 0) return NotFound("No pending questions found.");
             return Ok(pendingQuestions);
         }
@@ -32,7 +32,7 @@ public class PendingQuestionController(IPendingQuestionService pendingQuestionSe
     {
         try
         {
-            PendingQuestion? pendingQuestion = await pendingQuestionService.GetPendingQuestionAsync(id);
+            PendingQuestion? pendingQuestion = await pendingQuestionService.GetPendingQuestion(id);
             if (pendingQuestion == null) return NotFound($"Question with ID {id} not found.");
             return Ok(pendingQuestion);
         }

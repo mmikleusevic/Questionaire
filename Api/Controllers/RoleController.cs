@@ -12,7 +12,7 @@ public class RoleController(IRoleService roleService,
     {
         try
         {
-            List<Role> roles = await roleService.GetRolesAsync();
+            List<Role> roles = await roleService.GetRoles();
             if (roles.Count == 0) return NotFound("No roles found.");
             return Ok(roles);
         }
@@ -29,7 +29,7 @@ public class RoleController(IRoleService roleService,
     {
         try
         {
-            Role? role = await roleService.GetRoleByIdAsync(id);
+            Role? role = await roleService.GetRoleById(id);
             if (role == null) return NotFound($"Role with ID {id} not found.");
             return Ok(role);
         }
@@ -48,7 +48,7 @@ public class RoleController(IRoleService roleService,
         
         try
         {
-            await roleService.CreateRoleAsync(newRole);
+            await roleService.CreateRole(newRole);
             return Created();
         }
         catch (Exception ex)
@@ -66,7 +66,7 @@ public class RoleController(IRoleService roleService,
         
         try
         {
-            bool success = await roleService.UpdateRoleAsync(id, updatedRole);
+            bool success = await roleService.UpdateRole(id, updatedRole);
             if (!success) return NotFound($"Role with ID {id} not found.");
             return Ok($"Role with ID {id} updated successfully.");
         }
@@ -83,7 +83,7 @@ public class RoleController(IRoleService roleService,
     {
         try
         {
-            bool success = await roleService.DeleteRoleAsync(id);
+            bool success = await roleService.DeleteRole(id);
             if (!success) return NotFound($"Role with ID {id} not found.");
             
             return Ok($"Role with ID {id} deleted successfully.");

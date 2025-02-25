@@ -8,7 +8,7 @@ namespace QuestionaireApi.Services;
 
 public class UserService(QuestionaireDbContext context) : IUserService
 {
-    public async Task<List<User>> GetUsersAsync()
+    public async Task<List<User>> GetUsers()
     {
         try
         {
@@ -22,7 +22,7 @@ public class UserService(QuestionaireDbContext context) : IUserService
         }
     }
 
-    public async Task<UserDto?> GetUserByIdAsync(int id)
+    public async Task<UserDto?> GetUserById(int id)
     {
         try
         {
@@ -42,7 +42,7 @@ public class UserService(QuestionaireDbContext context) : IUserService
         }
     }
 
-    public async Task CreateUserAsync(User user)
+    public async Task CreateUser(User user)
     {
         try
         {
@@ -55,7 +55,7 @@ public class UserService(QuestionaireDbContext context) : IUserService
         }
     }
 
-    public async Task<bool> UpdateUserAsync(int id, User updatedUser)
+    public async Task<bool> UpdateUser(int id, User updatedUser)
     {
         try
         {
@@ -77,7 +77,7 @@ public class UserService(QuestionaireDbContext context) : IUserService
         }
     }
 
-    public async Task<bool> DeleteUserAsync(int id)
+    public async Task<bool> DeleteUser(int id)
     {
         try
         {

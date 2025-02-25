@@ -5,10 +5,10 @@ namespace QuestionaireApi.Interfaces;
 
 public interface IQuestionService
 {
-    Task<PaginatedResponse<QuestionDto>> GetQuestionsAsync(int pageNumber, int pageSize);
-    Task<Question?> GetQuestionByIdAsync(int id);
+    Task<PaginatedResponse<QuestionDto>> GetQuestions(int pageNumber, int pageSize);
+    Task<Question?> GetQuestionById(int id);
     Task<List<QuestionDto>> GetRandomUniqueQuestions(GetRandomUniqueQuestionsRequestDto requestDto);
-    Task CreateQuestionAsync(QuestionDto question);
-    Task<bool> UpdateQuestionAsync(int id, QuestionDto updatedQuestion);
-    Task<bool> DeleteQuestionAsync(int id);
+    Task CreateQuestion(QuestionDto question);
+    Task<bool> UpdateQuestion(int id, QuestionDto updatedQuestion);
+    Task<bool> DeleteQuestion(int id);
 }

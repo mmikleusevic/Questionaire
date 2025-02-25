@@ -22,7 +22,7 @@ public class QuestionController(IQuestionService questionService,
             if (pageNumber < 1 || pageSize < 1)
                 return BadRequest("Page number and page size must be greater than 0.");
             
-            PaginatedResponse<QuestionDto> response = await questionService.GetQuestionsAsync(pageNumber, pageSize);
+            PaginatedResponse<QuestionDto> response = await questionService.GetQuestions(pageNumber, pageSize);
 
             if (response.Items.Count == 0) return NotFound("No questions found.");
 
@@ -41,7 +41,7 @@ public class QuestionController(IQuestionService questionService,
     {
         try
         {
-            Question? question = await questionService.GetQuestionByIdAsync(id);
+            Question? question = await questionService.GetQuestionById(id);
             if (question is null) return NotFound($"Question with ID {id} not found.");
             return Ok(question);
         }
@@ -79,7 +79,7 @@ public class QuestionController(IQuestionService questionService,
 
         try
         {
-            await questionService.CreateQuestionAsync(newQuestion);
+            await questionService.CreateQuestion(newQuestion);
             return Created();
         }
         catch (Exception ex)
@@ -97,7 +97,7 @@ public class QuestionController(IQuestionService questionService,
 
         try
         {
-            bool success = await questionService.UpdateQuestionAsync(id, updatedQuestion);
+            bool success = await questionService.UpdateQuestion(id, updatedQuestion);
             if (!success) return NotFound($"Question with ID {id} not found.");
             return Ok($"Question with ID {id} updated successfully.");
         }
@@ -114,7 +114,7 @@ public class QuestionController(IQuestionService questionService,
     {
         try
         {
-            bool success = await questionService.DeleteQuestionAsync(id);
+            bool success = await questionService.DeleteQuestion(id);
             if (!success) return NotFound($"Question with ID {id} not found.");
             return Ok($"Question with ID {id} deleted successfully.");
         }

@@ -15,7 +15,7 @@ public class UserController(IUserService userService,
         {
             try
             {
-                List<User> users = await userService.GetUsersAsync();
+                List<User> users = await userService.GetUsers();
                 if (users.Count == 0) return NotFound("No users found.");
                 return Ok(users);
             }
@@ -32,7 +32,7 @@ public class UserController(IUserService userService,
         {
             try
             {
-                UserDto? user = await userService.GetUserByIdAsync(id);
+                UserDto? user = await userService.GetUserById(id);
                 if (user == null) return NotFound($"User with ID {id} not found.");
                 return Ok(user);
             }
@@ -51,7 +51,7 @@ public class UserController(IUserService userService,
             
             try
             {
-                await userService.CreateUserAsync(newUser);
+                await userService.CreateUser(newUser);
                 return Created();
             }
             catch (Exception ex)
@@ -69,7 +69,7 @@ public class UserController(IUserService userService,
             
             try
             {
-                bool success = await userService.UpdateUserAsync(id, updatedUser);
+                bool success = await userService.UpdateUser(id, updatedUser);
                 if (!success) return NotFound($"User with ID {id} not found.");
                 return Ok($"User with ID {id} updated successfully.");
             }
@@ -86,7 +86,7 @@ public class UserController(IUserService userService,
         {
             try
             {
-                bool success = await userService.DeleteUserAsync(id);
+                bool success = await userService.DeleteUser(id);
                 if (!success) return NotFound($"User with ID {id} not found.");
                 
                 return Ok($"User with ID {id} deleted successfully.");

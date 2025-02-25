@@ -6,7 +6,7 @@ namespace QuestionaireApi.Services
 {
     public class RoleService(QuestionaireDbContext context) : IRoleService
     {
-        public async Task<List<Role>> GetRolesAsync()
+        public async Task<List<Role>> GetRoles()
         {
             try
             {
@@ -18,7 +18,7 @@ namespace QuestionaireApi.Services
             }
         }
         
-        public async Task<Role?> GetRoleByIdAsync(int id)
+        public async Task<Role?> GetRoleById(int id)
         {
             try
             {
@@ -32,7 +32,7 @@ namespace QuestionaireApi.Services
             }
         }
         
-        public async Task CreateRoleAsync(Role role)
+        public async Task CreateRole(Role role)
         {
             try
             {
@@ -45,7 +45,7 @@ namespace QuestionaireApi.Services
             }
         }
         
-        public async Task<bool> UpdateRoleAsync(int id, Role updatedRole)
+        public async Task<bool> UpdateRole(int id, Role updatedRole)
         {
             try
             {
@@ -66,7 +66,7 @@ namespace QuestionaireApi.Services
             }
         }
         
-        public async Task<bool> DeleteRoleAsync(int id)
+        public async Task<bool> DeleteRole(int id)
         {
             try
             {
