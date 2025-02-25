@@ -12,7 +12,7 @@ public partial class UpdateCategory : ComponentBase
     [Parameter] public Modal? Modal { get; set; }
     [Parameter] public Category? Category { get; set; }
     [Parameter] public List<Category>? FlatCategories { get; set; }
-    [Parameter] public EventCallback<Category> OnCategoryCreated { get; set; }
+    [Parameter] public EventCallback OnCategoryChanged { get; set; }
     
     private Category? selectedParentCategory;
     private readonly Category updatedCategory = new Category();
@@ -62,7 +62,7 @@ public partial class UpdateCategory : ComponentBase
         Category.CategoryName = updatedCategory.CategoryName;
         
         await CategoryService.UpdateCategory(Category);
-        await OnCategoryCreated.InvokeAsync(Category);
+        await OnCategoryChanged.InvokeAsync(Category);
         await Hide();
     }
 

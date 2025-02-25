@@ -9,7 +9,7 @@ namespace Web.Components.Pages.Questions.QuestionModals;
 public partial class CreateQuestion : ComponentBase
 {
     [Inject] private IQuestionService? QuestionService { get; set; }
-    [Parameter] public EventCallback OnQuestionCreated { get; set; }
+    [Parameter] public EventCallback OnQuestionChanged { get; set; }
     [Parameter] public List<Category> FlatCategories { get; set; }
     [Parameter] public Modal? Modal { get; set; }
     
@@ -77,7 +77,7 @@ public partial class CreateQuestion : ComponentBase
         
         question.Categories = selectedCategories.Where(a => a.Id != 0).ToList();
         await QuestionService.CreateQuestion(question);
-        await OnQuestionCreated.InvokeAsync();
+        await OnQuestionChanged.InvokeAsync();
         await Hide();
     }
     

@@ -11,7 +11,7 @@ public partial class CreateCategory : ComponentBase
     [Inject] private ICategoryService? CategoryService { get; set; }
     [Parameter] public List<Category>? FlatCategories { get; set; }
     [Parameter] public Modal? Modal { get; set; }
-    [Parameter] public EventCallback OnCategoryCreated { get; set; }
+    [Parameter] public EventCallback OnCategoryChanged { get; set; }
 
     private readonly Category category = new Category();
     private Category? selectedParentCategory;
@@ -46,7 +46,7 @@ public partial class CreateCategory : ComponentBase
         if (CategoryService == null) return;
         
         await CategoryService.CreateCategory(category);
-        await OnCategoryCreated.InvokeAsync();
+        await OnCategoryChanged.InvokeAsync();
         await Hide();
     }
 

@@ -11,7 +11,7 @@ public partial class Questions : ComponentBase
     [Inject] private IQuestionService? QuestionService { get; set; }
     [Inject] private ICategoryService? CategoryService { get; set; }
     
-    private Modal modal = null!;
+    private Modal? modal = null!;
     private List<Question>? questions;
     private List<Category>? flatCategories;
     private const int PageSize = 50;
@@ -49,25 +49,36 @@ public partial class Questions : ComponentBase
 
     private async Task ShowCreateQuestion()
     {
+        if (modal == null || flatCategories == null) return;
+        
         Dictionary<string, object> parameters = new Dictionary<string, object>
         {
-            { "OnQuestionCreated", EventCallback.Factory.Create(this, GetQuestions) },
+            { "OnQuestionChanged", EventCallback.Factory.Create(this, GetQuestions) },
             { "FlatCategories", flatCategories },
             { "Modal", modal }
         };
         
-        await modal.ShowAsync<CreateQuestion>(title: "Create New Question", parameters: parameters);
+        await modal.ShowAsync<CreateQuestion>("Create New Question", parameters: parameters);
+    }
+    
+    private async Task ShowDeleteQuestion(Question? question)
+    {
+        if (modal == null || question == null) return;
+        
+        Dictionary<string, object> parameters = new Dictionary<string, object>
+        {
+            { "Modal", modal },
+            { "Question", question },
+            { "OnQuestionChanged", EventCallback.Factory.Create(this, GetQuestions)}
+        };
+        
+        await modal.ShowAsync<DeleteQuestion>("Delete Question",  parameters: parameters);
+    }
+    
+    private async Task ShowUpdateQuestion(Question? question)
+    {
+        Console.WriteLine($"Updating question with ID: {question?.Id}");
     }
 
     private string GetAnswerRowClass(bool isCorrect) => isCorrect ? "correct-answer" : "incorrect-answer";
-
-    private void ShowUpdateQuestion(int id)
-    {
-        Console.WriteLine($"Updating question with ID: {id}");
-    }
-
-    private void ShowDeleteQuestion(int id)
-    {
-        Console.WriteLine($"Deleting question with ID: {id}");
-    }
 }

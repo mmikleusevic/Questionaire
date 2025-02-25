@@ -215,9 +215,12 @@ public class QuestionService(QuestionaireDbContext context,
     {
         try
         {
-            Question? question = await context.Questions.FirstOrDefaultAsync(a => a.Id == id);
+            Question? question = await context.Questions
+                .Include(a => a.Answers)
+                .FirstOrDefaultAsync(a => a.Id == id);
+            
             if (question == null) return false;
-
+            
             context.Questions.Remove(question);
             await context.SaveChangesAsync();
             

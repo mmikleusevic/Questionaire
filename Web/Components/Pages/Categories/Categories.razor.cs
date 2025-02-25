@@ -10,7 +10,7 @@ public partial class Categories : ComponentBase
 {
     [Inject] private ICategoryService? CategoryService { get; set; }
 
-    private EventCallback OnCategoryUpdated => EventCallback.Factory.Create(this, GetCategories);
+    private EventCallback OnCategoryChanged => EventCallback.Factory.Create(this, GetCategories);
     private Modal modal = null!;
     private CategoryLists categories;
     
@@ -27,10 +27,10 @@ public partial class Categories : ComponentBase
         {
             { "FlatCategories", categories.FlatCategories },
             { "Modal", modal },
-            { "OnCategoryCreated", EventCallback.Factory.Create(this, GetCategories) }
+            { "OnCategoryChanged", EventCallback.Factory.Create(this, GetCategories) }
         };
         
-        await modal.ShowAsync<CreateCategory>(title: "Create New Category", parameters: parameters);
+        await modal.ShowAsync<CreateCategory>("Create New Category", parameters: parameters);
     }
 
     private async Task GetCategories()

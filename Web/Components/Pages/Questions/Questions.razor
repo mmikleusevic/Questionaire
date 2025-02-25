@@ -46,8 +46,8 @@ else
                     }
                 </div>
                 <div class="actions">
-                    <button class="btn btn-update" @onclick="() => ShowUpdateQuestion(question.Id)">Update</button>
-                    <button class="btn btn-delete" @onclick="() => ShowDeleteQuestion(question.Id)">Delete</button>
+                    <button class="btn btn-update" @onclick="@(() => ShowUpdateQuestion(question))">Update</button>
+                    <button class="btn btn-delete" @onclick="@(() => ShowDeleteQuestion(question))">Delete</button>
                 </div>
             </div>
         }

@@ -1,0 +1,12 @@
+<EditForm Model="@Question" OnValidSubmit="HandleValidSubmit">
+    <div class="form-group row mb-3 question-name-row">
+        <p> Are you sure you want to delete <span class="question-name">"@Question?.QuestionText"</span> question</p>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12 text-right modal-buttons">
+            <Button Type="ButtonType.Submit" Color="ButtonColor.Primary" Class="float-end me-2">Yes</Button>
+            <Button Type="ButtonType.Button" Color="ButtonColor.Danger" Class="float-end" @onclick="Hide">No</Button>
+        </div>
+    </div>
+</EditForm>
