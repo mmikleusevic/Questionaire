@@ -77,7 +77,17 @@ public partial class Questions : ComponentBase
     
     private async Task ShowUpdateQuestion(Question? question)
     {
-        Console.WriteLine($"Updating question with ID: {question?.Id}");
+        if (modal == null || question == null || flatCategories == null) return;
+        
+        Dictionary<string, object> parameters = new Dictionary<string, object>
+        {
+            { "Question", question },
+            { "FlatCategories", flatCategories },
+            { "OnQuestionChanged", EventCallback.Factory.Create(this, GetQuestions) },
+            { "Modal", modal },
+        };
+        
+        await modal.ShowAsync<UpdateQuestion>("Update Question",  parameters: parameters);
     }
 
     private string GetAnswerRowClass(bool isCorrect) => isCorrect ? "correct-answer" : "incorrect-answer";

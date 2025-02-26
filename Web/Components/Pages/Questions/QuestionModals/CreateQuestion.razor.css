@@ -52,4 +52,10 @@
 .categories {
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
+}
+
+::deep ul {
+    overflow: auto;
+    max-height: 250px;
 }

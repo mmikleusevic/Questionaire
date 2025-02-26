@@ -122,7 +122,7 @@
 }
 
 .category-name,
-.parent-category-dropdown 
+.parent-category-dropdown
 {
     display: flex;
     align-items: center;
@@ -131,6 +131,12 @@
 .modal-buttons {
     display: flex;
     justify-content: end;
+}
+
+.categories {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
 }
 
 ::deep ul {

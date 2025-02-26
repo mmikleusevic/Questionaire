@@ -46,7 +46,7 @@ public class QuestionaireDbContext(DbContextOptions<QuestionaireDbContext> optio
         
         modelBuilder.Entity<PendingAnswer>()
             .HasOne(a => a.PendingQuestion)
-            .WithMany(q => q.Answers)
+            .WithMany(q => q.PendingAnswers)
             .OnDelete(DeleteBehavior.Cascade);
         
         modelBuilder.Entity<PendingQuestionCategory>()

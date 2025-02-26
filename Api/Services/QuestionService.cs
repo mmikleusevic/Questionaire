@@ -17,6 +17,8 @@ public class QuestionService(QuestionaireDbContext context,
         {
             List<Question> questions = await context.Questions
                 .Include(a => a.Answers)
+                .Include(a => a.QuestionCategories)
+                    .ThenInclude(c=> c.Category)
                 .OrderBy(q => q.Id)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
@@ -35,6 +37,11 @@ public class QuestionService(QuestionaireDbContext context,
                         Id = a.Id,
                         AnswerText = a.AnswerText,
                         IsCorrect = a.IsCorrect
+                    }).ToList(),
+                    Categories = q.QuestionCategories.Select(qc => new CategoryDto
+                    {
+                        Id = qc.Category.Id,
+                        CategoryName = qc.Category.CategoryName
                     }).ToList()
                 }).ToList(),
                 TotalCount = totalQuestions,
@@ -113,37 +120,6 @@ public class QuestionService(QuestionaireDbContext context,
             throw new InvalidOperationException($"An error occurred while parsing random questions.", ex);
         }
     }
-
-    private List<QuestionDto> MapQuestionsToDtos(List<Question> questions, bool isSingleAnswerMode)
-    {
-        try
-        {
-            Random random = new Random();
-
-            return questions
-                .Select(q => new QuestionDto
-                {
-                    Id = q.Id,
-                    QuestionText = q.QuestionText,
-                    Answers = q.Answers
-                        .OrderBy(a => a.IsCorrect ? 0 : 1) 
-                        .Take(isSingleAnswerMode ? 1 : 3) 
-                        .OrderBy(a => random.Next())
-                        .Select(a => new AnswerDto
-                        {
-                            Id = a.Id,
-                            AnswerText = a.AnswerText,
-                            IsCorrect = a.IsCorrect
-                        })
-                        .ToList()
-                })
-                .ToList();
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException($"An error occurred while mapping random questions", ex);
-        }
-    }
     
     public async Task CreateQuestion(QuestionDto question)
     {
@@ -197,12 +173,30 @@ public class QuestionService(QuestionaireDbContext context,
     {
         try
         {
-            Question? question = await context.Questions.FindAsync(id);
+            Question? question = await context.Questions
+                .Include(q => q.Answers)
+                .Include(q => q.QuestionCategories)
+                .FirstOrDefaultAsync(q => q.Id == id);
+
             if (question == null) return false;
 
             question.QuestionText = updatedQuestion.QuestionText;
-            await context.SaveChangesAsync();
+            
+            question.Answers = updatedQuestion.Answers.Select(a => new Answer
+            {
+                AnswerText = a.AnswerText,
+                IsCorrect = a.IsCorrect,
+                QuestionId = question.Id
+            }).ToList();
+            
+            question.QuestionCategories = updatedQuestion.Categories.Select(c => new QuestionCategory
+            {
+                QuestionId = question.Id,
+                CategoryId = c.Id
+            }).ToList();
 
+            await context.SaveChangesAsync();
+            
             return true;
         }
         catch (Exception ex)
@@ -229,6 +223,37 @@ public class QuestionService(QuestionaireDbContext context,
         catch (Exception ex)
         {
             throw new InvalidOperationException($"An error occurred while deleting the question with ID {id}.", ex);
+        }
+    }
+    
+    private List<QuestionDto> MapQuestionsToDtos(List<Question> questions, bool isSingleAnswerMode)
+    {
+        try
+        {
+            Random random = new Random();
+
+            return questions
+                .Select(q => new QuestionDto
+                {
+                    Id = q.Id,
+                    QuestionText = q.QuestionText,
+                    Answers = q.Answers
+                        .OrderBy(a => a.IsCorrect ? 0 : 1) 
+                        .Take(isSingleAnswerMode ? 1 : 3) 
+                        .OrderBy(a => random.Next())
+                        .Select(a => new AnswerDto
+                        {
+                            Id = a.Id,
+                            AnswerText = a.AnswerText,
+                            IsCorrect = a.IsCorrect
+                        })
+                        .ToList()
+                })
+                .ToList();
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException("An error occurred while mapping random questions", ex);
         }
     }
 }

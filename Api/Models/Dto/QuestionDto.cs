@@ -6,5 +6,5 @@ public class QuestionDto
     public string QuestionText { get; set; }
     public List<AnswerDto> Answers { get; set; }
     
-    public List<Category> Categories { get; set; }
+    public List<CategoryDto> Categories { get; set; }
 }

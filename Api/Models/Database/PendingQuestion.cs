@@ -12,7 +12,7 @@ public class PendingQuestion
     public string QuestionText { get; set; } = null!;
 
     [Required]
-    public virtual ICollection<PendingAnswer> Answers { get; set; } = new List<PendingAnswer>();
+    public virtual ICollection<PendingAnswer> PendingAnswers { get; set; } = new List<PendingAnswer>();
 
     [Required]
     public virtual ICollection<PendingQuestionCategory> PendingQuestionCategories { get; set; } = new List<PendingQuestionCategory>();

@@ -94,7 +94,7 @@ public class CategoryService(QuestionaireDbContext context) : ICategoryService
     {
         try
         {
-            Category? category = await context.Categories.FirstOrDefaultAsync(a =>a.Id == id);
+            Category? category = await context.Categories.FirstOrDefaultAsync(a => a.Id == id);
 
             if (category == null) return false;
             

@@ -8,20 +8,13 @@
         padding-bottom: 60px;
     }
 </style>
-
 <PageTitle>Questions</PageTitle>
-<div id="topElement">
+<div>
     <div>
         <h3>Questions</h3>
         <button class="btn btn-create" @onclick="ShowCreateQuestion">Create</button>
     </div>
-    <div class="header">
-        <div class="question-text-header">Question Text</div>
-        <div class="answers-header">Answers</div>
-        <div class="actions-header">Actions</div>
-    </div>
 </div>
-
 @if (questions == null)
 {
     <p><em>Loading...</em></p>
@@ -32,18 +25,28 @@ else if (questions.Count == 0)
 }
 else
 {
-    <div class="questions-container">
+    <div id="topElement" class="questions-container">
         @foreach (var question in questions)
         {
-            <div class="question-row">
-                <div class="question-text">@question.QuestionText</div>
-                <div class="answers-list">
-                    @foreach (var answer in question.Answers)
-                    {
-                        <span class="@GetAnswerRowClass(answer.IsCorrect)">
-                            @answer.AnswerText
-                        </span>
-                    }
+            <div class="question">
+                <div class="question-row">
+                    <div class="question-text">@question.QuestionText</div>
+                    <div class="categories-answers">
+                        <div class="categories-row">
+                            @foreach (var category in question.Categories)
+                            {
+                                <span class="category-item">@category.CategoryName</span>
+                            }
+                        </div>
+                        <div class="answers-list">
+                            @foreach (var answer in question.Answers)
+                            {
+                                <span class="@GetAnswerRowClass(answer.IsCorrect)">
+                                    @answer.AnswerText
+                                </span>
+                            }
+                        </div>
+                    </div>
                 </div>
                 <div class="actions">
                     <button class="btn btn-update" @onclick="@(() => ShowUpdateQuestion(question))">Update</button>

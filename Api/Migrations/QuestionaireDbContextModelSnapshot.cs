@@ -44,7 +44,7 @@ namespace QuestionaireApi.Migrations
 
                     b.HasIndex("QuestionId");
 
-                    b.ToTable("Answers");
+                    b.ToTable("Answers", (string)null);
                 });
 
             modelBuilder.Entity("QuestionaireApi.Models.Category", b =>
@@ -67,7 +67,7 @@ namespace QuestionaireApi.Migrations
 
                     b.HasIndex("ParentCategoryId");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
 
                     b.HasData(
                         new
@@ -574,7 +574,7 @@ namespace QuestionaireApi.Migrations
 
                     b.HasIndex("PendingQuestionId");
 
-                    b.ToTable("PendingAnswers");
+                    b.ToTable("PendingAnswers", (string)null);
                 });
 
             modelBuilder.Entity("QuestionaireApi.Models.Database.PendingQuestion", b =>
@@ -596,7 +596,7 @@ namespace QuestionaireApi.Migrations
 
                     b.HasIndex("Id");
 
-                    b.ToTable("PendingQuestions");
+                    b.ToTable("PendingQuestions", (string)null);
                 });
 
             modelBuilder.Entity("QuestionaireApi.Models.Database.PendingQuestionCategory", b =>
@@ -616,7 +616,7 @@ namespace QuestionaireApi.Migrations
 
                     b.HasIndex("PendingQuestionId", "CategoryId");
 
-                    b.ToTable("PendingQuestionCategories");
+                    b.ToTable("PendingQuestionCategories", (string)null);
                 });
 
             modelBuilder.Entity("QuestionaireApi.Models.Database.Role", b =>
@@ -633,7 +633,7 @@ namespace QuestionaireApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roles");
+                    b.ToTable("Roles", (string)null);
                 });
 
             modelBuilder.Entity("QuestionaireApi.Models.Database.User", b =>
@@ -659,7 +659,7 @@ namespace QuestionaireApi.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("QuestionaireApi.Models.Question", b =>
@@ -678,7 +678,7 @@ namespace QuestionaireApi.Migrations
 
                     b.HasIndex("Id");
 
-                    b.ToTable("Questions");
+                    b.ToTable("Questions", (string)null);
                 });
 
             modelBuilder.Entity("QuestionaireApi.Models.QuestionCategory", b =>
@@ -695,7 +695,7 @@ namespace QuestionaireApi.Migrations
 
                     b.HasIndex("QuestionId", "CategoryId");
 
-                    b.ToTable("QuestionCategories");
+                    b.ToTable("QuestionCategories", (string)null);
                 });
 
             modelBuilder.Entity("QuestionaireApi.Models.UserQuestionHistory", b =>
@@ -725,7 +725,7 @@ namespace QuestionaireApi.Migrations
 
                     b.HasIndex("UserId", "QuestionId");
 
-                    b.ToTable("UserQuestionHistory");
+                    b.ToTable("UserQuestionHistory", (string)null);
                 });
 
             modelBuilder.Entity("QuestionaireApi.Models.Answer", b =>
