@@ -11,13 +11,20 @@ public class PendingQuestionController(IPendingQuestionService pendingQuestionSe
     ILogger<PendingQuestionController> logger) : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<List<PendingQuestion>>> GetPendingQuestions()
+    public async Task<ActionResult<PaginatedResponse<PendingQuestion>>> GetPendingQuestions(
+        [FromQuery] int pageNumber = 1, 
+        [FromQuery] int pageSize = 50)
     {
         try
         {
-            List<PendingQuestion> pendingQuestions = await pendingQuestionService.GetPendingQuestions();
-            if (pendingQuestions.Count == 0) return NotFound("No pending questions found.");
-            return Ok(pendingQuestions);
+            if (pageNumber < 1 || pageSize < 1)
+                return BadRequest("Page number and page size must be greater than 0.");
+            
+            PaginatedResponse<PendingQuestionDto> response = await pendingQuestionService.GetPendingQuestions(pageNumber, pageSize);
+
+            if (response.Items.Count == 0) return NotFound("No questions found.");
+
+            return Ok(response);
         }
         catch (Exception ex)
         {
@@ -61,7 +68,7 @@ public class PendingQuestionController(IPendingQuestionService pendingQuestionSe
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreatePendingQuestion([FromBody] PendingQuestion? newPendingQuestion)
+    public async Task<IActionResult> CreatePendingQuestion([FromBody] PendingQuestionDto? newPendingQuestion)
     {
         if (newPendingQuestion == null) return BadRequest("Pending question data cannot be null.");
         

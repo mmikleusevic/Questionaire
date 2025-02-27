@@ -171,6 +171,13 @@ public class QuestionService(QuestionaireDbContext context,
 
     public async Task<bool> UpdateQuestion(int id, QuestionDto updatedQuestion)
     {
+        if (updatedQuestion.Answers.Count != 3 || 
+            !updatedQuestion.Answers.Any(a => a.IsCorrect) || 
+            updatedQuestion.Categories.Count == 0)
+        {
+            throw new InvalidOperationException("Invalid question: must have exactly 3 answers, 1 correct answer and at least one category.");
+        }
+        
         try
         {
             Question? question = await context.Questions

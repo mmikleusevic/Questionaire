@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using QuestionaireApi.Interfaces;
 using QuestionaireApi.Models;
 using QuestionaireApi.Models.Database;
@@ -8,15 +9,45 @@ namespace QuestionaireApi.Services;
 
 public class PendingQuestionService(QuestionaireDbContext context) : IPendingQuestionService
 {
-    public async Task<List<PendingQuestion>> GetPendingQuestions()
+    public async Task<PaginatedResponse<PendingQuestionDto>> GetPendingQuestions(int pageNumber, int pageSize)
     {
         try
         {
-            return await context.PendingQuestions
-                .Include(q => q.PendingAnswers)
-                .Include(q => q.PendingQuestionCategories)
-                .ThenInclude(q => q.Category)
+            List<PendingQuestion> questions = await context.PendingQuestions
+                .Include(a => a.PendingAnswers)
+                .Include(a => a.PendingQuestionCategories)
+                .ThenInclude(c=> c.Category)
+                .OrderBy(q => q.Id)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
+            
+            int totalQuestions = await context.PendingQuestions.CountAsync();
+
+            PaginatedResponse<PendingQuestionDto> response = new PaginatedResponse<PendingQuestionDto>
+            {
+                Items = questions.Select(q => new PendingQuestionDto
+                {
+                    Id = q.Id,
+                    QuestionText = q.QuestionText,
+                    PendingAnswers = q.PendingAnswers.Select(a => new PendingAnswerDto
+                    {
+                        Id = a.Id,
+                        AnswerText = a.AnswerText,
+                        IsCorrect = a.IsCorrect
+                    }).ToList(),
+                    Categories = q.PendingQuestionCategories.Select(qc => new CategoryDto
+                    {
+                        Id = qc.Category.Id,
+                        CategoryName = qc.Category.CategoryName
+                    }).ToList()
+                }).ToList(),
+                TotalCount = totalQuestions,
+                PageSize = pageSize,
+                TotalPages = (int)Math.Ceiling((double)totalQuestions / pageSize)
+            };
+            
+            return response;
         }
         catch (Exception ex)
         {
@@ -59,44 +90,70 @@ public class PendingQuestionService(QuestionaireDbContext context) : IPendingQue
             context.Questions.Add(newQuestion);
             await context.SaveChangesAsync();
 
-            context.PendingAnswers.AddRange(pendingQuestion.PendingAnswers
-                .Select(a => new PendingAnswer
+            context.Answers.AddRange(pendingQuestion.PendingAnswers
+                .Select(a => new Answer
                 {
-                    PendingQuestionId = newQuestion.Id,
+                    QuestionId = newQuestion.Id,
                     AnswerText = a.AnswerText,
                     IsCorrect = a.IsCorrect
                 }));
             
-            context.PendingQuestionCategories.AddRange(pendingQuestion.PendingQuestionCategories
-                .Select(pqc => new PendingQuestionCategory
+            context.QuestionCategories.AddRange(pendingQuestion.PendingQuestionCategories
+                .Select(pqc => new QuestionCategory
                 {
-                    PendingQuestionId = newQuestion.Id,
+                    QuestionId = newQuestion.Id,
                     CategoryId = pqc.CategoryId
                 }));
             
             context.PendingQuestions.Remove(pendingQuestion);
-
             await context.SaveChangesAsync();
         }
         catch (Exception ex)
         {
-            throw new InvalidOperationException("An error occurred while approving the question.", ex);
+            throw new InvalidOperationException("An error occurred while approving the pending question.", ex);
         }
     }
     
-    public async Task CreatePendingQuestion(PendingQuestion updatedPendingQuestion)
+    public async Task CreatePendingQuestion(PendingQuestionDto pendingQuestion)
     {
+        if (pendingQuestion.PendingAnswers.Count != 3 || 
+            !pendingQuestion.PendingAnswers.Any(a => a.IsCorrect) || 
+            pendingQuestion.Categories.Count == 0)
+        {
+            throw new InvalidOperationException("Invalid pending question: must have exactly 3 answers, 1 correct answer and at least one category.");
+        }
+        
+        await using IDbContextTransaction? transaction = await context.Database.BeginTransactionAsync();
+        
         try
         {
-            if (updatedPendingQuestion.PendingAnswers.Count != 3 || 
-                !updatedPendingQuestion.PendingAnswers.Any(a => a.IsCorrect) || 
-                updatedPendingQuestion.PendingQuestionCategories.Count == 0)
+            PendingQuestion dbQuestion = new PendingQuestion
             {
-                throw new InvalidOperationException("Invalid question: must have exactly 3 answers, 1 correct answer and at least one category.");
-            }
+                QuestionText = pendingQuestion.QuestionText
+            };
             
-            context.PendingQuestions.Add(updatedPendingQuestion);
+            context.PendingQuestions.Add(dbQuestion);
             await context.SaveChangesAsync();
+            
+            List<PendingAnswer> dbPendingAnswers = pendingQuestion.PendingAnswers.Select(answer => new PendingAnswer
+            {
+                AnswerText = answer.AnswerText,
+                IsCorrect = answer.IsCorrect,
+                PendingQuestionId = dbQuestion.Id
+            }).ToList();
+
+            context.PendingAnswers.AddRange(dbPendingAnswers);
+            
+            List<PendingQuestionCategory> pendingQuestionCategories = pendingQuestion.Categories.Select(category => new PendingQuestionCategory
+            {
+                PendingQuestionId = dbQuestion.Id,
+                CategoryId = category.Id
+            }).ToList();
+
+            context.PendingQuestionCategories.AddRange(pendingQuestionCategories);
+            
+            await context.SaveChangesAsync();
+            await transaction.CommitAsync();
         }
         catch (Exception ex)
         {
@@ -106,6 +163,13 @@ public class PendingQuestionService(QuestionaireDbContext context) : IPendingQue
     
     public async Task<bool> UpdatePendingQuestion(int id, UpdatePendingQuestionRequestDto updateRequest)
     {
+        if (updateRequest.PendingAnswers.Count != 3 || 
+            !updateRequest.PendingAnswers.Any(a => a.IsCorrect) || 
+            updateRequest.CategoryIds.Count == 0)
+        {
+            throw new InvalidOperationException("Invalid pending question: must have exactly 3 answers, 1 correct answer and at least one category.");
+        }
+        
         try
         {
             PendingQuestion? pendingQuestion = await context.PendingQuestions
@@ -114,11 +178,6 @@ public class PendingQuestionService(QuestionaireDbContext context) : IPendingQue
                 .FirstOrDefaultAsync(q => q.Id == id);
 
             if (pendingQuestion == null) return false;
-            
-            if (updateRequest.PendingAnswers.Count != 3 || !updateRequest.PendingAnswers.Any(a => a.IsCorrect) || updateRequest.CategoryIds.Count == 0)
-            {
-                throw new InvalidOperationException("Invalid question: must have exactly 3 answers, 1 correct answer and at least one category.");
-            }
 
             pendingQuestion.QuestionText = updateRequest.QuestionText;
             
