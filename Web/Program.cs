@@ -16,6 +16,7 @@ builder.Services.AddScoped(sp => new HttpClient {
 });
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IQuestionService, QuestionService>();
+builder.Services.AddScoped<IPendingQuestionService, PendingQuestionService>();
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();

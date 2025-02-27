@@ -71,56 +71,13 @@ public class PendingQuestionService(QuestionaireDbContext context) : IPendingQue
         }
     }
     
-    public async Task ApproveQuestion(int id)
-    {
-        try
-        {
-            PendingQuestion? pendingQuestion = await context.PendingQuestions
-                .Include(q => q.PendingAnswers)
-                .Include(q => q.PendingQuestionCategories)
-                .FirstOrDefaultAsync(q => q.Id == id);
-
-            if (pendingQuestion == null) throw new InvalidOperationException("Pending question not found.");
-            
-            Question newQuestion = new Question
-            {
-                QuestionText = pendingQuestion.QuestionText
-            };
-            
-            context.Questions.Add(newQuestion);
-            await context.SaveChangesAsync();
-
-            context.Answers.AddRange(pendingQuestion.PendingAnswers
-                .Select(a => new Answer
-                {
-                    QuestionId = newQuestion.Id,
-                    AnswerText = a.AnswerText,
-                    IsCorrect = a.IsCorrect
-                }));
-            
-            context.QuestionCategories.AddRange(pendingQuestion.PendingQuestionCategories
-                .Select(pqc => new QuestionCategory
-                {
-                    QuestionId = newQuestion.Id,
-                    CategoryId = pqc.CategoryId
-                }));
-            
-            context.PendingQuestions.Remove(pendingQuestion);
-            await context.SaveChangesAsync();
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException("An error occurred while approving the pending question.", ex);
-        }
-    }
-    
     public async Task CreatePendingQuestion(PendingQuestionDto pendingQuestion)
     {
         if (pendingQuestion.PendingAnswers.Count != 3 || 
             !pendingQuestion.PendingAnswers.Any(a => a.IsCorrect) || 
             pendingQuestion.Categories.Count == 0)
         {
-            throw new InvalidOperationException("Invalid pending question: must have exactly 3 answers, 1 correct answer and at least one category.");
+            throw new InvalidOperationException("Invalid pending question: must have exactly 3 pending answers, 1 correct pending answer and at least one category.");
         }
         
         await using IDbContextTransaction? transaction = await context.Database.BeginTransactionAsync();
@@ -157,7 +114,69 @@ public class PendingQuestionService(QuestionaireDbContext context) : IPendingQue
         }
         catch (Exception ex)
         {
+            await transaction.RollbackAsync();
             throw new InvalidOperationException("An error occurred while creating the pending question.", ex);
+        }
+    }
+    
+    public async Task<bool> ApprovePendingQuestion(int id)
+    {
+        await using IDbContextTransaction? transaction = await context.Database.BeginTransactionAsync();
+        
+        try
+        {
+            PendingQuestion? pendingQuestion = await context.PendingQuestions
+                .Include(q => q.PendingAnswers)
+                .Include(q => q.PendingQuestionCategories)
+                .FirstOrDefaultAsync(q => q.Id == id);
+
+            if (pendingQuestion == null)
+            {
+                await transaction.RollbackAsync();
+                return false;
+            }
+            
+            if (pendingQuestion.PendingAnswers.Count != 3 || 
+                !pendingQuestion.PendingAnswers.Any(a => a.IsCorrect) || 
+                pendingQuestion.PendingQuestionCategories.Count == 0)
+            {
+                throw new InvalidOperationException("Invalid pending question: must have exactly 3 pending answers, 1 correct pending answer and at least one category.");
+            }
+            
+            Question newQuestion = new Question
+            {
+                QuestionText = pendingQuestion.QuestionText
+            };
+            
+            context.Questions.Add(newQuestion);
+            await context.SaveChangesAsync();
+
+            context.Answers.AddRange(pendingQuestion.PendingAnswers
+                .Select(a => new Answer
+                {
+                    QuestionId = newQuestion.Id,
+                    AnswerText = a.AnswerText,
+                    IsCorrect = a.IsCorrect
+                }));
+            
+            context.QuestionCategories.AddRange(pendingQuestion.PendingQuestionCategories
+                .Select(pqc => new QuestionCategory
+                {
+                    QuestionId = newQuestion.Id,
+                    CategoryId = pqc.CategoryId
+                }));
+            
+            context.PendingQuestions.Remove(pendingQuestion);
+            
+            await context.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            throw new InvalidOperationException("An error occurred while approving the pending question.", ex);
         }
     }
     
@@ -167,8 +186,10 @@ public class PendingQuestionService(QuestionaireDbContext context) : IPendingQue
             !updateRequest.PendingAnswers.Any(a => a.IsCorrect) || 
             updateRequest.CategoryIds.Count == 0)
         {
-            throw new InvalidOperationException("Invalid pending question: must have exactly 3 answers, 1 correct answer and at least one category.");
+            throw new InvalidOperationException("Invalid pending question: must have exactly 3 pending answers, 1 correct pending answer and at least one category.");
         }
+        
+        await using IDbContextTransaction? transaction = await context.Database.BeginTransactionAsync();
         
         try
         {
@@ -177,7 +198,11 @@ public class PendingQuestionService(QuestionaireDbContext context) : IPendingQue
                 .Include(q => q.PendingQuestionCategories)
                 .FirstOrDefaultAsync(q => q.Id == id);
 
-            if (pendingQuestion == null) return false;
+            if (pendingQuestion == null)
+            {
+                await transaction.RollbackAsync();
+                return false;
+            }
 
             pendingQuestion.QuestionText = updateRequest.QuestionText;
             
@@ -195,11 +220,12 @@ public class PendingQuestionService(QuestionaireDbContext context) : IPendingQue
             }).ToList();
             
             await context.SaveChangesAsync();
-            
+            await transaction.CommitAsync();
             return true;
         }
         catch (Exception ex)
         {
+            await transaction.RollbackAsync();
             throw new InvalidOperationException($"An error occurred while updating the pending question with ID {id}.", ex);
         }
     }

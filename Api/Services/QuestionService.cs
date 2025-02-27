@@ -178,6 +178,8 @@ public class QuestionService(QuestionaireDbContext context,
             throw new InvalidOperationException("Invalid question: must have exactly 3 answers, 1 correct answer and at least one category.");
         }
         
+        await using IDbContextTransaction? transaction = await context.Database.BeginTransactionAsync();
+        
         try
         {
             Question? question = await context.Questions
@@ -185,7 +187,11 @@ public class QuestionService(QuestionaireDbContext context,
                 .Include(q => q.QuestionCategories)
                 .FirstOrDefaultAsync(q => q.Id == id);
 
-            if (question == null) return false;
+            if (question == null)
+            {
+                await transaction.RollbackAsync();
+                return false;
+            }
 
             question.QuestionText = updatedQuestion.QuestionText;
             
@@ -203,11 +209,13 @@ public class QuestionService(QuestionaireDbContext context,
             }).ToList();
 
             await context.SaveChangesAsync();
+            await transaction.CommitAsync();
             
             return true;
         }
         catch (Exception ex)
         {
+            await transaction.RollbackAsync();
             throw new InvalidOperationException($"An error occurred while updating the question with ID {id}.", ex);
         }
     }

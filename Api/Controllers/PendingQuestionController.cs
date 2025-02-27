@@ -50,22 +50,6 @@ public class PendingQuestionController(IPendingQuestionService pendingQuestionSe
             return StatusCode(500, message);
         }
     }
-    
-    [HttpPost("{id}")]
-    public async Task<ActionResult<List<PendingQuestion>>> ApproveQuestion(int id)
-    {
-        try
-        {
-            await pendingQuestionService.ApproveQuestion(id);
-            return Ok(new { Message = "Question approved successfully." });
-        }
-        catch (Exception ex)
-        {
-            string message = $"An error occurred while approving the pending question with ID {id}.";
-            logger.LogError(ex, message);
-            return StatusCode(500, message);
-        }
-    }
 
     [HttpPost]
     public async Task<IActionResult> CreatePendingQuestion([FromBody] PendingQuestionDto? newPendingQuestion)
@@ -80,6 +64,23 @@ public class PendingQuestionController(IPendingQuestionService pendingQuestionSe
         catch (Exception ex)
         {
             string message = "An error occurred while saving the pending question.";
+            logger.LogError(ex, message);
+            return StatusCode(500, message);
+        }
+    }    
+    
+    [HttpPut("approve/{id}")]
+    public async Task<IActionResult> ApprovePendingQuestion(int id)
+    {
+        try
+        {
+            bool success = await pendingQuestionService.ApprovePendingQuestion(id);
+            if (!success) return NotFound($"Pending question with ID {id} not found.");
+            return Ok("Pending question approved successfully.");
+        }
+        catch (Exception ex)
+        {
+            string message = $"An error occurred while approving the pending question with ID {id}.";
             logger.LogError(ex, message);
             return StatusCode(500, message);
         }
