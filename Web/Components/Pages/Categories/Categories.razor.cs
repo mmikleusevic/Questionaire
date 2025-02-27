@@ -10,33 +10,33 @@ public partial class Categories : ComponentBase
 {
     [Inject] private ICategoryService? CategoryService { get; set; }
 
-    private EventCallback OnCategoryChanged => EventCallback.Factory.Create(this, GetCategories);
-    private Modal modal = null!;
-    private CategoryLists categories;
+    private EventCallback OnCategoryChanged => EventCallback.Factory.Create(this, () => GetCategories());
+    private Modal? modal;
+    private CategoryLists? categories;
     
     protected override async Task OnInitializedAsync()
     {
-        await GetCategories();
+        await GetCategories(true);
     }
-    
+
     private async Task ShowCreateCategory()
     {
-        if (categories == null) return;
+        if (categories == null || modal == null) return;
         
         Dictionary<string, object> parameters = new Dictionary<string, object>
         {
             { "FlatCategories", categories.FlatCategories },
             { "Modal", modal },
-            { "OnCategoryChanged", EventCallback.Factory.Create(this, GetCategories) }
+            { "OnCategoryChanged", OnCategoryChanged }
         };
         
         await modal.ShowAsync<CreateCategory>("Create New Category", parameters: parameters);
     }
 
-    private async Task GetCategories()
+    private async Task GetCategories(bool forceRefresh = false)
     {
         if (CategoryService == null) return;
         
-        categories = await CategoryService.GetCategories();
+        categories = await CategoryService.GetCategories(forceRefresh);
     }
 }

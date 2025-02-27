@@ -5,7 +5,7 @@ namespace Web.Interfaces;
 
 public interface ICategoryService
 {
-    Task<CategoryLists> GetCategories();
+    Task<CategoryLists> GetCategories(bool forceRefresh = false);
     Task<List<Category>> GetNestedCategories();
     Task<List<Category>> GetFlatCategories();
     Task<Category> GetCategory(int id);

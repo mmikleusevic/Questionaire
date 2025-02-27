@@ -18,9 +18,9 @@ public class CategoryService(HttpClient httpClient,
     private readonly TimeSpan cacheDuration = TimeSpan.FromMinutes(10);
     private readonly SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
     
-    public async Task<CategoryLists> GetCategories()
-    {
-        if (nestedCategories != null && flatCategories != null && DateTime.UtcNow - lastFetchTime < cacheDuration)
+    public async Task<CategoryLists> GetCategories(bool forceRefresh = false)
+    {   
+        if (!forceRefresh && nestedCategories != null && flatCategories != null && DateTime.UtcNow - lastFetchTime < cacheDuration)
         {
             return new CategoryLists { FlatCategories = flatCategories, NestedCategories = nestedCategories };
         }
