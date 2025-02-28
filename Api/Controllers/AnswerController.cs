@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using QuestionaireApi.Interfaces;
 using QuestionaireApi.Models;
+using QuestionaireApi.Models.Dto;
 using QuestionaireApi.Services;
 
 namespace QuestionaireApi.Controllers;
@@ -46,7 +47,7 @@ public class AnswerController(IAnswerService answerService,
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateAnswer(Answer? newAnswer)
+    public async Task<IActionResult> CreateAnswer(AnswerDto? newAnswer)
     {
         if (newAnswer == null) return BadRequest("Answer data cannot be null.");
 
@@ -64,7 +65,7 @@ public class AnswerController(IAnswerService answerService,
     }
 
     [HttpPut("{id:int}")]
-    public async Task<IActionResult> UpdateAnswer(int id, Answer? updatedAnswer)
+    public async Task<IActionResult> UpdateAnswer(int id, AnswerDto? updatedAnswer)
     {
         if (updatedAnswer == null) return BadRequest("Answer data cannot be null.");
 

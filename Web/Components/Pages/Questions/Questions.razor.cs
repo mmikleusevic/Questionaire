@@ -46,34 +46,6 @@ public partial class Questions : ComponentBase
         await GetQuestions();
         Navigation.NavigateTo(Navigation.Uri.Split('#')[0] + "#topElement", forceLoad: false);
     }
-
-    private async Task ShowCreateQuestion()
-    {
-        if (modal == null || flatCategories == null) return;
-        
-        Dictionary<string, object> parameters = new Dictionary<string, object>
-        {
-            { "OnQuestionChanged", EventCallback.Factory.Create(this, GetQuestions) },
-            { "FlatCategories", flatCategories },
-            { "Modal", modal }
-        };
-        
-        await modal.ShowAsync<CreateQuestion>("Create New Question", parameters: parameters);
-    }
-    
-    private async Task ShowDeleteQuestion(Question? question)
-    {
-        if (modal == null || question == null) return;
-        
-        Dictionary<string, object> parameters = new Dictionary<string, object>
-        {
-            { "Modal", modal },
-            { "Question", question },
-            { "OnQuestionChanged", EventCallback.Factory.Create(this, GetQuestions)}
-        };
-        
-        await modal.ShowAsync<DeleteQuestion>("Delete Question",  parameters: parameters);
-    }
     
     private async Task ShowUpdateQuestion(Question? question)
     {
@@ -88,6 +60,20 @@ public partial class Questions : ComponentBase
         };
         
         await modal.ShowAsync<UpdateQuestion>("Update Question",  parameters: parameters);
+    }
+    
+    private async Task ShowDeleteQuestion(Question? question)
+    {
+        if (modal == null || question == null) return;
+        
+        Dictionary<string, object> parameters = new Dictionary<string, object>
+        {
+            { "Modal", modal },
+            { "Question", question },
+            { "OnQuestionChanged", EventCallback.Factory.Create(this, GetQuestions)}
+        };
+        
+        await modal.ShowAsync<DeleteQuestion>("Delete Question",  parameters: parameters);
     }
 
     private string GetAnswerRowClass(bool isCorrect) => isCorrect ? "correct-answer" : "incorrect-answer";

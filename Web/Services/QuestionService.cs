@@ -65,27 +65,6 @@ public class QuestionService(HttpClient httpClient,
         return new Question();
     }
     
-    public async Task CreateQuestion(Question newQuestion)
-    {
-        try
-        {
-            string? jsonContent = JsonConvert.SerializeObject(newQuestion);
-            StringContent? content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-            
-            HttpResponseMessage? response = await httpClient.PostAsync("api/Question", content);
-            string responseResult = await response.Content.ReadAsStringAsync();
-
-            if (response.StatusCode == HttpStatusCode.Created) responseResult = "Question created successfully";
-            
-            Helper.ShowToast(toastService, response.StatusCode, responseResult ,responseResult);
-        }
-        catch (Exception ex)
-        {
-            Helper.ShowToast(toastService, HttpStatusCode.InternalServerError, "Error creating a question", ex.Message);
-            logger.LogError(ex, "Error creating a question");
-        }
-    }
-    
     public async Task UpdateQuestion(Question updatedQuestion)
     {
         try

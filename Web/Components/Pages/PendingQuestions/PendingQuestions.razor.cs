@@ -1,0 +1,108 @@
+using BlazorBootstrap;
+using Microsoft.AspNetCore.Components;
+using Web.Components.Pages.PendingQuestions.PendingQuestionModal;
+using Web.Interfaces;
+using Web.Models;
+
+namespace Web.Components.Pages.PendingQuestions;
+
+public partial class PendingQuestions : ComponentBase
+{
+    [Inject] private IPendingQuestionService? PendingQuestionService { get; set; }
+    [Inject] private ICategoryService? CategoryService { get; set; }
+    
+    private Modal? modal;
+    private List<PendingQuestion>? pendingQuestions;
+    private List<Category>? flatCategories;
+    private const int PageSize = 50;
+    private int currentPage = 1;
+    private int totalPages = 1;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetPendingQuestions();
+        await GetFlatCategories();
+    }
+
+    private async Task GetPendingQuestions()
+    {
+        if (PendingQuestionService == null) return;
+        
+        PaginatedResponse<PendingQuestion> paginatedResponse = await PendingQuestionService.GetPendingQuestions(currentPage, PageSize);
+        pendingQuestions = paginatedResponse.Items;
+        totalPages = paginatedResponse.TotalPages;
+    }
+    
+    private async Task GetFlatCategories()
+    {
+        if (CategoryService == null) return;
+        
+        flatCategories = await CategoryService.GetFlatCategories();
+    }
+
+    private async Task OnPageChanged(int newPage)
+    {
+        currentPage = newPage;
+        await GetPendingQuestions();
+        Navigation.NavigateTo(Navigation.Uri.Split('#')[0] + "#topElement", forceLoad: false);
+    }
+
+    private async Task ShowCreatePendingQuestion()
+    {
+        if (modal == null || flatCategories == null) return;
+        
+        Dictionary<string, object> parameters = new Dictionary<string, object>
+        {
+            { "OnPendingQuestionChanged", EventCallback.Factory.Create(this, GetPendingQuestions) },
+            { "FlatCategories", flatCategories },
+            { "Modal", modal }
+        };
+        
+        await modal.ShowAsync<CreatePendingQuestion>("Create New Pending Question", parameters: parameters);
+    }
+    
+    private async Task ShowApprovePendingQuestion(PendingQuestion? pendingQuestion)
+    {
+        if (modal == null || pendingQuestion == null) return;
+        
+        Dictionary<string, object> parameters = new Dictionary<string, object>
+        {
+            { "Modal", modal },
+            { "PendingQuestion", pendingQuestion },
+            { "OnPendingQuestionChanged", EventCallback.Factory.Create(this, GetPendingQuestions)}
+        };
+        
+        await modal.ShowAsync<ApprovePendingQuestion>("Approve Pending Question",  parameters: parameters);
+    }
+    
+    private async Task ShowUpdatePendingQuestion(PendingQuestion? pendingQuestion)
+    {
+        if (modal == null || pendingQuestion == null || flatCategories == null) return;
+        
+        Dictionary<string, object> parameters = new Dictionary<string, object>
+        {
+            { "PendingQuestion", pendingQuestion },
+            { "FlatCategories", flatCategories },
+            { "OnPendingQuestionChanged", EventCallback.Factory.Create(this, GetPendingQuestions) },
+            { "Modal", modal },
+        };
+        
+        await modal.ShowAsync<UpdatePendingQuestion>("Update Pending Question",  parameters: parameters);
+    }
+    
+    private async Task ShowDeletePendingQuestion(PendingQuestion? pendingQuestion)
+    {
+        if (modal == null || pendingQuestion == null) return;
+        
+        Dictionary<string, object> parameters = new Dictionary<string, object>
+        {
+            { "Modal", modal },
+            { "PendingQuestion", pendingQuestion },
+            { "OnPendingQuestionChanged", EventCallback.Factory.Create(this, GetPendingQuestions)}
+        };
+        
+        await modal.ShowAsync<DeletePendingQuestion>("Delete Pending Question",  parameters: parameters);
+    }
+
+    private string GetAnswerRowClass(bool isCorrect) => isCorrect ? "correct-pending-answer" : "incorrect-pending-answer";
+}

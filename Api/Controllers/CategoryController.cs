@@ -82,7 +82,7 @@ public class CategoryController(ICategoryService categoryService,
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateCategory([FromBody] Category? newCategory)
+    public async Task<IActionResult> CreateCategory([FromBody] CategoryDto? newCategory)
     {
         if (newCategory == null) return BadRequest("Category data cannot be null.");
 
@@ -100,7 +100,7 @@ public class CategoryController(ICategoryService categoryService,
     }
 
     [HttpPut("{id:int}")]
-    public async Task<IActionResult> UpdateCategory(int id, [FromBody] Category? updatedCategory)
+    public async Task<IActionResult> UpdateCategory(int id, [FromBody] CategoryDto? updatedCategory)
     {
         if (updatedCategory == null) return BadRequest("Updated category data cannot be null.");
 

@@ -10,6 +10,6 @@ public interface IPendingQuestionService
     Task CreatePendingQuestion(PendingQuestionDto pendingQuestion);
     Task<bool> ApprovePendingQuestion(int id);
     Task<bool> DeletePendingQuestion(int id);
-    Task<bool> UpdatePendingQuestion(int id, UpdatePendingQuestionRequestDto updateRequest);
+    Task<bool> UpdatePendingQuestion(int id, PendingQuestionDto updatedPendingQuestion);
 
 }

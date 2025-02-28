@@ -77,11 +77,16 @@ public class CategoryService(QuestionaireDbContext context) : ICategoryService
         }
     }
     
-    public async Task CreateCategory(Category category)
+    public async Task CreateCategory(CategoryDto category)
     {
         try
         {
-            context.Categories.Add(category);
+            context.Categories.Add(new Category
+            {
+                CategoryName = category.CategoryName,
+                ParentCategoryId = category.ParentCategoryId
+            });
+            
             await context.SaveChangesAsync();
         }
         catch (Exception ex)
@@ -90,7 +95,7 @@ public class CategoryService(QuestionaireDbContext context) : ICategoryService
         }
     }
 
-    public async Task<bool> UpdateCategory(int id, Category updatedCategory)
+    public async Task<bool> UpdateCategory(int id, CategoryDto updatedCategory)
     {
         try
         {

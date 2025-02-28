@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using QuestionaireApi.Interfaces;
 using QuestionaireApi.Models;
+using QuestionaireApi.Models.Dto;
 
 namespace QuestionaireApi.Services;
 
@@ -30,11 +31,17 @@ public class AnswerService(QuestionaireDbContext context) : IAnswerService
         }
     }
 
-    public async Task CreateAnswer(Answer answer)
+    public async Task CreateAnswer(AnswerDto answer)
     {
         try
         {
-            context.Answers.Add(answer);
+            
+            
+            context.Answers.Add(new Answer
+            {
+                AnswerText = answer.AnswerText,
+                IsCorrect = answer.IsCorrect,
+            });
             await context.SaveChangesAsync();
         }
         catch (Exception ex)
@@ -43,7 +50,7 @@ public class AnswerService(QuestionaireDbContext context) : IAnswerService
         }
     }
 
-    public async Task<bool> UpdateAnswer(int id, Answer updatedAnswer)
+    public async Task<bool> UpdateAnswer(int id, AnswerDto updatedAnswer)
     {
         try
         {

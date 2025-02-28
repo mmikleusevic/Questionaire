@@ -180,11 +180,11 @@ public class PendingQuestionService(QuestionaireDbContext context) : IPendingQue
         }
     }
     
-    public async Task<bool> UpdatePendingQuestion(int id, UpdatePendingQuestionRequestDto updateRequest)
+    public async Task<bool> UpdatePendingQuestion(int id, PendingQuestionDto updatedPendingQuestion)
     {
-        if (updateRequest.PendingAnswers.Count != 3 || 
-            !updateRequest.PendingAnswers.Any(a => a.IsCorrect) || 
-            updateRequest.CategoryIds.Count == 0)
+        if (updatedPendingQuestion.PendingAnswers.Count != 3 || 
+            !updatedPendingQuestion.PendingAnswers.Any(a => a.IsCorrect) || 
+            updatedPendingQuestion.Categories.Count == 0)
         {
             throw new InvalidOperationException("Invalid pending question: must have exactly 3 pending answers, 1 correct pending answer and at least one category.");
         }
@@ -204,23 +204,24 @@ public class PendingQuestionService(QuestionaireDbContext context) : IPendingQue
                 return false;
             }
 
-            pendingQuestion.QuestionText = updateRequest.QuestionText;
+            pendingQuestion.QuestionText = updatedPendingQuestion.QuestionText;
             
-            pendingQuestion.PendingAnswers = updateRequest.PendingAnswers.Select(a => new PendingAnswer
+            pendingQuestion.PendingAnswers = updatedPendingQuestion.PendingAnswers.Select(a => new PendingAnswer
             {
                 PendingQuestionId = pendingQuestion.Id,
                 AnswerText = a.AnswerText,
                 IsCorrect = a.IsCorrect
             }).ToList();
 
-            pendingQuestion.PendingQuestionCategories = updateRequest.CategoryIds.Select(c => new PendingQuestionCategory
+            pendingQuestion.PendingQuestionCategories = updatedPendingQuestion.Categories.Select(c => new PendingQuestionCategory
             {
                 PendingQuestionId = pendingQuestion.Id,
-                CategoryId = c
+                CategoryId = c.Id
             }).ToList();
             
             await context.SaveChangesAsync();
             await transaction.CommitAsync();
+            
             return true;
         }
         catch (Exception ex)
@@ -235,18 +236,14 @@ public class PendingQuestionService(QuestionaireDbContext context) : IPendingQue
         try
         {
             PendingQuestion? pendingQuestion = await context.PendingQuestions
-                .Include(q => q.PendingAnswers)
-                .Include(q => q.PendingQuestionCategories)
-                .FirstOrDefaultAsync(q => q.Id == id);
+                .Include(a => a.PendingAnswers)
+                .FirstOrDefaultAsync(a => a.Id == id);
             
             if (pendingQuestion == null) return false;
             
-            context.PendingAnswers.RemoveRange(pendingQuestion.PendingAnswers);
-            context.PendingQuestionCategories.RemoveRange(pendingQuestion.PendingQuestionCategories);
             context.PendingQuestions.Remove(pendingQuestion);
-            
             await context.SaveChangesAsync();
-            
+
             return true;
         }
         catch (Exception ex)

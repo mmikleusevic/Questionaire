@@ -36,7 +36,7 @@
     color: red;
 }
 
-.question-text,
+.pending-question-text,
 .dropdown-row
 {
     display: flex;

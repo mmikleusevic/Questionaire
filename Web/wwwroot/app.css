@@ -87,6 +87,15 @@ button.btn-create {
     padding-right: 20px;
 }
 
+.btn-approve {
+    background-color: #0077cc;
+    color: white;
+}
+
+.btn-approve:hover {
+    background-color: #005fa3;
+}
+
 .btn-update {
     background-color: #00b808;
     color: white;
@@ -116,6 +125,7 @@ button.btn-create {
 }
 
 .btn-delete, 
+.btn-approve,
 .btn-update {
     width: 100px;
     min-width: 100px;

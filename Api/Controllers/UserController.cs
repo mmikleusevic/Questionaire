@@ -45,7 +45,7 @@ public class UserController(IUserService userService,
         }
         
         [HttpPost]
-        public async Task<IActionResult> CreateUser([FromBody] User? newUser)
+        public async Task<IActionResult> CreateUser([FromBody] UserDto? newUser)
         {
             if (newUser == null) return BadRequest("User data cannot be null.");
             
@@ -63,7 +63,7 @@ public class UserController(IUserService userService,
         }
         
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser(int id, [FromBody] User? updatedUser)
+        public async Task<IActionResult> UpdateUser(int id, [FromBody] UserDto? updatedUser)
         {
             if (updatedUser == null) return BadRequest("Update user data cannot be null.");
             

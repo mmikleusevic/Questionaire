@@ -13,41 +13,41 @@
         </div>
     }
 
-    <div class="form-group row mb-3 question-text">
+    <div class="form-group row mb-3 pending-question-text">
         <div class="col-md-12">
-            <label class="col-md-3 col-form-label">Question Text:<span class="text-danger">*</span></label>
+            <label class="col-md-3 col-form-label">Pending Question Text:<span class="text-danger">*</span></label>
             <div class="col-lg-12">
-                <TextAreaInput @bind-Value="@question.QuestionText"
+                <TextAreaInput @bind-Value="@pendingQuestion.QuestionText"
                                TextAlignment="Alignment.Center"
-                               Placeholder="Enter question text here"
+                               Placeholder="Enter pending question text here"
                                MaxLength="500"
                                Rows="3"/>
-                <ValidationMessage For="@(() => question.QuestionText)" class="alert alert-danger"/>
+                <ValidationMessage For="@(() => pendingQuestion.QuestionText)" class="alert alert-danger"/>
             </div>
         </div>
         <div class="col-md-12">
-            <label class="col-form-label">Answers:<span class="text-danger">*</span></label>
+            <label class="col-form-label">Pending Answers:<span class="text-danger">*</span></label>
             <div class="row">
-                @foreach (var answer in question.Answers)
+                @foreach (var pendingAnswer in pendingQuestion.PendingAnswers)
                 {
                     <div class="col-md-10">
                         <div class="input-group">
-                            <TextInput @bind-Value="answer.AnswerText"
-                                       Placeholder="Enter answer text"
+                            <TextInput @bind-Value="pendingAnswer.AnswerText"
+                                       Placeholder="Enter pending answer text"
                                        MaxLength="100"/>
                         </div>
-                        <ValidationMessage For="@(() => answer.AnswerText)" class="alert alert-danger"/>
+                        <ValidationMessage For="@(() => pendingAnswer.AnswerText)" class="alert alert-danger"/>
                     </div>
                     <div class="col-md-2 dropdown-row">
-                        <Dropdown Direction="DropdownDirection.Dropdown" Class="flex-fill" Color="@(answer.IsCorrect ? DropdownColor.Success : DropdownColor.Danger)" >
+                        <Dropdown Direction="DropdownDirection.Dropdown" Class="flex-fill" Color="@(pendingAnswer.IsCorrect ? DropdownColor.Success : DropdownColor.Danger)" >
                             <DropdownToggleButton >
-                                @(answer.IsCorrect ? "Correct" : "Incorrect")
+                                @(pendingAnswer.IsCorrect ? "Correct" : "Incorrect")
                             </DropdownToggleButton>
                             <DropdownMenu>
-                                <DropdownItem @onclick="@(() => answer.IsCorrect = false)">
+                                <DropdownItem @onclick="@(() => pendingAnswer.IsCorrect = false)">
                                     Incorrect
                                 </DropdownItem>
-                                <DropdownItem @onclick="@(() => answer.IsCorrect = true)">
+                                <DropdownItem @onclick="@(() => pendingAnswer.IsCorrect = true)">
                                     Correct
                                 </DropdownItem>
                             </DropdownMenu>

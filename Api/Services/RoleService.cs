@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using QuestionaireApi.Interfaces;
 using QuestionaireApi.Models.Database;
+using QuestionaireApi.Models.Dto;
 
 namespace QuestionaireApi.Services
 {
@@ -32,11 +33,15 @@ namespace QuestionaireApi.Services
             }
         }
         
-        public async Task CreateRole(Role role)
+        public async Task CreateRole(RoleDto role)
         {
             try
             {
-                context.Roles.Add(role);
+                context.Roles.Add(new Role
+                {
+                    Name = role.Name
+                });
+                
                 await context.SaveChangesAsync();
             }
             catch (Exception ex)
@@ -45,7 +50,7 @@ namespace QuestionaireApi.Services
             }
         }
         
-        public async Task<bool> UpdateRole(int id, Role updatedRole)
+        public async Task<bool> UpdateRole(int id, RoleDto updatedRole)
         {
             try
             {

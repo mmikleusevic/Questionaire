@@ -72,24 +72,6 @@ public class QuestionController(IQuestionService questionService,
         }
     }
 
-    [HttpPost]
-    public async Task<IActionResult> CreateQuestion([FromBody] QuestionDto? newQuestion)
-    {
-        if (newQuestion == null) return BadRequest("Question data cannot be null.");
-
-        try
-        {
-            await questionService.CreateQuestion(newQuestion);
-            return Created();
-        }
-        catch (Exception ex)
-        {
-            string message = "An error occurred while creating the question.";
-            logger.LogError(ex, message);
-            return StatusCode(500, message);
-        }
-    }
-
     [HttpPut("{id:int}")]
     public async Task<IActionResult> UpdateQuestion(int id, [FromBody] QuestionDto? updatedQuestion)
     {

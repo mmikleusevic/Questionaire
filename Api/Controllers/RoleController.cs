@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using QuestionaireApi.Interfaces;
 using QuestionaireApi.Models.Database;
+using QuestionaireApi.Models.Dto;
 
 namespace QuestionaireApi.Controllers;
 
@@ -42,7 +43,7 @@ public class RoleController(IRoleService roleService,
     }
     
     [HttpPost]
-    public async Task<IActionResult> CreateRole([FromBody] Role? newRole)
+    public async Task<IActionResult> CreateRole([FromBody] RoleDto? newRole)
     {
         if (newRole == null) return BadRequest("Role data cannot be null.");
         
@@ -60,7 +61,7 @@ public class RoleController(IRoleService roleService,
     }
     
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateRole(int id, [FromBody] Role? updatedRole)
+    public async Task<IActionResult> UpdateRole(int id, [FromBody] RoleDto? updatedRole)
     {
         if (updatedRole == null) return BadRequest("Update role data cannot be null.");
         

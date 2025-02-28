@@ -4,18 +4,18 @@ using Microsoft.AspNetCore.Components.Forms;
 using Web.Interfaces;
 using Web.Models;
 
-namespace Web.Components.Pages.Questions.QuestionModals;
+namespace Web.Components.Pages.PendingQuestions.PendingQuestionModal;
 
-public partial class CreateQuestion : ComponentBase
+public partial class CreatePendingQuestion : ComponentBase
 {
-    [Inject] private IQuestionService? QuestionService { get; set; }
-    [Parameter] public EventCallback OnQuestionChanged { get; set; }
+    [Inject] private IPendingQuestionService? PendingQuestionService { get; set; }
+    [Parameter] public EventCallback OnPendingQuestionChanged { get; set; }
     [Parameter] public List<Category> FlatCategories { get; set; }
     [Parameter] public Modal? Modal { get; set; }
     
     private List<string> validationMessages = new List<string>();
     private EditContext? editContext;
-    private readonly Question question = new Question();
+    private readonly PendingQuestion pendingQuestion = new PendingQuestion();
     private readonly List<Category> selectedCategories = new List<Category>();
     
     protected override async Task OnInitializedAsync()
@@ -28,39 +28,39 @@ public partial class CreateQuestion : ComponentBase
     {
         await base.OnParametersSetAsync();
         
-        question.QuestionText = string.Empty;
+        pendingQuestion.QuestionText = string.Empty;
         
         selectedCategories.Clear();
         selectedCategories.Add(new Category());
 
-        if (question?.Answers == null || question.Answers.Count == 0)
+        if (pendingQuestion?.PendingAnswers == null || pendingQuestion.PendingAnswers.Count == 0)
         {
             SetAnswers();
         }
         else
         {
-            foreach (Answer answer in question.Answers)
+            foreach (PendingAnswer pendingAnswer in pendingQuestion.PendingAnswers)
             {
-                answer.AnswerText = string.Empty;
-                answer.IsCorrect = false;
+                pendingAnswer.AnswerText = string.Empty;
+                pendingAnswer.IsCorrect = false;
             }
         }
         
         validationMessages.Clear();
         
-        editContext = new EditContext(question);
+        editContext = new EditContext(pendingQuestion);
     }
     
     public async Task HandleValidSubmit()
     {
-        if (QuestionService == null) return;
+        if (PendingQuestionService == null) return;
         
         List<string> errorMessages = new List<string>();
         
-        int correctAnswers = question.Answers.Count(a => a.IsCorrect);
+        int correctAnswers = pendingQuestion.PendingAnswers.Count(a => a.IsCorrect);
         if (correctAnswers != 1)
         {
-            errorMessages.Add("You have to mark exactly one answer as correct and 2 as incorrect!");
+            errorMessages.Add("You have to mark exactly one pending answer as correct and 2 as incorrect!");
         }
 
         int numberOfCategories = selectedCategories.Select(a => a.Id).Count(a => a != 0);
@@ -75,9 +75,9 @@ public partial class CreateQuestion : ComponentBase
             return;
         }
         
-        question.Categories = selectedCategories.Where(a => a.Id != 0).ToList();
-        await QuestionService.CreateQuestion(question);
-        await OnQuestionChanged.InvokeAsync();
+        pendingQuestion.Categories = selectedCategories.Where(a => a.Id != 0).ToList();
+        await PendingQuestionService.CreatePendingQuestion(pendingQuestion);
+        await OnPendingQuestionChanged.InvokeAsync();
         await Hide();
     }
     
@@ -85,7 +85,7 @@ public partial class CreateQuestion : ComponentBase
     {
         for (int i = 0; i < 3; i++)
         {
-            question?.Answers?.Add(new Answer { AnswerText = string.Empty });
+            pendingQuestion?.PendingAnswers?.Add(new PendingAnswer { AnswerText = string.Empty });
         }
     }
     

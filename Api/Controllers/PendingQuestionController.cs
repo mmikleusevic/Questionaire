@@ -87,13 +87,13 @@ public class PendingQuestionController(IPendingQuestionService pendingQuestionSe
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdatePendingQuestion(int id, [FromBody] UpdatePendingQuestionRequestDto? updateRequest)
+    public async Task<IActionResult> UpdatePendingQuestion(int id, [FromBody] PendingQuestionDto? updatedPendingQuestion)
     {
-        if (updateRequest == null) return BadRequest("Update pending question data cannot be null.");
+        if (updatedPendingQuestion == null) return BadRequest("Update pending question data cannot be null.");
         
         try
         {
-            bool success = await pendingQuestionService.UpdatePendingQuestion(id, updateRequest);
+            bool success = await pendingQuestionService.UpdatePendingQuestion(id, updatedPendingQuestion);
             if (!success) return NotFound($"Pending question with ID {id} not found.");
             return Ok($"Pending question with ID {id} updated successfully.");
         }

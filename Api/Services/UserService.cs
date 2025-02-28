@@ -42,11 +42,16 @@ public class UserService(QuestionaireDbContext context) : IUserService
         }
     }
 
-    public async Task CreateUser(User user)
+    public async Task CreateUser(UserDto user)
     {
         try
         {
-            context.Users.Add(user);
+            context.Users.Add(new User
+            {
+                Name = user.Name,
+                RoleId = user.RoleId,
+                Password = user.Password
+            });
             await context.SaveChangesAsync();
         }
         catch (Exception ex)
@@ -55,7 +60,7 @@ public class UserService(QuestionaireDbContext context) : IUserService
         }
     }
 
-    public async Task<bool> UpdateUser(int id, User updatedUser)
+    public async Task<bool> UpdateUser(int id, UserDto updatedUser)
     {
         try
         {

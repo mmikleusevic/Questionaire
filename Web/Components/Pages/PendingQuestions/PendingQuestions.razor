@@ -1,0 +1,71 @@
+@page "/pendingQuestions"
+@inject NavigationManager Navigation
+
+<Modal @ref="modal" UseStaticBackdrop="true" CloseOnEscape="true" IsVerticallyCentered="true" Size="ModalSize.ExtraLarge"/>
+
+<style scoped>
+    body {
+        padding-bottom: 60px;
+    }
+</style>
+<PageTitle>Pending Questions</PageTitle>
+<div>
+    <div>
+        <h3>Pending Questions</h3>
+        <button class="btn btn-create" @onclick="ShowCreatePendingQuestion">Create</button>
+    </div>
+</div>
+@if (pendingQuestions == null)
+{
+    <p><em>Loading...</em></p>
+}
+else if (pendingQuestions.Count == 0)
+{
+    <p>No pending questions found.</p>
+}
+else
+{
+    <div id="topElement" class="pending-questions-container">
+        @foreach (var pendingQuestion in pendingQuestions)
+        {
+            <div class="pending-question">
+                <div class="pending-question-row">
+                    <div class="pending-question-text">@pendingQuestion.QuestionText</div>
+                    <div class="categories-pending-answers">
+                        <div class="categories-row">
+                            @foreach (var category in pendingQuestion.Categories)
+                            {
+                                <span class="category-item">@category.CategoryName</span>
+                            }
+                        </div>
+                        <div class="pending-answers-list">
+                            @foreach (var pendingAnswer in pendingQuestion.PendingAnswers)
+                            {
+                                <span class="@GetAnswerRowClass(pendingAnswer.IsCorrect)">
+                                    @pendingAnswer.AnswerText
+                                </span>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="actions">
+                    <button class="btn btn-approve" @onclick="@(() => ShowApprovePendingQuestion(pendingQuestion))">Approve</button>
+                    <button class="btn btn-update" @onclick="@(() => ShowUpdatePendingQuestion(pendingQuestion))">Update</button>
+                    <button class="btn btn-delete" @onclick="@(() => ShowDeletePendingQuestion(pendingQuestion))">Delete</button>
+                </div>
+            </div>
+        }
+    </div>
+    
+    <div class="pagination-footer">
+        <Pagination ActivePageNumber="currentPage"
+                    TotalPages="totalPages"
+                    DisplayPages="5"
+                    FirstLinkIcon="IconName.ChevronDoubleLeft"
+                    PreviousLinkIcon="IconName.ChevronLeft"
+                    NextLinkIcon="IconName.ChevronRight"
+                    LastLinkIcon="IconName.ChevronDoubleRight"
+                    PageChanged="OnPageChanged"
+                    Alignment="Alignment.Center"/>
+    </div>
+}

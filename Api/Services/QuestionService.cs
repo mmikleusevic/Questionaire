@@ -120,54 +120,6 @@ public class QuestionService(QuestionaireDbContext context,
             throw new InvalidOperationException($"An error occurred while parsing random questions.", ex);
         }
     }
-    
-    public async Task CreateQuestion(QuestionDto question)
-    {
-        if (question.Answers.Count != 3 || 
-            !question.Answers.Any(a => a.IsCorrect) || 
-            question.Categories.Count == 0)
-        {
-            throw new InvalidOperationException("Invalid question: must have exactly 3 answers, 1 correct answer and at least one category.");
-        }
-        
-        await using IDbContextTransaction? transaction = await context.Database.BeginTransactionAsync();
-        
-        try
-        {
-            Question dbQuestion = new Question
-            {
-                QuestionText = question.QuestionText
-            };
-            
-            context.Questions.Add(dbQuestion);
-            await context.SaveChangesAsync();
-            
-            List<Answer> dbAnswers = question.Answers.Select(answer => new Answer
-            {
-                AnswerText = answer.AnswerText,
-                IsCorrect = answer.IsCorrect,
-                QuestionId = dbQuestion.Id
-            }).ToList();
-
-            context.Answers.AddRange(dbAnswers);
-            
-            List<QuestionCategory> questionCategories = question.Categories.Select(category => new QuestionCategory
-            {
-                QuestionId = dbQuestion.Id,
-                CategoryId = category.Id
-            }).ToList();
-
-            context.QuestionCategories.AddRange(questionCategories);
-            
-            await context.SaveChangesAsync();
-            await transaction.CommitAsync();
-        }
-        catch (Exception ex)
-        {
-            await transaction.RollbackAsync();
-            throw new InvalidOperationException("An error occurred while creating the question.", ex);
-        }
-    }
 
     public async Task<bool> UpdateQuestion(int id, QuestionDto updatedQuestion)
     {

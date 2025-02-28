@@ -9,7 +9,7 @@ public interface ICategoryService
     Task<List<CategoryDto>> GetNestedCategories();
     Task<List<CategoryDto>> GetFlatCategories();
     Task<Category?> GetCategoryById(int id);
-    Task CreateCategory(Category category);
-    Task<bool> UpdateCategory(int id, Category updatedCategory);
+    Task CreateCategory(CategoryDto category);
+    Task<bool> UpdateCategory(int id, CategoryDto updatedCategory);
     Task<bool> DeleteCategory(int id);
 }

@@ -7,7 +7,7 @@ namespace Web.Models;
 public class PendingAnswer
 {
     [JsonProperty]
-    public int Id { get; set; }
+    public int Id { get; private set; }
     [JsonProperty]
     [Required(ErrorMessage = "Answer Text is required")]
     [StringLength(500, ErrorMessage = "Answer Text must be between 1 and 100 characters", MinimumLength = 1)]
