@@ -1,10 +1,11 @@
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using QuestionaireApi.Models;
 using QuestionaireApi.Models.Database;
 
 namespace QuestionaireApi;
 
-public class QuestionaireDbContext(DbContextOptions<QuestionaireDbContext> options) : DbContext(options)
+public class QuestionaireDbContext(DbContextOptions options) : IdentityDbContext(options)
 {
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<Question> Questions => Set<Question>();
@@ -14,10 +15,10 @@ public class QuestionaireDbContext(DbContextOptions<QuestionaireDbContext> optio
     public DbSet<PendingQuestion> PendingQuestions => Set<PendingQuestion>();
     public DbSet<PendingAnswer> PendingAnswers => Set<PendingAnswer>();
     public DbSet<PendingQuestionCategory> PendingQuestionCategories => Set<PendingQuestionCategory>();
-    public DbSet<User> Users => Set<User>();
-    public DbSet<Role> Roles => Set<Role>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+        
         modelBuilder.Entity<QuestionCategory>()
             .HasKey(qc => new { qc.QuestionId, qc.CategoryId });
 
@@ -62,12 +63,6 @@ public class QuestionaireDbContext(DbContextOptions<QuestionaireDbContext> optio
             .HasOne(qc => qc.Category)
             .WithMany(c => c.PendingQuestionCategories)
             .HasForeignKey(qc => qc.CategoryId)
-            .OnDelete(DeleteBehavior.Restrict);
-        
-        modelBuilder.Entity<User>()
-            .HasOne(a => a.Role)
-            .WithMany(a => a.Users)
-            .HasForeignKey(qc => qc.RoleId)
             .OnDelete(DeleteBehavior.Restrict);
         
         modelBuilder.Entity<Category>().HasData(
