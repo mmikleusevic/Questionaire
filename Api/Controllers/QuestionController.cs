@@ -36,23 +36,6 @@ public class QuestionController(IQuestionService questionService,
         }
     }
 
-    [HttpGet("{id:int}")]
-    public async Task<ActionResult<QuestionDto>> GetQuestionById(int id)
-    {
-        try
-        {
-            Question? question = await questionService.GetQuestionById(id);
-            if (question is null) return NotFound($"Question with ID {id} not found.");
-            return Ok(question);
-        }
-        catch (Exception ex)
-        {
-            string message = $"An error occurred while retrieving the question with ID {id}.";
-            logger.LogError(ex, message);
-            return StatusCode(500, message);
-        }
-    }
-
     [HttpPost("random")]
     public async Task<ActionResult<List<QuestionDto>>> GetRandomUniqueQuestions([FromBody] GetRandomUniqueQuestionsRequestDto? request)
     {

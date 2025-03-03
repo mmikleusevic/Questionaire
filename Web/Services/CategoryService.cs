@@ -134,32 +134,6 @@ public class CategoryService(HttpClient httpClient,
         return new List<Category>();
     }
     
-    public async Task<Category> GetCategory(int id)
-    {
-        try
-        {
-            HttpResponseMessage? response = await httpClient.GetAsync($"api/Category/{id}");
-
-            if (response.IsSuccessStatusCode)
-            {
-                string responseStream = await response.Content.ReadAsStringAsync();
-                Category? result = JsonConvert.DeserializeObject<Category>(responseStream);
-
-                return result ?? new Category();
-            }
-
-            string? responseResult = await response.Content.ReadAsStringAsync();
-            Helper.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
-        }
-        catch (Exception ex)
-        {
-            Helper.ShowToast(toastService, HttpStatusCode.InternalServerError, "Error fetching a category", ex.Message);
-            logger.LogError(ex, "Error fetching a category");
-        }
-        
-        return new Category();
-    }
-    
     public async Task CreateCategory(Category newCategory)
     {
         try

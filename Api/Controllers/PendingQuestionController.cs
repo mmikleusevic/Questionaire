@@ -33,23 +33,6 @@ public class PendingQuestionController(IPendingQuestionService pendingQuestionSe
             return StatusCode(500, message);
         }
     }
-    
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetPendingQuestionById(int id)
-    {
-        try
-        {
-            PendingQuestion? pendingQuestion = await pendingQuestionService.GetPendingQuestion(id);
-            if (pendingQuestion == null) return NotFound($"Question with ID {id} not found.");
-            return Ok(pendingQuestion);
-        }
-        catch (Exception ex)
-        {
-            string message = $"An error occurred while retrieving the pending question with ID {id}.";
-            logger.LogError(ex, message);
-            return StatusCode(500, message);
-        }
-    }
 
     [HttpPost]
     public async Task<IActionResult> CreatePendingQuestion([FromBody] PendingQuestionDto? newPendingQuestion)

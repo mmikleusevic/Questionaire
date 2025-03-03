@@ -37,7 +37,7 @@ namespace QuestionaireApi.Services
         {
             try
             {
-                context.Roles.Add(new Role
+                await context.Roles.AddAsync(new Role
                 {
                     Name = role.Name
                 });

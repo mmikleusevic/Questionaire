@@ -22,24 +22,30 @@ public partial class UpdateQuestion : ComponentBase
     protected override async Task OnParametersSetAsync()
     {
         await base.OnParametersSetAsync();
-
+        
+        List<Answer> existingAnswers = Question.Answers
+            .Select(a => new Answer
+            (
+                a.Id,
+                a.AnswerText,
+                a.IsCorrect
+            ))
+            .ToList();
+        
+        int additionalAnswersNeeded = Math.Max(0, 3 - existingAnswers.Count);
+        
+        List<Answer> newEmptyAnswers = Enumerable.Range(0, additionalAnswersNeeded)
+            .Select(_ => new Answer
+            {
+                AnswerText = string.Empty,
+                IsCorrect = false
+            })
+            .ToList();
+        
         updatedQuestion = new Question
         {
             QuestionText = Question.QuestionText,
-            Answers = Question.Answers.Select(a => new Answer
-            {
-                AnswerText = a.AnswerText,
-                IsCorrect = a.IsCorrect
-            })
-            .Concat(Enumerable.Repeat(new Answer
-                {
-                    AnswerText = string.Empty, 
-                    IsCorrect = false
-                }, 3 - Question.Answers.Count)
-                .Take(Math.Max(0, 3 - Question.Answers.Count)
-                )
-            )
-            .ToList(),
+            Answers = existingAnswers.Concat(newEmptyAnswers).ToList(),
             Categories = Question.Categories.Select(c => new Category(
                 c.Id,
                 c.CategoryName,

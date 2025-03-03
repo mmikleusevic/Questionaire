@@ -22,24 +22,30 @@ public partial class UpdatePendingQuestion : ComponentBase
     protected override async Task OnParametersSetAsync()
     {
         await base.OnParametersSetAsync();
-
+        
+        List<PendingAnswer> existingPendingAnswers = PendingQuestion.PendingAnswers
+            .Select(a => new PendingAnswer
+            (
+                a.Id,
+                a.AnswerText,
+                a.IsCorrect
+            ))
+            .ToList();
+        
+        int additionalPendingAnswersNeeded = Math.Max(0, 3 - existingPendingAnswers.Count);
+        
+        List<PendingAnswer> newEmptyPendingAnswers = Enumerable.Range(0, additionalPendingAnswersNeeded)
+            .Select(_ => new PendingAnswer
+            {
+                AnswerText = string.Empty,
+                IsCorrect = false
+            })
+            .ToList();
+        
         updatedPendingQuestion = new PendingQuestion
         {
             QuestionText = PendingQuestion.QuestionText,
-            PendingAnswers = PendingQuestion.PendingAnswers.Select(a => new PendingAnswer
-            {
-                AnswerText = a.AnswerText,
-                IsCorrect = a.IsCorrect
-            })
-            .Concat(Enumerable.Repeat(new PendingAnswer
-                {
-                    AnswerText = string.Empty, 
-                    IsCorrect = false
-                }, 3 - PendingQuestion.PendingAnswers.Count)
-                .Take(Math.Max(0, 3 - PendingQuestion.PendingAnswers.Count)
-                )
-            )
-            .ToList(),
+            PendingAnswers = existingPendingAnswers.Concat(newEmptyPendingAnswers).ToList(),
             Categories = PendingQuestion.Categories.Select(c => new Category(
                 c.Id,
                 c.CategoryName,

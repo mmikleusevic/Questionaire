@@ -64,23 +64,6 @@ public class CategoryController(ICategoryService categoryService,
         }
     }
 
-    [HttpGet("{id:int}")]
-    public async Task<ActionResult<CategoryDto>> GetCategoryById(int id)
-    {
-        try
-        {
-            Category? category = await categoryService.GetCategoryById(id);
-            if (category is null) return NotFound($"Category with ID {id} not found.");
-            return Ok(category);
-        }
-        catch (Exception ex)
-        {
-            string message = $"An error occurred while retrieving the category with ID {id}.";
-            logger.LogError(ex, message);
-            return StatusCode(500, message);
-        }
-    }
-
     [HttpPost]
     public async Task<IActionResult> CreateCategory([FromBody] CategoryDto? newCategory)
     {

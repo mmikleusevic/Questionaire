@@ -39,32 +39,6 @@ public class QuestionService(HttpClient httpClient,
         return new PaginatedResponse<Question>();
     }
     
-    public async Task<Question> GetQuestion(int id)
-    {
-        try
-        {
-            HttpResponseMessage? response = await httpClient.GetAsync($"api/Question/{id}");
-        
-            if (response.IsSuccessStatusCode)
-            {
-                string responseStream = await response.Content.ReadAsStringAsync();
-                Question? result = JsonConvert.DeserializeObject<Question>(responseStream);
-
-                return result ?? new Question();
-            }
-            
-            string? responseResult = await response.Content.ReadAsStringAsync();
-            Helper.ShowToast(toastService, response.StatusCode, responseResult ,responseResult);
-        }
-        catch (Exception ex)
-        {
-            Helper.ShowToast(toastService, HttpStatusCode.InternalServerError, "Error fetching a question", ex.Message);
-            logger.LogError(ex, "Error fetching a question");
-        }
-        
-        return new Question();
-    }
-    
     public async Task UpdateQuestion(Question updatedQuestion)
     {
         try

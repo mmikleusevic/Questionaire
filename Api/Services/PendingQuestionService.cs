@@ -7,7 +7,11 @@ using QuestionaireApi.Models.Dto;
 
 namespace QuestionaireApi.Services;
 
-public class PendingQuestionService(QuestionaireDbContext context) : IPendingQuestionService
+public class PendingQuestionService(QuestionaireDbContext context,
+    IPendingAnswerService pendingAnswerService,
+    IPendingQuestionCategoriesService pendingQuestionCategoriesService,
+    IAnswerService answerService,
+    IQuestionCategoriesService questionCategoriesService) : IPendingQuestionService
 {
     public async Task<PaginatedResponse<PendingQuestionDto>> GetPendingQuestions(int pageNumber, int pageSize)
     {
@@ -55,22 +59,6 @@ public class PendingQuestionService(QuestionaireDbContext context) : IPendingQue
         }
     }
     
-    public async Task<PendingQuestion?> GetPendingQuestion(int id)
-    {
-        try
-        {
-            return await context.PendingQuestions
-                .Include(q => q.PendingAnswers)
-                .Include(q => q.PendingQuestionCategories)
-                .ThenInclude(q => q.Category)
-                .FirstOrDefaultAsync(q => q.Id == id);
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException($"An error occurred while retrieving the pending question with ID {id}.", ex);
-        }
-    }
-    
     public async Task CreatePendingQuestion(PendingQuestionDto pendingQuestion)
     {
         if (pendingQuestion.PendingAnswers.Count != 3 || 
@@ -89,25 +77,12 @@ public class PendingQuestionService(QuestionaireDbContext context) : IPendingQue
                 QuestionText = pendingQuestion.QuestionText
             };
             
-            context.PendingQuestions.Add(dbQuestion);
+            await context.PendingQuestions.AddAsync(dbQuestion);
             await context.SaveChangesAsync();
             
-            List<PendingAnswer> dbPendingAnswers = pendingQuestion.PendingAnswers.Select(answer => new PendingAnswer
-            {
-                AnswerText = answer.AnswerText,
-                IsCorrect = answer.IsCorrect,
-                PendingQuestionId = dbQuestion.Id
-            }).ToList();
-
-            context.PendingAnswers.AddRange(dbPendingAnswers);
-            
-            List<PendingQuestionCategory> pendingQuestionCategories = pendingQuestion.Categories.Select(category => new PendingQuestionCategory
-            {
-                PendingQuestionId = dbQuestion.Id,
-                CategoryId = category.Id
-            }).ToList();
-
-            context.PendingQuestionCategories.AddRange(pendingQuestionCategories);
+            await pendingAnswerService.CreatePendingQuestionAnswers(dbQuestion.Id, pendingQuestion.PendingAnswers);
+            await pendingQuestionCategoriesService.CreatePendingQuestionCategories(dbQuestion.Id,
+                pendingQuestion.Categories);
             
             await context.SaveChangesAsync();
             await transaction.CommitAsync();
@@ -148,23 +123,11 @@ public class PendingQuestionService(QuestionaireDbContext context) : IPendingQue
                 QuestionText = pendingQuestion.QuestionText
             };
             
-            context.Questions.Add(newQuestion);
+            await context.Questions.AddAsync(newQuestion);
             await context.SaveChangesAsync();
 
-            context.Answers.AddRange(pendingQuestion.PendingAnswers
-                .Select(a => new Answer
-                {
-                    QuestionId = newQuestion.Id,
-                    AnswerText = a.AnswerText,
-                    IsCorrect = a.IsCorrect
-                }));
-            
-            context.QuestionCategories.AddRange(pendingQuestion.PendingQuestionCategories
-                .Select(pqc => new QuestionCategory
-                {
-                    QuestionId = newQuestion.Id,
-                    CategoryId = pqc.CategoryId
-                }));
+            await answerService.CreateQuestionAnswers(newQuestion.Id, pendingQuestion.PendingAnswers);
+            await questionCategoriesService.CreateQuestionCategories(newQuestion.Id, pendingQuestion.PendingQuestionCategories);
             
             context.PendingQuestions.Remove(pendingQuestion);
             
@@ -206,18 +169,8 @@ public class PendingQuestionService(QuestionaireDbContext context) : IPendingQue
 
             pendingQuestion.QuestionText = updatedPendingQuestion.QuestionText;
             
-            pendingQuestion.PendingAnswers = updatedPendingQuestion.PendingAnswers.Select(a => new PendingAnswer
-            {
-                PendingQuestionId = pendingQuestion.Id,
-                AnswerText = a.AnswerText,
-                IsCorrect = a.IsCorrect
-            }).ToList();
-
-            pendingQuestion.PendingQuestionCategories = updatedPendingQuestion.Categories.Select(c => new PendingQuestionCategory
-            {
-                PendingQuestionId = pendingQuestion.Id,
-                CategoryId = c.Id
-            }).ToList();
+            await pendingAnswerService.UpdatePendingQuestionAnswers(pendingQuestion.Id, pendingQuestion.PendingAnswers, updatedPendingQuestion.PendingAnswers);
+            await pendingQuestionCategoriesService.UpdatePendingQuestionCategories(pendingQuestion.Id, pendingQuestion.PendingQuestionCategories, updatedPendingQuestion.Categories);
             
             await context.SaveChangesAsync();
             await transaction.CommitAsync();

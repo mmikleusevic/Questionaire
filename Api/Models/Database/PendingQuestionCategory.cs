@@ -6,7 +6,6 @@ namespace QuestionaireApi.Models.Database;
 [Index(nameof(PendingQuestionId), nameof(CategoryId))]
 public class PendingQuestionCategory
 {
-    public int Id { get; set; }
     public int PendingQuestionId { get; set; }
     public int CategoryId { get; set; }
 

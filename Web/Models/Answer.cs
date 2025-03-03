@@ -14,4 +14,13 @@ public class Answer
     public string AnswerText { get; set; }
     [JsonProperty]
     public bool IsCorrect { get; set; }
+    
+    public Answer() {}
+
+    public Answer(int id, string answerText, bool isCorrect)
+    {
+        Id = id;
+        AnswerText = answerText;
+        IsCorrect = isCorrect;
+    }
 }

@@ -46,7 +46,7 @@ public class UserService(QuestionaireDbContext context) : IUserService
     {
         try
         {
-            context.Users.Add(new User
+            await context.Users.AddAsync(new User
             {
                 Name = user.Name,
                 RoleId = user.RoleId,

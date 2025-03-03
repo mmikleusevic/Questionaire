@@ -19,11 +19,11 @@
 {
     <p><em>Loading...</em></p>
 }
-else if (categories.NestedCategories.Count == 0)
+else if (categories?.NestedCategories?.Count == 0)
 {
     <p>No categories found.</p>
 }
-else
+else if (categories != null && categories.NestedCategories != null)
 {
     <ul class="category-list">
         @foreach (Category category in categories.NestedCategories)

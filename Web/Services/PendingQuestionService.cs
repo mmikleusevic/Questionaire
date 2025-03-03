@@ -38,32 +38,6 @@ public class PendingQuestionService(HttpClient httpClient,
         return new PaginatedResponse<PendingQuestion>();
     }
 
-    public async Task<PendingQuestion> GetPendingQuestion(int id)
-    {
-        try
-        {
-            HttpResponseMessage? response = await httpClient.GetAsync($"api/PendingQuestion/{id}");
-        
-            if (response.IsSuccessStatusCode)
-            {
-                string responseStream = await response.Content.ReadAsStringAsync();
-                PendingQuestion? result = JsonConvert.DeserializeObject<PendingQuestion>(responseStream);
-
-                return result ?? new PendingQuestion();
-            }
-            
-            string? responseResult = await response.Content.ReadAsStringAsync();
-            Helper.ShowToast(toastService, response.StatusCode, responseResult ,responseResult);
-        }
-        catch (Exception ex)
-        {
-            Helper.ShowToast(toastService, HttpStatusCode.InternalServerError, "Error fetching a pending question", ex.Message);
-            logger.LogError(ex, "Error fetching a pending question");
-        }
-        
-        return new PendingQuestion();
-    }
-
     public async Task CreatePendingQuestion(PendingQuestion newPendingQuestion)
     {
         try

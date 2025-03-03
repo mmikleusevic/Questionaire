@@ -17,6 +17,8 @@ public class Category
     public int? ParentCategoryId { get; set; }
     [JsonProperty] 
     public List<Category> ChildCategories { get; set; } = new List<Category>();
+    
+    public Category() {}
 
     public Category(int id, string categoryName, int? parentCategoryId)
     {
@@ -24,6 +26,4 @@ public class Category
         CategoryName = categoryName;
         ParentCategoryId = parentCategoryId;
     }
-
-    public Category() {}
 }

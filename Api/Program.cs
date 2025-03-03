@@ -36,6 +36,9 @@ builder.Services.AddScoped<IUserQuestionHistoryService, UserQuestionHistoryServi
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPendingQuestionService, PendingQuestionService>();
+builder.Services.AddScoped<IQuestionCategoriesService, QuestionCategoriesService>();
+builder.Services.AddScoped<IPendingAnswerService, PendingAnswerService>();
+builder.Services.AddScoped<IPendingQuestionCategoriesService, PendingQuestionCategoriesService>();
 
 string applicationUrl = Environment.GetEnvironmentVariable("APPLICATION_URL");
 

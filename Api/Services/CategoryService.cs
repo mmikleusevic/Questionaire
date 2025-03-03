@@ -65,23 +65,11 @@ public class CategoryService(QuestionaireDbContext context) : ICategoryService
         }
     }
     
-    public async Task<Category?> GetCategoryById(int id)
-    {
-        try
-        {
-            return await context.Categories.FindAsync(id);
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException($"An error occurred while retrieving the category with ID {id}.", ex);
-        }
-    }
-    
     public async Task CreateCategory(CategoryDto category)
     {
         try
         {
-            context.Categories.Add(new Category
+            await context.Categories.AddAsync(new Category
             {
                 CategoryName = category.CategoryName,
                 ParentCategoryId = category.ParentCategoryId

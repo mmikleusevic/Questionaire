@@ -9,7 +9,9 @@ using QuestionaireApi.Models.Dto;
 namespace QuestionaireApi.Services;
 
 public class QuestionService(QuestionaireDbContext context, 
-    IUserQuestionHistoryService userQuestionHistoryService) : IQuestionService
+    IUserQuestionHistoryService userQuestionHistoryService,
+    IAnswerService answerService,
+    IQuestionCategoriesService questionCategoriesService) : IQuestionService
 {
     public async Task<PaginatedResponse<QuestionDto>> GetQuestions(int pageNumber, int pageSize)
     {
@@ -56,19 +58,6 @@ public class QuestionService(QuestionaireDbContext context,
             throw new InvalidOperationException("An error occurred while retrieving the list of questions.", ex);
         }
     }
-
-    public async Task<Question?> GetQuestionById(int id)
-    {
-        try
-        {
-            return await context.Questions.Include(a => a.Answers)
-                .FirstOrDefaultAsync(a => a.Id == id);
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException($"An error occurred while retrieving the question with ID {id}.", ex);
-        }
-    }
     
     public async Task<List<QuestionDto>> GetRandomUniqueQuestions(GetRandomUniqueQuestionsRequestDto requestDto)
     {
@@ -104,23 +93,6 @@ public class QuestionService(QuestionaireDbContext context,
         }
     }
 
-    private async Task<List<Question>> FetchRandomQuestions(IQueryable<Question> query, int count, HashSet<int>? excludeIds)
-    {
-        try
-        {
-            if (excludeIds != null) query = query.Where(q => !excludeIds.Contains(q.Id));
-
-            return await query
-                .OrderBy(q => Guid.NewGuid())
-                .Take(count)
-                .ToListAsync();
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException($"An error occurred while parsing random questions.", ex);
-        }
-    }
-
     public async Task<bool> UpdateQuestion(int id, QuestionDto updatedQuestion)
     {
         if (updatedQuestion.Answers.Count != 3 || 
@@ -147,18 +119,8 @@ public class QuestionService(QuestionaireDbContext context,
 
             question.QuestionText = updatedQuestion.QuestionText;
             
-            question.Answers = updatedQuestion.Answers.Select(a => new Answer
-            {
-                AnswerText = a.AnswerText,
-                IsCorrect = a.IsCorrect,
-                QuestionId = question.Id
-            }).ToList();
-            
-            question.QuestionCategories = updatedQuestion.Categories.Select(c => new QuestionCategory
-            {
-                QuestionId = question.Id,
-                CategoryId = c.Id
-            }).ToList();
+            await answerService.UpdateQuestionAnswers(question.Id, question.Answers, updatedQuestion.Answers);
+            await questionCategoriesService.UpdateQuestionCategories(question.Id, question.QuestionCategories, updatedQuestion.Categories);
 
             await context.SaveChangesAsync();
             await transaction.CommitAsync();
@@ -190,6 +152,23 @@ public class QuestionService(QuestionaireDbContext context,
         catch (Exception ex)
         {
             throw new InvalidOperationException($"An error occurred while deleting the question with ID {id}.", ex);
+        }
+    }
+    
+    private async Task<List<Question>> FetchRandomQuestions(IQueryable<Question> query, int count, HashSet<int>? excludeIds)
+    {
+        try
+        {
+            if (excludeIds != null) query = query.Where(q => !excludeIds.Contains(q.Id));
+
+            return await query
+                .OrderBy(q => Guid.NewGuid())
+                .Take(count)
+                .ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException($"An error occurred while parsing random questions.", ex);
         }
     }
     

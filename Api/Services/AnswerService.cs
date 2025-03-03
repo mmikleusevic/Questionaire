@@ -1,90 +1,71 @@
 using Microsoft.EntityFrameworkCore;
 using QuestionaireApi.Interfaces;
 using QuestionaireApi.Models;
+using QuestionaireApi.Models.Database;
 using QuestionaireApi.Models.Dto;
 
 namespace QuestionaireApi.Services;
 
 public class AnswerService(QuestionaireDbContext context) : IAnswerService
 {
-    public async Task<List<Answer>> GetAnswers()
+    public async Task CreateQuestionAnswers(int questionId, ICollection<PendingAnswer> pendingAnswers)
     {
         try
         {
-            return await context.Answers.ToListAsync();
+            await context.Answers.AddRangeAsync(
+                pendingAnswers.Select(a => new Answer
+                {
+                    AnswerText = a.AnswerText,
+                    IsCorrect = a.IsCorrect,
+                    QuestionId = questionId
+                }).ToList()
+            );
         }
         catch (Exception ex)
         {
-            throw new InvalidOperationException("An error occurred while retrieving answers.", ex);
+            throw new InvalidOperationException("An error occurred while updating the question answers.", ex);
         }
     }
 
-    public async Task<Answer?> GetAnswerById(int id)
+    public Task UpdateQuestionAnswers(int questionId, ICollection<Answer> answers, List<AnswerDto> updatedAnswers)
     {
         try
         {
-            return await context.Answers.FindAsync(id);
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException("An error occurred while retrieving the answer by ID.", ex);
-        }
-    }
-
-    public async Task CreateAnswer(AnswerDto answer)
-    {
-        try
-        {
+            List<Answer> answersToRemove = answers
+                .Where(pa => updatedAnswers.All(ua => ua.Id != pa.Id))
+                .ToList();
             
-            
-            context.Answers.Add(new Answer
+            foreach (Answer answer in answersToRemove)
             {
-                AnswerText = answer.AnswerText,
-                IsCorrect = answer.IsCorrect,
-            });
-            await context.SaveChangesAsync();
+                answers.Remove(answer);
+            }
+            
+            foreach (AnswerDto updatedAnswer in updatedAnswers)
+            {
+                Answer? existingAnswer = answers.Where(a => a.Id != 0)
+                    .FirstOrDefault(pa => pa.Id == updatedAnswer.Id);
+                
+                if (existingAnswer != null)
+                {
+                    existingAnswer.AnswerText = updatedAnswer.AnswerText;
+                    existingAnswer.IsCorrect = updatedAnswer.IsCorrect;
+                }
+                else
+                {
+                    answers.Add(new Answer
+                    {
+                        AnswerText = updatedAnswer.AnswerText,
+                        IsCorrect = updatedAnswer.IsCorrect,
+                        QuestionId = questionId
+                    });
+                }
+            }
+            
+            return Task.CompletedTask;
         }
         catch (Exception ex)
         {
-            throw new InvalidOperationException("An error occurred while creating the answer.", ex);
-        }
-    }
-
-    public async Task<bool> UpdateAnswer(int id, AnswerDto updatedAnswer)
-    {
-        try
-        {
-            Answer? answer = await context.Answers.FindAsync(id);
-            if (answer == null) return false;
-            
-            answer.AnswerText = updatedAnswer.AnswerText;
-            answer.IsCorrect = updatedAnswer.IsCorrect;
-
-            await context.SaveChangesAsync();
-            
-            return true;
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException("An error occurred while updating the answer.", ex);
-        }
-    }
-
-    public async Task<bool> DeleteAnswer(int id)
-    {
-        try
-        {
-            Answer? answer = await context.Answers.FirstOrDefaultAsync(a => a.Id == id);
-            if (answer == null) return false;
-
-            context.Answers.Remove(answer);
-            await context.SaveChangesAsync();
-            
-            return true;
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException("An error occurred while deleting the answer.", ex);
+            return Task.FromException(new InvalidOperationException("An error occurred while updating the question answers.", ex));
         }
     }
 }
