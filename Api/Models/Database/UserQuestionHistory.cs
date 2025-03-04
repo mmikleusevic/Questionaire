@@ -15,7 +15,5 @@ public class UserQuestionHistory
     [ForeignKey(nameof(QuestionId))]
     public virtual Question Question { get; set; } = null!;
     
-    public DateTime SeenAt { get; set; } = DateTime.UtcNow;
-    
     public int RoundNumber { get; set; }
 }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QuestionaireApi;
 
@@ -11,9 +12,11 @@ using QuestionaireApi;
 namespace QuestionaireApi.Migrations
 {
     [DbContext(typeof(QuestionaireDbContext))]
-    partial class QuestionaireDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250304134335_AddedMoreFieldsToQuestionAndPendingQuestionClasses")]
+    partial class AddedMoreFieldsToQuestionAndPendingQuestionClasses
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -843,9 +846,9 @@ namespace QuestionaireApi.Migrations
 
                     b.HasIndex("CreatedById");
 
-                    b.HasIndex("LastUpdatedById");
+                    b.HasIndex("Id");
 
-                    b.HasIndex("Id", "CreatedById");
+                    b.HasIndex("LastUpdatedById");
 
                     b.ToTable("PendingQuestions");
                 });
@@ -913,9 +916,9 @@ namespace QuestionaireApi.Migrations
 
                     b.HasIndex("CreatedById");
 
-                    b.HasIndex("LastUpdatedById");
+                    b.HasIndex("Id");
 
-                    b.HasIndex("Id", "CreatedById", "ApprovedById");
+                    b.HasIndex("LastUpdatedById");
 
                     b.ToTable("Questions");
                 });
@@ -975,7 +978,7 @@ namespace QuestionaireApi.Migrations
                         {
                             Id = "2db072f6-3706-4996-b222-343896c40606",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "0ddf4ffc-f45a-487d-b871-02acee37c24a",
+                            ConcurrencyStamp = "cf74fb47-bcd9-4dfb-9858-4f9c793204c1",
                             Email = "admin@admin.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,

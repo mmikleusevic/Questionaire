@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuestionaireApi.Interfaces;
@@ -6,12 +7,14 @@ using QuestionaireApi.Models.Dto;
 
 namespace QuestionaireApi.Controllers;
 
+[Authorize]
 [Route("api/[controller]")]
 [ApiController]
 public class CategoryController(ICategoryService categoryService,
     ILogger<CategoryController> logger) : ControllerBase
 {
     [HttpGet]
+    [AllowAnonymous]
     public async Task<ActionResult<List<CategoryDto>>> GetCategories()
     {
         try
@@ -31,6 +34,7 @@ public class CategoryController(ICategoryService categoryService,
     }
     
     [HttpGet("nested")]
+    [AllowAnonymous]
     public async Task<ActionResult<List<CategoryDto>>> GetNestedCategories()
     {
         try
@@ -48,6 +52,7 @@ public class CategoryController(ICategoryService categoryService,
     }
     
     [HttpGet("flat")]
+    [AllowAnonymous]
     public async Task<ActionResult<List<CategoryDto>>> GetFlatCategories()
     {
         try
@@ -67,10 +72,10 @@ public class CategoryController(ICategoryService categoryService,
     [HttpPost]
     public async Task<IActionResult> CreateCategory([FromBody] CategoryDto? newCategory)
     {
-        if (newCategory == null) return BadRequest("Category data cannot be null.");
-
         try
         {
+            if (newCategory == null) return BadRequest("Category data cannot be null.");
+            
             await categoryService.CreateCategory(newCategory);
             return Created();
         }
@@ -85,10 +90,10 @@ public class CategoryController(ICategoryService categoryService,
     [HttpPut("{id:int}")]
     public async Task<IActionResult> UpdateCategory(int id, [FromBody] CategoryDto? updatedCategory)
     {
-        if (updatedCategory == null) return BadRequest("Updated category data cannot be null.");
-
         try
         {
+            if (updatedCategory == null) return BadRequest("Updated category data cannot be null.");
+            
             bool success = await categoryService.UpdateCategory(id, updatedCategory);
             if (!success) return NotFound($"Category with ID {id} not found.");
             return Ok($"Category with ID {id} updated successfully.");

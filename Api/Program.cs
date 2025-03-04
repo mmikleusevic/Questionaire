@@ -4,9 +4,12 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
 using QuestionaireApi;
 using QuestionaireApi.Interfaces;
+using QuestionaireApi.Models;
+using QuestionaireApi.Models.Database;
 using QuestionaireApi.Services;
 using Scalar.AspNetCore;
 
@@ -27,14 +30,22 @@ builder.Services.AddControllers()
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-builder.Services.AddDbContext<QuestionaireDbContext>(options => 
-    options.UseSqlServer(Environment.GetEnvironmentVariable("DEFAULT_CONNECTION")));
+string connectionString = Environment.GetEnvironmentVariable("DEFAULT_CONNECTION");
+
+if (string.IsNullOrWhiteSpace(connectionString)) return;
+
+builder.Services.AddDbContext<QuestionaireDbContext>(options =>
+{
+    options.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
+    options.UseSqlServer(Environment.GetEnvironmentVariable("DEFAULT_CONNECTION"));
+});
 
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication();
 
-builder.Services.AddIdentityApiEndpoints<IdentityUser>()
-    .AddEntityFrameworkStores<QuestionaireDbContext>();
+builder.Services.AddIdentityCore<User>()
+    .AddEntityFrameworkStores<QuestionaireDbContext>()
+    .AddApiEndpoints();
 
 builder.Services.AddScoped<IAnswerService, AnswerService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
@@ -44,6 +55,7 @@ builder.Services.AddScoped<IPendingQuestionService, PendingQuestionService>();
 builder.Services.AddScoped<IQuestionCategoriesService, QuestionCategoriesService>();
 builder.Services.AddScoped<IPendingAnswerService, PendingAnswerService>();
 builder.Services.AddScoped<IPendingQuestionCategoriesService, PendingQuestionCategoriesService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 string applicationUrl = Environment.GetEnvironmentVariable("APPLICATION_URL");
 
@@ -75,12 +87,6 @@ app.UseExceptionHandler(errorApp =>
     });
 });
 
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<QuestionaireDbContext>();
-    dbContext.Database.Migrate();
-}
-
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -92,7 +98,14 @@ else
     app.UseHsts();
 }
 
-app.MapIdentityApi<IdentityUser>();
+using (IServiceScope? scope = app.Services.CreateScope())
+{
+    QuestionaireDbContext dbContext = scope.ServiceProvider.GetRequiredService<QuestionaireDbContext>();
+    
+    dbContext.Database.Migrate();
+}
+
+app.MapIdentityApi<User>();
 
 app.UseHttpsRedirection();
 

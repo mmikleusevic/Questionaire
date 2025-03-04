@@ -1,18 +1,20 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using QuestionaireApi.Interfaces;
 using QuestionaireApi.Models;
 using QuestionaireApi.Models.Dto;
-using QuestionaireApi.Services;
 
 namespace QuestionaireApi.Controllers;
 
 [Route("api/[controller]")]
+[Authorize]
 [ApiController]
 public class QuestionController(IQuestionService questionService,
     ILogger<QuestionController> logger) : ControllerBase
 {
     [HttpGet]
+    [AllowAnonymous]
     public async Task<ActionResult<PaginatedResponse<QuestionDto>>> GetQuestions(
         [FromQuery] int pageNumber = 1, 
         [FromQuery] int pageSize = 50)
@@ -37,12 +39,13 @@ public class QuestionController(IQuestionService questionService,
     }
 
     [HttpPost("random")]
+    [AllowAnonymous]
     public async Task<ActionResult<List<QuestionDto>>> GetRandomUniqueQuestions([FromBody] GetRandomUniqueQuestionsRequestDto? request)
     {
-        if (request == null) return BadRequest("Get random unique questions data cannot be null.");
-
         try
         {
+            if (request == null) return BadRequest("Get random unique questions data cannot be null.");
+            
             List<QuestionDto> questions = await questionService.GetRandomUniqueQuestions(request);
             if (questions.Count == 0) return NotFound("No questions found.");
             return Ok(questions);
@@ -58,11 +61,14 @@ public class QuestionController(IQuestionService questionService,
     [HttpPut("{id:int}")]
     public async Task<IActionResult> UpdateQuestion(int id, [FromBody] QuestionDto? updatedQuestion)
     {
-        if (updatedQuestion == null) return BadRequest("Updated question data cannot be null.");
-
         try
         {
-            bool success = await questionService.UpdateQuestion(id, updatedQuestion);
+            ClaimsPrincipal user = HttpContext.User; 
+        
+            if (user == null) return BadRequest("User data cannot be null.");
+            if (updatedQuestion == null) return BadRequest("Updated question data cannot be null.");
+            
+            bool success = await questionService.UpdateQuestion(id, updatedQuestion, user);
             if (!success) return NotFound($"Question with ID {id} not found.");
             return Ok($"Question with ID {id} updated successfully.");
         }

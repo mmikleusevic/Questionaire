@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using QuestionaireApi.Interfaces;
 using QuestionaireApi.Models.Database;
@@ -6,11 +8,13 @@ using QuestionaireApi.Models.Dto;
 namespace QuestionaireApi.Controllers;
 
 [Route("api/[controller]")]
+[Authorize]
 [ApiController]
 public class PendingQuestionController(IPendingQuestionService pendingQuestionService,
     ILogger<PendingQuestionController> logger) : ControllerBase
 {
     [HttpGet]
+    [AllowAnonymous]
     public async Task<ActionResult<PaginatedResponse<PendingQuestion>>> GetPendingQuestions(
         [FromQuery] int pageNumber = 1, 
         [FromQuery] int pageSize = 50)
@@ -35,13 +39,17 @@ public class PendingQuestionController(IPendingQuestionService pendingQuestionSe
     }
 
     [HttpPost]
+    [AllowAnonymous]
     public async Task<IActionResult> CreatePendingQuestion([FromBody] PendingQuestionDto? newPendingQuestion)
     {
-        if (newPendingQuestion == null) return BadRequest("Pending question data cannot be null.");
-        
         try
         {
-            await pendingQuestionService.CreatePendingQuestion(newPendingQuestion);
+            ClaimsPrincipal user = HttpContext.User; 
+            
+            if (user == null) return BadRequest("User data cannot be null.");
+            if (newPendingQuestion == null) return BadRequest("Pending question data cannot be null.");
+            
+            await pendingQuestionService.CreatePendingQuestion(newPendingQuestion, user);
             return Created();
         }
         catch (Exception ex)
@@ -57,7 +65,11 @@ public class PendingQuestionController(IPendingQuestionService pendingQuestionSe
     {
         try
         {
-            bool success = await pendingQuestionService.ApprovePendingQuestion(id);
+            ClaimsPrincipal user = HttpContext.User; 
+        
+            if (user == null) return BadRequest("User data cannot be null.");
+            
+            bool success = await pendingQuestionService.ApprovePendingQuestion(id, user);
             if (!success) return NotFound($"Pending question with ID {id} not found.");
             return Ok("Pending question approved successfully.");
         }
@@ -72,11 +84,14 @@ public class PendingQuestionController(IPendingQuestionService pendingQuestionSe
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdatePendingQuestion(int id, [FromBody] PendingQuestionDto? updatedPendingQuestion)
     {
-        if (updatedPendingQuestion == null) return BadRequest("Update pending question data cannot be null.");
-        
         try
         {
-            bool success = await pendingQuestionService.UpdatePendingQuestion(id, updatedPendingQuestion);
+            ClaimsPrincipal user = HttpContext.User; 
+        
+            if (user == null) return BadRequest("User data cannot be null.");
+            if (updatedPendingQuestion == null) return BadRequest("Update pending question data cannot be null.");
+            
+            bool success = await pendingQuestionService.UpdatePendingQuestion(id, updatedPendingQuestion, user);
             if (!success) return NotFound($"Pending question with ID {id} not found.");
             return Ok($"Pending question with ID {id} updated successfully.");
         }

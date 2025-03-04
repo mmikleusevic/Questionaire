@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using QuestionaireApi.Models;
@@ -15,6 +16,7 @@ public class QuestionaireDbContext(DbContextOptions options) : IdentityDbContext
     public DbSet<PendingQuestion> PendingQuestions => Set<PendingQuestion>();
     public DbSet<PendingAnswer> PendingAnswers => Set<PendingAnswer>();
     public DbSet<PendingQuestionCategory> PendingQuestionCategories => Set<PendingQuestionCategory>();
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -64,6 +66,93 @@ public class QuestionaireDbContext(DbContextOptions options) : IdentityDbContext
             .WithMany(c => c.PendingQuestionCategories)
             .HasForeignKey(qc => qc.CategoryId)
             .OnDelete(DeleteBehavior.Restrict);
+        
+        string userId = "2db072f6-3706-4996-b222-343896c40606";
+
+        modelBuilder.Entity<User>().HasData(new User
+        {
+            Id = userId,
+            UserName = "admin",
+            NormalizedUserName = "ADMIN",
+            Email = "admin@admin.com",
+            NormalizedEmail = "ADMIN@ADMIN.COM",
+            TwoFactorEnabled = false,
+            LockoutEnabled = false,
+            EmailConfirmed = true,
+            PhoneNumberConfirmed = true,
+            SecurityStamp = "b4486713-5f7d-134c-96c3-b7c3d441afb4",
+            PasswordHash = "AQAAAAIAAYagAAAAEEnc9IcKjqiERt+UMcv/np2qJAJtVMI6qUzqiG5HsoeCyWe0Nr/L2UZC6qmwWTdKjQ==",
+            AccessFailedCount = 0,
+        });
+
+        string roleIdAdmin = "0344c586-4932-4ee3-8854-65937effcbcf";
+        string roleIdUser = "e8486713-5f7d-453b-96c3-b7c3d441afb4";
+        
+        modelBuilder.Entity<IdentityRole>().HasData(
+            new IdentityRole { Id = roleIdAdmin, Name = "Admin", NormalizedName = "ADMIN" },
+            new IdentityRole { Id = roleIdUser, Name = "User", NormalizedName = "USER" }
+        );
+
+        modelBuilder.Entity<IdentityUserRole<string>>().HasData(
+            new IdentityUserRole<string> { UserId = userId, RoleId = roleIdAdmin },
+            new IdentityUserRole<string> { UserId = userId, RoleId = roleIdUser }
+        );
+        
+        modelBuilder.Entity<Question>()
+            .HasOne(q => q.CreatedBy)
+            .WithMany()
+            .HasForeignKey(q => q.CreatedById)
+            .OnDelete(DeleteBehavior.Restrict); 
+        
+        modelBuilder.Entity<Question>()
+            .HasOne(q => q.LastUpdatedBy)
+            .WithMany()
+            .HasForeignKey(q => q.LastUpdatedById)
+            .OnDelete(DeleteBehavior.Restrict); 
+        
+        modelBuilder.Entity<Question>()
+            .HasOne(q => q.ApprovedBy)
+            .WithMany()
+            .HasForeignKey(q => q.ApprovedById)
+            .OnDelete(DeleteBehavior.Restrict); 
+        
+        modelBuilder.Entity<PendingQuestion>()
+            .HasOne(q => q.CreatedBy)
+            .WithMany()
+            .HasForeignKey(q => q.CreatedById)
+            .OnDelete(DeleteBehavior.Restrict); 
+        
+        modelBuilder.Entity<PendingQuestion>()
+            .HasOne(q => q.LastUpdatedBy)
+            .WithMany()
+            .HasForeignKey(q => q.LastUpdatedById)
+            .OnDelete(DeleteBehavior.Restrict); 
+        
+        modelBuilder.Entity<Question>()
+            .Property(q => q.ApprovedById)
+            .HasDefaultValue(userId); 
+        
+        modelBuilder.Entity<Question>()
+            .Property(q => q.CreatedById)
+            .HasDefaultValue(userId);
+        
+        DateTime utcNow = new DateTime(2025, 1, 1);
+        
+        modelBuilder.Entity<Question>()
+            .Property(q => q.ApprovedAt)
+            .HasDefaultValue(utcNow);
+        
+        modelBuilder.Entity<Question>()
+            .Property(q => q.CreatedAt)
+            .HasDefaultValue(utcNow);
+        
+        modelBuilder.Entity<PendingQuestion>()
+            .Property(q => q.CreatedById)
+            .HasDefaultValue(userId);
+        
+        modelBuilder.Entity<PendingQuestion>()
+            .Property(q => q.CreatedAt)
+            .HasDefaultValue(utcNow);
         
         modelBuilder.Entity<Category>().HasData(
             new Category { Id = 1, CategoryName = "General Knowledge" },

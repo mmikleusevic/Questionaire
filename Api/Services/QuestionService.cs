@@ -1,9 +1,12 @@
 using System.Diagnostics;
 using System.Linq.Expressions;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using QuestionaireApi.Interfaces;
 using QuestionaireApi.Models;
+using QuestionaireApi.Models.Database;
 using QuestionaireApi.Models.Dto;
 
 namespace QuestionaireApi.Services;
@@ -11,7 +14,8 @@ namespace QuestionaireApi.Services;
 public class QuestionService(QuestionaireDbContext context, 
     IUserQuestionHistoryService userQuestionHistoryService,
     IAnswerService answerService,
-    IQuestionCategoriesService questionCategoriesService) : IQuestionService
+    IQuestionCategoriesService questionCategoriesService,
+    IUserService userService) : IQuestionService
 {
     public async Task<PaginatedResponse<QuestionDto>> GetQuestions(int pageNumber, int pageSize)
     {
@@ -93,19 +97,21 @@ public class QuestionService(QuestionaireDbContext context,
         }
     }
 
-    public async Task<bool> UpdateQuestion(int id, QuestionDto updatedQuestion)
+    public async Task<bool> UpdateQuestion(int id, QuestionDto updatedQuestion, ClaimsPrincipal user)
     {
-        if (updatedQuestion.Answers.Count != 3 || 
-            !updatedQuestion.Answers.Any(a => a.IsCorrect) || 
-            updatedQuestion.Categories.Count == 0)
-        {
-            throw new InvalidOperationException("Invalid question: must have exactly 3 answers, 1 correct answer and at least one category.");
-        }
-        
         await using IDbContextTransaction? transaction = await context.Database.BeginTransactionAsync();
         
         try
         {
+            string userId = await userService.GetUserId(user);
+        
+            if (updatedQuestion.Answers.Count != 3 || 
+                !updatedQuestion.Answers.Any(a => a.IsCorrect) || 
+                updatedQuestion.Categories.Count == 0)
+            {
+                throw new InvalidOperationException("Invalid question: must have exactly 3 answers, 1 correct answer and at least one category.");
+            }
+            
             Question? question = await context.Questions
                 .Include(q => q.Answers)
                 .Include(q => q.QuestionCategories)
@@ -118,6 +124,8 @@ public class QuestionService(QuestionaireDbContext context,
             }
 
             question.QuestionText = updatedQuestion.QuestionText;
+            question.LastUpdatedById = userId;
+            question.LastUpdatedAt = DateTime.UtcNow;
             
             await answerService.UpdateQuestionAnswers(question.Id, question.Answers, updatedQuestion.Answers);
             await questionCategoriesService.UpdateQuestionCategories(question.Id, question.QuestionCategories, updatedQuestion.Categories);
