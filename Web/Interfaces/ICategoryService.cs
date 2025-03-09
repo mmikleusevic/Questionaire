@@ -1,5 +1,4 @@
 using Web.Models;
-using Categories = Web.Components.Pages.Categories.Categories;
 
 namespace Web.Interfaces;
 

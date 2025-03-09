@@ -81,21 +81,24 @@ public class QuestionaireDbContext(DbContextOptions options) : IdentityDbContext
             EmailConfirmed = true,
             PhoneNumberConfirmed = true,
             SecurityStamp = "b4486713-5f7d-134c-96c3-b7c3d441afb4",
-            PasswordHash = "AQAAAAIAAYagAAAAEEnc9IcKjqiERt+UMcv/np2qJAJtVMI6qUzqiG5HsoeCyWe0Nr/L2UZC6qmwWTdKjQ==",
+            PasswordHash = "AQAAAAIAAYagAAAAEOGR7OIZBUKQavjg2sElqOw45o5Y+1E4nSu17USiT8p09MjUQqRKUL6DPCv+zeS8QA==",
             AccessFailedCount = 0,
         });
 
         string roleIdAdmin = "0344c586-4932-4ee3-8854-65937effcbcf";
         string roleIdUser = "e8486713-5f7d-453b-96c3-b7c3d441afb4";
+        string roleIdSuperAdmin = "ef202a8e-83b0-42fe-af2b-827a98535743";
         
         modelBuilder.Entity<IdentityRole>().HasData(
             new IdentityRole { Id = roleIdAdmin, Name = "Admin", NormalizedName = "ADMIN" },
-            new IdentityRole { Id = roleIdUser, Name = "User", NormalizedName = "USER" }
+            new IdentityRole { Id = roleIdUser, Name = "User", NormalizedName = "USER" },
+            new IdentityRole { Id = roleIdSuperAdmin, Name = "SuperAdmin", NormalizedName = "SUPERADMIN" }
         );
 
         modelBuilder.Entity<IdentityUserRole<string>>().HasData(
             new IdentityUserRole<string> { UserId = userId, RoleId = roleIdAdmin },
-            new IdentityUserRole<string> { UserId = userId, RoleId = roleIdUser }
+            new IdentityUserRole<string> { UserId = userId, RoleId = roleIdUser },
+            new IdentityUserRole<string> { UserId = userId, RoleId = roleIdSuperAdmin }
         );
         
         modelBuilder.Entity<Question>()

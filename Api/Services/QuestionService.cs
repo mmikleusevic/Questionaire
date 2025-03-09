@@ -15,22 +15,28 @@ public class QuestionService(QuestionaireDbContext context,
     IUserQuestionHistoryService userQuestionHistoryService,
     IAnswerService answerService,
     IQuestionCategoriesService questionCategoriesService,
-    IUserService userService) : IQuestionService
+    UserManager<User> userManager) : IQuestionService
 {
-    public async Task<PaginatedResponse<QuestionDto>> GetQuestions(int pageNumber, int pageSize)
+    public async Task<PaginatedResponse<QuestionDto>> GetQuestions(int pageNumber, int pageSize, ClaimsPrincipal user)
     {
         try
         {
-            List<Question> questions = await context.Questions
+            string? userId = userManager.GetUserId(user);
+            
+            IQueryable<Question> query = context.Questions
                 .Include(a => a.Answers)
                 .Include(a => a.QuestionCategories)
-                    .ThenInclude(c=> c.Category)
-                .OrderBy(q => q.Id)
+                    .ThenInclude(c => c.Category)
+                .OrderBy(q => q.Id);
+            
+            if (!string.IsNullOrEmpty(userId)) query = query.Where(q => q.CreatedById == userId);
+            
+            List<Question> questions = await query
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
-            
-            int totalQuestions = await context.Questions.CountAsync();
+
+            int totalQuestions = await query.CountAsync();
 
             PaginatedResponse<QuestionDto> response = new PaginatedResponse<QuestionDto>
             {
@@ -103,7 +109,9 @@ public class QuestionService(QuestionaireDbContext context,
         
         try
         {
-            string userId = await userService.GetUserId(user);
+            string? userId = userManager.GetUserId(user);
+
+            if (string.IsNullOrEmpty(userId)) throw new UnauthorizedAccessException("The user is not authorized");
         
             if (updatedQuestion.Answers.Count != 3 || 
                 !updatedQuestion.Answers.Any(a => a.IsCorrect) || 
@@ -142,10 +150,14 @@ public class QuestionService(QuestionaireDbContext context,
         }
     }
 
-    public async Task<bool> DeleteQuestion(int id)
+    public async Task<bool> DeleteQuestion(int id, ClaimsPrincipal user)
     {
         try
         {
+            string? userId = userManager.GetUserId(user);
+
+            if (string.IsNullOrEmpty(userId)) throw new UnauthorizedAccessException("The user is not authorized");
+            
             Question? question = await context.Questions
                 .Include(a => a.Answers)
                 .FirstOrDefaultAsync(a => a.Id == id);

@@ -1,40 +1,26 @@
-using Microsoft.AspNetCore.Components;
-using Web.Components;
+using Blazored.LocalStorage;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Web;
 using Web.Interfaces;
-using Web.Models;
 using Web.Services;
 
-var builder = WebApplication.CreateBuilder(args);
-
-ApiSettings? apiSettings = builder.Configuration.GetSection("ApiSettings").Get<ApiSettings>();
+var builder = WebAssemblyHostBuilder.CreateDefault(args);
+builder.RootComponents.Add<App>("#app");
+builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddLogging();
+builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddBlazorBootstrap();
+builder.Services.AddCascadingAuthenticationState();
+builder.Services.AddAuthorizationCore();
 
-builder.Services.AddScoped(sp => new HttpClient { 
-    BaseAddress = new Uri(apiSettings.BaseUrl)
-});
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IQuestionService, QuestionService>();
 builder.Services.AddScoped<IPendingQuestionService, PendingQuestionService>();
+builder.Services.AddScoped<CustomAuthStateService>();
+builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateService>();
+builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"]) });
 
-builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
-
-var app = builder.Build();
-
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    app.UseHsts();
-}
-
-app.UseHttpsRedirection();
-
-app.UseAntiforgery();
-
-app.MapStaticAssets();
-app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode();
-
-app.Run();
+await builder.Build().RunAsync();

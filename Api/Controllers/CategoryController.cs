@@ -7,8 +7,8 @@ using QuestionaireApi.Models.Dto;
 
 namespace QuestionaireApi.Controllers;
 
-[Authorize]
 [Route("api/[controller]")]
+[Authorize]
 [ApiController]
 public class CategoryController(ICategoryService categoryService,
     ILogger<CategoryController> logger) : ControllerBase
@@ -70,6 +70,7 @@ public class CategoryController(ICategoryService categoryService,
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin, SuperAdmin")]
     public async Task<IActionResult> CreateCategory([FromBody] CategoryDto? newCategory)
     {
         try
@@ -88,6 +89,7 @@ public class CategoryController(ICategoryService categoryService,
     }
 
     [HttpPut("{id:int}")]
+    [Authorize(Roles = "Admin, SuperAdmin")]
     public async Task<IActionResult> UpdateCategory(int id, [FromBody] CategoryDto? updatedCategory)
     {
         try
@@ -107,6 +109,7 @@ public class CategoryController(ICategoryService categoryService,
     }
 
     [HttpDelete("{id:int}")]
+    [Authorize(Roles = "Admin, SuperAdmin")]
     public async Task<IActionResult> DeleteCategory(int id)
     {
         try

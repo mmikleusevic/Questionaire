@@ -4,7 +4,6 @@ using BlazorBootstrap;
 using Newtonsoft.Json;
 using Web.Interfaces;
 using Web.Models;
-using Categories = Web.Components.Pages.Categories.Categories;
 
 namespace Web.Services;
 

@@ -14,17 +14,23 @@ public class PendingQuestionService(QuestionaireDbContext context,
     IPendingQuestionCategoriesService pendingQuestionCategoriesService,
     IAnswerService answerService,
     IQuestionCategoriesService questionCategoriesService,
-    IUserService userService) : IPendingQuestionService
+    UserManager<User> userManager) : IPendingQuestionService
 {
-    public async Task<PaginatedResponse<PendingQuestionDto>> GetPendingQuestions(int pageNumber, int pageSize)
+    public async Task<PaginatedResponse<PendingQuestionDto>> GetPendingQuestions(int pageNumber, int pageSize, ClaimsPrincipal user)
     {
         try
         {
-            List<PendingQuestion> questions = await context.PendingQuestions
+            string? userId = userManager.GetUserId(user);
+
+            IQueryable<PendingQuestion> query = context.PendingQuestions
                 .Include(a => a.PendingAnswers)
                 .Include(a => a.PendingQuestionCategories)
-                .ThenInclude(c=> c.Category)
-                .OrderBy(q => q.Id)
+                    .ThenInclude(c => c.Category)
+                .OrderBy(q => q.Id);
+            
+            if (!string.IsNullOrEmpty(userId)) query = query.Where(q => q.CreatedById == userId);
+            
+            List<PendingQuestion> questions = await query
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -68,7 +74,9 @@ public class PendingQuestionService(QuestionaireDbContext context,
         
         try
         {
-            string userId = await userService.GetUserId(user);
+            string? userId = userManager.GetUserId(user);
+
+            if (string.IsNullOrEmpty(userId)) throw new UnauthorizedAccessException("The user is not authorized");
             
             if (pendingQuestion.PendingAnswers.Count != 3 || 
                 !pendingQuestion.PendingAnswers.Any(a => a.IsCorrect) || 
@@ -107,7 +115,9 @@ public class PendingQuestionService(QuestionaireDbContext context,
         
         try
         {
-            string userId = await userService.GetUserId(user);
+            string? userId = userManager.GetUserId(user);
+
+            if (string.IsNullOrEmpty(userId)) throw new UnauthorizedAccessException("The user is not authorized");
             
             PendingQuestion? pendingQuestion = await context.PendingQuestions
                 .Include(q => q.PendingAnswers)
@@ -164,7 +174,9 @@ public class PendingQuestionService(QuestionaireDbContext context,
         
         try
         {
-            string userId = await userService.GetUserId(user);
+            string? userId = userManager.GetUserId(user);
+
+            if (string.IsNullOrEmpty(userId)) throw new UnauthorizedAccessException("The user is not authorized");
         
             if (updatedPendingQuestion.PendingAnswers.Count != 3 || 
                 !updatedPendingQuestion.PendingAnswers.Any(a => a.IsCorrect) || 
@@ -203,10 +215,14 @@ public class PendingQuestionService(QuestionaireDbContext context,
         }
     }
     
-    public async Task<bool> DeletePendingQuestion(int id)
+    public async Task<bool> DeletePendingQuestion(int id, ClaimsPrincipal user)
     {
         try
         {
+            string? userId = userManager.GetUserId(user);
+
+            if (string.IsNullOrEmpty(userId)) throw new UnauthorizedAccessException("The user is not authorized");
+            
             PendingQuestion? pendingQuestion = await context.PendingQuestions
                 .Include(a => a.PendingAnswers)
                 .FirstOrDefaultAsync(a => a.Id == id);

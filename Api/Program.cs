@@ -1,23 +1,24 @@
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.IdentityModel.Tokens;
 using QuestionaireApi;
+using QuestionaireApi.IdentityApi;
 using QuestionaireApi.Interfaces;
 using QuestionaireApi.Models;
 using QuestionaireApi.Models.Database;
 using QuestionaireApi.Services;
 using Scalar.AspNetCore;
+using SameSiteMode = Microsoft.AspNetCore.Http.SameSiteMode;
 
 var builder = WebApplication.CreateBuilder(args);
 
 DotNetEnv.Env.Load();
-
-// Add services to the container.
 
 builder.Services.AddLogging();
 
@@ -41,11 +42,13 @@ builder.Services.AddDbContext<QuestionaireDbContext>(options =>
 });
 
 builder.Services.AddAuthorization();
-builder.Services.AddAuthentication();
-
-builder.Services.AddIdentityCore<User>()
-    .AddEntityFrameworkStores<QuestionaireDbContext>()
-    .AddApiEndpoints();
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = IdentityConstants.BearerScheme;
+    options.DefaultSignInScheme = IdentityConstants.BearerScheme;
+    options.DefaultChallengeScheme = IdentityConstants.BearerScheme;
+})
+.AddBearerToken(IdentityConstants.BearerScheme);
 
 builder.Services.AddScoped<IAnswerService, AnswerService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
@@ -55,22 +58,35 @@ builder.Services.AddScoped<IPendingQuestionService, PendingQuestionService>();
 builder.Services.AddScoped<IQuestionCategoriesService, QuestionCategoriesService>();
 builder.Services.AddScoped<IPendingAnswerService, PendingAnswerService>();
 builder.Services.AddScoped<IPendingQuestionCategoriesService, PendingQuestionCategoriesService>();
-builder.Services.AddScoped<IUserService, UserService>();
 
-string applicationUrl = Environment.GetEnvironmentVariable("APPLICATION_URL");
+string applicationUrl = Environment.GetEnvironmentVariable("API_URL");
+string webUrl = Environment.GetEnvironmentVariable("WEB_URL");
 
 if (!string.IsNullOrEmpty(applicationUrl))
 {
     builder.WebHost.UseUrls(applicationUrl);
 }
 
+builder.Services.AddIdentityCore<User>(options =>
+    {
+        options.Password.RequireDigit = false;
+        options.Password.RequireLowercase = false;
+        options.Password.RequireUppercase = false;
+        options.Password.RequireNonAlphanumeric = false;
+        options.Password.RequiredLength = 6;
+    })
+    .AddRoles<IdentityRole>()
+    .AddApiEndpoints()
+    .AddEntityFrameworkStores<QuestionaireDbContext>();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: "Cors", policy =>
     {
-        policy.AllowAnyHeader()
-            .AllowAnyOrigin()
-            .AllowAnyMethod();
+        policy.WithOrigins(applicationUrl,webUrl)
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
 
@@ -105,15 +121,16 @@ using (IServiceScope? scope = app.Services.CreateScope())
     dbContext.Database.Migrate();
 }
 
-app.MapIdentityApi<User>();
+app.CustomMapIdentityApi<User>();
 
 app.UseHttpsRedirection();
 
-app.UseRouting();
-
 app.UseCors("Cors");
 
+app.UseRouting();
+
 app.UseAuthentication();
+
 app.UseAuthorization();
 
 app.MapControllers();

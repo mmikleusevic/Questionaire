@@ -24,15 +24,15 @@ public class PendingQuestionController(IPendingQuestionService pendingQuestionSe
             if (pageNumber < 1 || pageSize < 1)
                 return BadRequest("Page number and page size must be greater than 0.");
             
-            PaginatedResponse<PendingQuestionDto> response = await pendingQuestionService.GetPendingQuestions(pageNumber, pageSize);
+            PaginatedResponse<PendingQuestionDto> response = await pendingQuestionService.GetPendingQuestions(pageNumber, pageSize, User);
 
-            if (response.Items.Count == 0) return NotFound("No questions found.");
+            if (response.Items.Count == 0) return NotFound("No pending questions found.");
 
             return Ok(response);
         }
         catch (Exception ex)
         {
-            string message = "An error occurred while retrieving the questions.";
+            string message = "An error occurred while retrieving the pending questions.";
             logger.LogError(ex, message);
             return StatusCode(500, message);
         }
@@ -44,12 +44,9 @@ public class PendingQuestionController(IPendingQuestionService pendingQuestionSe
     {
         try
         {
-            ClaimsPrincipal user = HttpContext.User; 
-            
-            if (user == null) return BadRequest("User data cannot be null.");
             if (newPendingQuestion == null) return BadRequest("Pending question data cannot be null.");
             
-            await pendingQuestionService.CreatePendingQuestion(newPendingQuestion, user);
+            await pendingQuestionService.CreatePendingQuestion(newPendingQuestion, User);
             return Created();
         }
         catch (Exception ex)
@@ -61,15 +58,12 @@ public class PendingQuestionController(IPendingQuestionService pendingQuestionSe
     }    
     
     [HttpPut("approve/{id}")]
+    [Authorize(Roles = "Admin, SuperAdmin")]
     public async Task<IActionResult> ApprovePendingQuestion(int id)
     {
         try
         {
-            ClaimsPrincipal user = HttpContext.User; 
-        
-            if (user == null) return BadRequest("User data cannot be null.");
-            
-            bool success = await pendingQuestionService.ApprovePendingQuestion(id, user);
+            bool success = await pendingQuestionService.ApprovePendingQuestion(id, User);
             if (!success) return NotFound($"Pending question with ID {id} not found.");
             return Ok("Pending question approved successfully.");
         }
@@ -86,13 +80,11 @@ public class PendingQuestionController(IPendingQuestionService pendingQuestionSe
     {
         try
         {
-            ClaimsPrincipal user = HttpContext.User; 
-        
-            if (user == null) return BadRequest("User data cannot be null.");
             if (updatedPendingQuestion == null) return BadRequest("Update pending question data cannot be null.");
             
-            bool success = await pendingQuestionService.UpdatePendingQuestion(id, updatedPendingQuestion, user);
+            bool success = await pendingQuestionService.UpdatePendingQuestion(id, updatedPendingQuestion, User);
             if (!success) return NotFound($"Pending question with ID {id} not found.");
+            
             return Ok($"Pending question with ID {id} updated successfully.");
         }
         catch (Exception ex)
@@ -108,7 +100,7 @@ public class PendingQuestionController(IPendingQuestionService pendingQuestionSe
     {
         try
         {
-            bool success = await pendingQuestionService.DeletePendingQuestion(id);
+            bool success = await pendingQuestionService.DeletePendingQuestion(id, User);
             if (!success) return NotFound($"Pending question with ID {id} not found.");
             return Ok($"Pending question with ID {id} deleted successfully.");
         }

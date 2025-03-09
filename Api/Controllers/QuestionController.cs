@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using QuestionaireApi.Interfaces;
 using QuestionaireApi.Models;
+using QuestionaireApi.Models.Database;
 using QuestionaireApi.Models.Dto;
 
 namespace QuestionaireApi.Controllers;
@@ -24,7 +25,9 @@ public class QuestionController(IQuestionService questionService,
             if (pageNumber < 1 || pageSize < 1)
                 return BadRequest("Page number and page size must be greater than 0.");
             
-            PaginatedResponse<QuestionDto> response = await questionService.GetQuestions(pageNumber, pageSize);
+            ClaimsPrincipal? user = HttpContext.User;
+            
+            PaginatedResponse<QuestionDto> response = await questionService.GetQuestions(pageNumber, pageSize, user);
 
             if (response.Items.Count == 0) return NotFound("No questions found.");
 
@@ -59,16 +62,14 @@ public class QuestionController(IQuestionService questionService,
     }
 
     [HttpPut("{id:int}")]
+    [Authorize(Roles = "Admin, SuperAdmin")]
     public async Task<IActionResult> UpdateQuestion(int id, [FromBody] QuestionDto? updatedQuestion)
     {
         try
         {
-            ClaimsPrincipal user = HttpContext.User; 
-        
-            if (user == null) return BadRequest("User data cannot be null.");
             if (updatedQuestion == null) return BadRequest("Updated question data cannot be null.");
             
-            bool success = await questionService.UpdateQuestion(id, updatedQuestion, user);
+            bool success = await questionService.UpdateQuestion(id, updatedQuestion, User);
             if (!success) return NotFound($"Question with ID {id} not found.");
             return Ok($"Question with ID {id} updated successfully.");
         }
@@ -81,11 +82,12 @@ public class QuestionController(IQuestionService questionService,
     }
 
     [HttpDelete("{id:int}")]
+    [Authorize(Roles = "Admin, SuperAdmin")]
     public async Task<IActionResult> DeleteQuestion(int id)
     {
         try
         {
-            bool success = await questionService.DeleteQuestion(id);
+            bool success = await questionService.DeleteQuestion(id, User);
             if (!success) return NotFound($"Question with ID {id} not found.");
             return Ok($"Question with ID {id} deleted successfully.");
         }

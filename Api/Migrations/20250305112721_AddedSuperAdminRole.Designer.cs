@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QuestionaireApi;
 
@@ -11,9 +12,11 @@ using QuestionaireApi;
 namespace QuestionaireApi.Migrations
 {
     [DbContext(typeof(QuestionaireDbContext))]
-    partial class QuestionaireDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250305112721_AddedSuperAdminRole")]
+    partial class AddedSuperAdminRole
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -986,13 +989,13 @@ namespace QuestionaireApi.Migrations
                         {
                             Id = "2db072f6-3706-4996-b222-343896c40606",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "79f0a52e-db1a-4d41-a6ba-8a4c05ef46a8",
+                            ConcurrencyStamp = "e77c3c72-0d74-48e9-9cb3-bb3119c99129",
                             Email = "admin@admin.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@ADMIN.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAEOGR7OIZBUKQavjg2sElqOw45o5Y+1E4nSu17USiT8p09MjUQqRKUL6DPCv+zeS8QA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEEnc9IcKjqiERt+UMcv/np2qJAJtVMI6qUzqiG5HsoeCyWe0Nr/L2UZC6qmwWTdKjQ==",
                             PhoneNumberConfirmed = true,
                             SecurityStamp = "b4486713-5f7d-134c-96c3-b7c3d441afb4",
                             TwoFactorEnabled = false,

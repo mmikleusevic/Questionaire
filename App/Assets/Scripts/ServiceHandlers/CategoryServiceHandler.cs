@@ -12,7 +12,7 @@ namespace ServiceHandlers
     {
         public IEnumerator GetCategories(Action<List<Category>, string> onComplete)
         {
-            string endpoint = "api/Category";
+            string endpoint = "api/Category/nested";
             string url = EnvironmentConfig.ApiBaseUrl + endpoint;
 
             using (UnityWebRequest webRequest = UnityWebRequest.Get(url))

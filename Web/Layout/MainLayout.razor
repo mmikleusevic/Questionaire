@@ -1,0 +1,78 @@
+﻿@using System.Security.Claims
+@using Web.Services
+@inherits LayoutComponentBase
+
+<div class="bb-page">
+
+    <Sidebar2 IconName="IconName.PatchQuestionFill"
+              Title="Questionaire"
+              DataProvider="Sidebar2DataProvider"/>
+
+    <main>
+        <div class="bb-top-row px-4 d-flex justify-content-end">
+            <AuthorizeView>
+                <Authorized>
+                    <p class="my-3 me-3">Hello, @context.User.Identity?.Name</p>
+                    <button class="btn btn-primary" @onclick="Logout">Logout</button>
+                </Authorized>
+                <NotAuthorized>
+                    <a class="btn btn-primary" href="/">Login</a>
+                    <a class="btn btn-outline-primary" href="/Register">Register</a>
+                </NotAuthorized>
+            </AuthorizeView>
+        </div>
+
+        <article class="content px-4">
+            <div class="py-2">@Body</div>
+        </article>
+    </main>
+</div>
+
+<Toasts class="p-3" AutoHide="true" Delay="6000" Placement="ToastsPlacement.BottomRight"/>
+
+@code {
+    [Inject] private CustomAuthStateService CustomAuthStateService { get; set; }
+    
+    private List<NavItem>? navItems;
+
+    private async Task<Sidebar2DataProviderResult> Sidebar2DataProvider(Sidebar2DataProviderRequest request)
+    {
+        if (navItems is null) navItems = await GetNavItems();
+
+        return await Task.FromResult(request.ApplyTo(navItems));
+    }
+
+    private async Task<List<NavItem>> GetNavItems()
+    {
+        navItems = new List<NavItem>();
+
+        AuthenticationState authState = await CustomAuthStateService.GetAuthenticationStateAsync();
+        ClaimsPrincipal user = authState.User;
+
+        if (user.Identity is { IsAuthenticated: true })
+        {
+            if (user.IsInRole("User") || user.IsInRole("Admin") || user.IsInRole("SuperAdmin"))
+            {
+                navItems.Add(new NavItem { Id = "2", Href = "/Questions", IconName = IconName.QuestionCircleFill, Text = "Questions", IconColor = IconColor.Success });
+                navItems.Add(new NavItem { Id = "3", Href = "/PendingQuestions", IconName = IconName.QuestionCircle, Text = "Pending Questions", IconColor = IconColor.Primary });
+            }
+
+            if (user.IsInRole("Admin") || user.IsInRole("SuperAdmin"))
+            {
+                navItems.Add(new NavItem { Id = "1", Href = "/Categories", IconName = IconName.FolderFill, Text = "Categories", IconColor = IconColor.Primary });
+            }
+
+            if (user.IsInRole("SuperAdmin"))
+            {
+                navItems.Add(new NavItem { Id = "4", Href = "/Users", IconName = IconName.House, Text = "Users", IconColor = IconColor.Danger });
+            }
+        }
+        
+        return navItems;
+    }
+
+    private async Task Logout()
+    {
+        await CustomAuthStateService.Logout();
+    }
+}
