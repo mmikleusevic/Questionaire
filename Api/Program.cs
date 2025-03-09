@@ -1,32 +1,23 @@
-using System.Diagnostics;
-using System.Text;
 using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.BearerToken;
-using Microsoft.AspNetCore.Http.HttpResults;
+using DotNetEnv;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using QuestionaireApi;
 using QuestionaireApi.IdentityApi;
 using QuestionaireApi.Interfaces;
-using QuestionaireApi.Models;
 using QuestionaireApi.Models.Database;
 using QuestionaireApi.Services;
 using Scalar.AspNetCore;
-using SameSiteMode = Microsoft.AspNetCore.Http.SameSiteMode;
 
 var builder = WebApplication.CreateBuilder(args);
 
-DotNetEnv.Env.Load();
+Env.Load();
 
 builder.Services.AddLogging();
 
 builder.Services.AddControllers()
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-    });
+    .AddJsonOptions(options => { options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles; });
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -43,12 +34,12 @@ builder.Services.AddDbContext<QuestionaireDbContext>(options =>
 
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(options =>
-{
-    options.DefaultScheme = IdentityConstants.BearerScheme;
-    options.DefaultSignInScheme = IdentityConstants.BearerScheme;
-    options.DefaultChallengeScheme = IdentityConstants.BearerScheme;
-})
-.AddBearerToken(IdentityConstants.BearerScheme);
+    {
+        options.DefaultScheme = IdentityConstants.BearerScheme;
+        options.DefaultSignInScheme = IdentityConstants.BearerScheme;
+        options.DefaultChallengeScheme = IdentityConstants.BearerScheme;
+    })
+    .AddBearerToken(IdentityConstants.BearerScheme);
 
 builder.Services.AddScoped<IAnswerService, AnswerService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
@@ -81,9 +72,9 @@ builder.Services.AddIdentityCore<User>(options =>
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(name: "Cors", policy =>
+    options.AddPolicy("Cors", policy =>
     {
-        policy.WithOrigins(applicationUrl,webUrl)
+        policy.WithOrigins(applicationUrl, webUrl)
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
@@ -98,7 +89,7 @@ app.UseExceptionHandler(errorApp =>
     {
         context.Response.StatusCode = 500;
         context.Response.ContentType = "application/json";
-        
+
         await context.Response.WriteAsJsonAsync("An application error has occurred. Try again later.");
     });
 });
@@ -117,7 +108,7 @@ else
 using (IServiceScope? scope = app.Services.CreateScope())
 {
     QuestionaireDbContext dbContext = scope.ServiceProvider.GetRequiredService<QuestionaireDbContext>();
-    
+
     dbContext.Database.Migrate();
 }
 

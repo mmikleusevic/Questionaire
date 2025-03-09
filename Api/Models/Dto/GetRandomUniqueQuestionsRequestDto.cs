@@ -1,4 +1,4 @@
-namespace QuestionaireApi.Models;
+namespace QuestionaireApi.Models.Dto;
 
 public class GetRandomUniqueQuestionsRequestDto
 {

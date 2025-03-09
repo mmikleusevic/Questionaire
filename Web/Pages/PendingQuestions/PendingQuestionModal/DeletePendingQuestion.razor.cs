@@ -7,15 +7,15 @@ namespace Web.Pages.PendingQuestions.PendingQuestionModal;
 
 public partial class DeletePendingQuestion : ComponentBase
 {
-    [Inject] IPendingQuestionService? PendingQuestionService { get; set; }
+    [Inject] private IPendingQuestionService? PendingQuestionService { get; set; }
     [Parameter] public Modal? Modal { get; set; }
     [Parameter] public PendingQuestion? PendingQuestion { get; set; }
     [Parameter] public EventCallback OnPendingQuestionChanged { get; set; }
-    
+
     private async Task HandleValidSubmit()
     {
         if (PendingQuestion == null || PendingQuestionService == null) return;
-        
+
         await PendingQuestionService.DeletePendingQuestion(PendingQuestion.Id);
         await OnPendingQuestionChanged.InvokeAsync(PendingQuestion);
         await Hide();
@@ -24,7 +24,7 @@ public partial class DeletePendingQuestion : ComponentBase
     private async Task Hide()
     {
         if (Modal == null) return;
-        
+
         await Modal.HideAsync();
     }
 }

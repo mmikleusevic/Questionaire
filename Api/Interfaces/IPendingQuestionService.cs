@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using QuestionaireApi.Models.Database;
 using QuestionaireApi.Models.Dto;
 
 namespace QuestionaireApi.Interfaces;
@@ -11,5 +10,4 @@ public interface IPendingQuestionService
     Task<bool> ApprovePendingQuestion(int id, ClaimsPrincipal user);
     Task<bool> UpdatePendingQuestion(int id, PendingQuestionDto updatedPendingQuestion, ClaimsPrincipal user);
     Task<bool> DeletePendingQuestion(int id, ClaimsPrincipal user);
-
 }

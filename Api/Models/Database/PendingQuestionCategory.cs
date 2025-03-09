@@ -12,6 +12,5 @@ public class PendingQuestionCategory
     [ForeignKey(nameof(PendingQuestionId))]
     public virtual PendingQuestion PendingQuestion { get; set; } = null!;
 
-    [ForeignKey(nameof(CategoryId))]
-    public virtual Category Category { get; set; } = null!;
+    [ForeignKey(nameof(CategoryId))] public virtual Category Category { get; set; } = null!;
 }

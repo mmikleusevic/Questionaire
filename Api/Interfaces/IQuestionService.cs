@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using QuestionaireApi.Models;
 using QuestionaireApi.Models.Dto;
 
 namespace QuestionaireApi.Interfaces;

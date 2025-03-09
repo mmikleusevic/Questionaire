@@ -1,5 +1,3 @@
-using QuestionaireApi.Models.Database;
-
 namespace QuestionaireApi.Models.Dto;
 
 public class PendingQuestionDto

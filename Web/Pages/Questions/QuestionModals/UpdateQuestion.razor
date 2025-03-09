@@ -1,11 +1,11 @@
 @using Web.Models
 <EditForm OnValidSubmit="HandleValidSubmit" EditContext="editContext">
-    <ObjectGraphDataAnnotationsValidator />
-    <ValidationSummary class="alert alert-danger" />
+    <ObjectGraphDataAnnotationsValidator/>
+    <ValidationSummary class="alert alert-danger"/>
 
     @if (validationMessages.Any())
     {
-        <div class="alert alert-danger" >
+        <div class="alert alert-danger">
             @foreach (var message in validationMessages)
             {
                 <div>@message</div>
@@ -39,8 +39,9 @@
                         <ValidationMessage For="@(() => answer.AnswerText)" class="alert alert-danger"/>
                     </div>
                     <div class="col-md-2 dropdown-row">
-                        <Dropdown Direction="DropdownDirection.Dropdown" Class="flex-fill" Color="@(answer.IsCorrect ? DropdownColor.Success : DropdownColor.Danger)" >
-                            <DropdownToggleButton >
+                        <Dropdown Direction="DropdownDirection.Dropdown" Class="flex-fill"
+                                  Color="@(answer.IsCorrect ? DropdownColor.Success : DropdownColor.Danger)">
+                            <DropdownToggleButton>
                                 @(answer.IsCorrect ? "Correct" : "Incorrect")
                             </DropdownToggleButton>
                             <DropdownMenu>
@@ -85,7 +86,9 @@
             </div>
             <div class="col-md-12">
                 <Button Color="ButtonColor.Primary" @onclick="AddCategoryDropdown">+ Add Category</Button>
-                <Button Color="ButtonColor.Warning" Disabled="@(selectedCategories.Count <= 1)" @onclick="RemoveCategoryDropdown">- Remove Category</Button>
+                <Button Color="ButtonColor.Warning" Disabled="@(selectedCategories.Count <= 1)"
+                        @onclick="RemoveCategoryDropdown">- Remove Category
+                </Button>
             </div>
         </div>
     </div>

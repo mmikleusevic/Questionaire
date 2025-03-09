@@ -14,34 +14,36 @@ public class PendingQuestionCategoriesService(QuestionaireDbContext context) : I
                 categories.Select(a => new PendingQuestionCategory
                 {
                     PendingQuestionId = pendingQuestionId,
-                    CategoryId = a.Id,
+                    CategoryId = a.Id
                 }).ToList()
             );
         }
         catch (Exception ex)
         {
-            throw new InvalidOperationException("An error occurred while creating the pending question categories.", ex);
+            throw new InvalidOperationException("An error occurred while creating the pending question categories.",
+                ex);
         }
     }
 
-    public Task UpdatePendingQuestionCategories(int pendingQuestionId, ICollection<PendingQuestionCategory> pendingQuestionCategories, List<CategoryDto> categories)
+    public Task UpdatePendingQuestionCategories(int pendingQuestionId,
+        ICollection<PendingQuestionCategory> pendingQuestionCategories, List<CategoryDto> categories)
     {
         try
         {
             List<PendingQuestionCategory> pendingQuestionCategoriesToRemove = pendingQuestionCategories
                 .Where(pa => categories.All(ua => ua.Id != pa.CategoryId))
                 .ToList();
-            
+
             foreach (PendingQuestionCategory pendingQuestionCategory in pendingQuestionCategoriesToRemove)
             {
                 pendingQuestionCategories.Remove(pendingQuestionCategory);
             }
-            
+
             foreach (CategoryDto updatedCategory in categories)
             {
                 PendingQuestionCategory? existingQuestionCategory = pendingQuestionCategories
                     .FirstOrDefault(pa => pa.CategoryId == updatedCategory.Id);
-                
+
                 if (existingQuestionCategory != null)
                 {
                     existingQuestionCategory.PendingQuestionId = pendingQuestionId;
@@ -56,12 +58,13 @@ public class PendingQuestionCategoriesService(QuestionaireDbContext context) : I
                     });
                 }
             }
-            
+
             return Task.CompletedTask;
         }
         catch (Exception ex)
         {
-            return Task.FromException(new InvalidOperationException("An error occurred while updating the pending question categories.", ex));
+            return Task.FromException(
+                new InvalidOperationException("An error occurred while updating the pending question categories.", ex));
         }
     }
 }

@@ -5,16 +5,16 @@
         <button class="btn btn-update" @onclick="ShowUpdateCategory">Update</button>
         <button class="btn btn-delete" @onclick="ShowDeleteCategory">Delete</button>
     </div>
-    
+
     @if (Category?.ChildCategories?.Any() == true)
     {
         <ul class="child-categories">
             @foreach (var childCategory in Category.ChildCategories)
             {
-                <CategoryItem Category="childCategory" 
-                              Modal="Modal" 
-                              OnCategoryChanged="OnCategoryChanged" 
-                              FlatCategories="FlatCategories" />
+                <CategoryItem Category="childCategory"
+                              Modal="Modal"
+                              OnCategoryChanged="OnCategoryChanged"
+                              FlatCategories="FlatCategories"/>
             }
         </ul>
     }

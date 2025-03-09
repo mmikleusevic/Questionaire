@@ -1,5 +1,5 @@
 .header {
-    gap:10px;
+    gap: 10px;
     padding-left: 10px;
 }
 
@@ -38,12 +38,12 @@
 .question-row {
     display: flex;
     flex-direction: column;
-    flex:10;
+    flex: 10;
 }
 
 .categories-answers {
     display: flex;
-    gap:10px;
+    gap: 10px;
     height: 150px;
 }
 
@@ -54,7 +54,7 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     padding: 10px;
     transition: transform 0.2s, box-shadow 0.2s;
-    gap:10px;
+    gap: 10px;
     overflow-x: auto;
 }
 
@@ -82,7 +82,7 @@
     flex-direction: column;
     justify-content: center;
     border-radius: 10px;
-    background-color: rgba(1,1,1,0.05);
+    background-color: rgba(1, 1, 1, 0.05);
     margin-bottom: 10px;
     min-width: 300px;
     min-height: 150px;
@@ -90,14 +90,14 @@
 }
 
 .categories-row {
-    flex:5;
+    flex: 5;
     display: flex;
     flex-wrap: wrap;
     gap: 5px;
     align-items: center;
     justify-content: center;
     border-radius: 10px;
-    background-color: rgba(1,1,1,0.05);
+    background-color: rgba(1, 1, 1, 0.05);
 }
 
 .category-item {
@@ -119,10 +119,10 @@
     flex-direction: column;
     gap: 5px;
     border-radius: 10px;
-    background-color: rgba(1,1,1,0.05);
+    background-color: rgba(1, 1, 1, 0.05);
 }
 
-.answers-list span  {
+.answers-list span {
     padding: 8px 12px;
     border-radius: 4px;
     text-align: center;
@@ -151,7 +151,7 @@
     flex-direction: column;
     justify-content: center;
     border-radius: 10px;
-    background-color: rgba(1,1,1,0.05);
+    background-color: rgba(1, 1, 1, 0.05);
 }
 
 .pagination-footer {

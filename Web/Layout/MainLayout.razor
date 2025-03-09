@@ -32,7 +32,7 @@
 
 @code {
     [Inject] private CustomAuthStateService CustomAuthStateService { get; set; }
-    
+
     private List<NavItem>? navItems;
 
     private async Task<Sidebar2DataProviderResult> Sidebar2DataProvider(Sidebar2DataProviderRequest request)
@@ -67,7 +67,7 @@
                 navItems.Add(new NavItem { Id = "4", Href = "/Users", IconName = IconName.House, Text = "Users", IconColor = IconColor.Danger });
             }
         }
-        
+
         return navItems;
     }
 
@@ -75,4 +75,5 @@
     {
         await CustomAuthStateService.Logout();
     }
+
 }

@@ -79,8 +79,12 @@
 }
 
 @keyframes fadeIn {
-    0% { opacity: 0; }
-    100% { opacity: 1; }
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
 }
 
 .validation-message {
@@ -122,8 +126,7 @@
 }
 
 .category-name,
-.parent-category-dropdown
-{
+.parent-category-dropdown {
     display: flex;
     align-items: center;
 }
@@ -145,8 +148,7 @@
 }
 
 .pending-question-text,
-.dropdown-row
-{
+.dropdown-row {
     display: flex;
     align-items: center;
     justify-content: center;

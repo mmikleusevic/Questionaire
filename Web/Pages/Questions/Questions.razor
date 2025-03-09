@@ -1,9 +1,9 @@
 @page "/Questions"
-@using Microsoft.AspNetCore.Authorization
 @inject NavigationManager Navigation
 @attribute [Authorize(Roles = "Admin, SuperAdmin, User")]
 
-<Modal @ref="modal" UseStaticBackdrop="true" CloseOnEscape="true" IsVerticallyCentered="true" Size="ModalSize.ExtraLarge"/>
+<Modal @ref="modal" UseStaticBackdrop="true" CloseOnEscape="true" IsVerticallyCentered="true"
+       Size="ModalSize.ExtraLarge"/>
 
 <style scoped>
     body {
@@ -56,7 +56,7 @@ else
             </div>
         }
     </div>
-    
+
     <div class="pagination-footer">
         <Pagination ActivePageNumber="currentPage"
                     TotalPages="totalPages"

@@ -3,20 +3,21 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using QuestionaireApi.Interfaces;
-using QuestionaireApi.Models;
 using QuestionaireApi.Models.Database;
 using QuestionaireApi.Models.Dto;
 
 namespace QuestionaireApi.Services;
 
-public class PendingQuestionService(QuestionaireDbContext context,
+public class PendingQuestionService(
+    QuestionaireDbContext context,
     IPendingAnswerService pendingAnswerService,
     IPendingQuestionCategoriesService pendingQuestionCategoriesService,
     IAnswerService answerService,
     IQuestionCategoriesService questionCategoriesService,
     UserManager<User> userManager) : IPendingQuestionService
 {
-    public async Task<PaginatedResponse<PendingQuestionDto>> GetPendingQuestions(int pageNumber, int pageSize, ClaimsPrincipal user)
+    public async Task<PaginatedResponse<PendingQuestionDto>> GetPendingQuestions(int pageNumber, int pageSize,
+        ClaimsPrincipal user)
     {
         try
         {
@@ -25,16 +26,16 @@ public class PendingQuestionService(QuestionaireDbContext context,
             IQueryable<PendingQuestion> query = context.PendingQuestions
                 .Include(a => a.PendingAnswers)
                 .Include(a => a.PendingQuestionCategories)
-                    .ThenInclude(c => c.Category)
+                .ThenInclude(c => c.Category)
                 .OrderBy(q => q.Id);
-            
+
             if (!string.IsNullOrEmpty(userId)) query = query.Where(q => q.CreatedById == userId);
-            
+
             List<PendingQuestion> questions = await query
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
-            
+
             int totalQuestions = await context.PendingQuestions.CountAsync();
 
             PaginatedResponse<PendingQuestionDto> response = new PaginatedResponse<PendingQuestionDto>
@@ -59,7 +60,7 @@ public class PendingQuestionService(QuestionaireDbContext context,
                 PageSize = pageSize,
                 TotalPages = (int)Math.Ceiling((double)totalQuestions / pageSize)
             };
-            
+
             return response;
         }
         catch (Exception ex)
@@ -67,38 +68,39 @@ public class PendingQuestionService(QuestionaireDbContext context,
             throw new InvalidOperationException("An error occurred while retrieving pending questions.", ex);
         }
     }
-    
+
     public async Task CreatePendingQuestion(PendingQuestionDto pendingQuestion, ClaimsPrincipal user)
     {
         await using IDbContextTransaction? transaction = await context.Database.BeginTransactionAsync();
-        
+
         try
         {
             string? userId = userManager.GetUserId(user);
 
             if (string.IsNullOrEmpty(userId)) throw new UnauthorizedAccessException("The user is not authorized");
-            
-            if (pendingQuestion.PendingAnswers.Count != 3 || 
-                !pendingQuestion.PendingAnswers.Any(a => a.IsCorrect) || 
+
+            if (pendingQuestion.PendingAnswers.Count != 3 ||
+                !pendingQuestion.PendingAnswers.Any(a => a.IsCorrect) ||
                 pendingQuestion.Categories.Count == 0)
             {
-                throw new InvalidOperationException("Invalid pending question: must have exactly 3 pending answers, 1 correct pending answer and at least one category.");
+                throw new InvalidOperationException(
+                    "Invalid pending question: must have exactly 3 pending answers, 1 correct pending answer and at least one category.");
             }
-            
+
             PendingQuestion dbQuestion = new PendingQuestion
             {
                 QuestionText = pendingQuestion.QuestionText,
                 CreatedById = userId,
                 CreatedAt = DateTime.UtcNow
             };
-            
+
             await context.PendingQuestions.AddAsync(dbQuestion);
             await context.SaveChangesAsync();
-            
+
             await pendingAnswerService.CreatePendingQuestionAnswers(dbQuestion.Id, pendingQuestion.PendingAnswers);
             await pendingQuestionCategoriesService.CreatePendingQuestionCategories(dbQuestion.Id,
                 pendingQuestion.Categories);
-            
+
             await context.SaveChangesAsync();
             await transaction.CommitAsync();
         }
@@ -108,17 +110,17 @@ public class PendingQuestionService(QuestionaireDbContext context,
             throw new InvalidOperationException("An error occurred while creating the pending question.", ex);
         }
     }
-    
+
     public async Task<bool> ApprovePendingQuestion(int id, ClaimsPrincipal user)
     {
         await using IDbContextTransaction? transaction = await context.Database.BeginTransactionAsync();
-        
+
         try
         {
             string? userId = userManager.GetUserId(user);
 
             if (string.IsNullOrEmpty(userId)) throw new UnauthorizedAccessException("The user is not authorized");
-            
+
             PendingQuestion? pendingQuestion = await context.PendingQuestions
                 .Include(q => q.PendingAnswers)
                 .Include(q => q.PendingQuestionCategories)
@@ -129,14 +131,15 @@ public class PendingQuestionService(QuestionaireDbContext context,
                 await transaction.RollbackAsync();
                 return false;
             }
-            
-            if (pendingQuestion.PendingAnswers.Count != 3 || 
-                !pendingQuestion.PendingAnswers.Any(a => a.IsCorrect) || 
+
+            if (pendingQuestion.PendingAnswers.Count != 3 ||
+                !pendingQuestion.PendingAnswers.Any(a => a.IsCorrect) ||
                 pendingQuestion.PendingQuestionCategories.Count == 0)
             {
-                throw new InvalidOperationException("Invalid pending question: must have exactly 3 pending answers, 1 correct pending answer and at least one category.");
+                throw new InvalidOperationException(
+                    "Invalid pending question: must have exactly 3 pending answers, 1 correct pending answer and at least one category.");
             }
-            
+
             Question newQuestion = new Question
             {
                 QuestionText = pendingQuestion.QuestionText,
@@ -144,18 +147,19 @@ public class PendingQuestionService(QuestionaireDbContext context,
                 CreatedAt = pendingQuestion.CreatedAt,
                 LastUpdatedAt = pendingQuestion.LastUpdatedAt,
                 LastUpdatedById = pendingQuestion.LastUpdatedById,
-                ApprovedById = userId, 
+                ApprovedById = userId,
                 ApprovedAt = DateTime.UtcNow
             };
-            
+
             await context.Questions.AddAsync(newQuestion);
             await context.SaveChangesAsync();
 
             await answerService.CreateQuestionAnswers(newQuestion.Id, pendingQuestion.PendingAnswers);
-            await questionCategoriesService.CreateQuestionCategories(newQuestion.Id, pendingQuestion.PendingQuestionCategories);
-            
+            await questionCategoriesService.CreateQuestionCategories(newQuestion.Id,
+                pendingQuestion.PendingQuestionCategories);
+
             context.PendingQuestions.Remove(pendingQuestion);
-            
+
             await context.SaveChangesAsync();
             await transaction.CommitAsync();
 
@@ -167,24 +171,26 @@ public class PendingQuestionService(QuestionaireDbContext context,
             throw new InvalidOperationException("An error occurred while approving the pending question.", ex);
         }
     }
-    
-    public async Task<bool> UpdatePendingQuestion(int id, PendingQuestionDto updatedPendingQuestion, ClaimsPrincipal user)
+
+    public async Task<bool> UpdatePendingQuestion(int id, PendingQuestionDto updatedPendingQuestion,
+        ClaimsPrincipal user)
     {
         await using IDbContextTransaction? transaction = await context.Database.BeginTransactionAsync();
-        
+
         try
         {
             string? userId = userManager.GetUserId(user);
 
             if (string.IsNullOrEmpty(userId)) throw new UnauthorizedAccessException("The user is not authorized");
-        
-            if (updatedPendingQuestion.PendingAnswers.Count != 3 || 
-                !updatedPendingQuestion.PendingAnswers.Any(a => a.IsCorrect) || 
+
+            if (updatedPendingQuestion.PendingAnswers.Count != 3 ||
+                !updatedPendingQuestion.PendingAnswers.Any(a => a.IsCorrect) ||
                 updatedPendingQuestion.Categories.Count == 0)
             {
-                throw new InvalidOperationException("Invalid pending question: must have exactly 3 pending answers, 1 correct pending answer and at least one category.");
+                throw new InvalidOperationException(
+                    "Invalid pending question: must have exactly 3 pending answers, 1 correct pending answer and at least one category.");
             }
-            
+
             PendingQuestion? pendingQuestion = await context.PendingQuestions
                 .Include(q => q.PendingAnswers)
                 .Include(q => q.PendingQuestionCategories)
@@ -199,22 +205,25 @@ public class PendingQuestionService(QuestionaireDbContext context,
             pendingQuestion.QuestionText = updatedPendingQuestion.QuestionText;
             pendingQuestion.LastUpdatedAt = DateTime.UtcNow;
             pendingQuestion.LastUpdatedById = userId;
-            
-            await pendingAnswerService.UpdatePendingQuestionAnswers(pendingQuestion.Id, pendingQuestion.PendingAnswers, updatedPendingQuestion.PendingAnswers);
-            await pendingQuestionCategoriesService.UpdatePendingQuestionCategories(pendingQuestion.Id, pendingQuestion.PendingQuestionCategories, updatedPendingQuestion.Categories);
-            
+
+            await pendingAnswerService.UpdatePendingQuestionAnswers(pendingQuestion.Id, pendingQuestion.PendingAnswers,
+                updatedPendingQuestion.PendingAnswers);
+            await pendingQuestionCategoriesService.UpdatePendingQuestionCategories(pendingQuestion.Id,
+                pendingQuestion.PendingQuestionCategories, updatedPendingQuestion.Categories);
+
             await context.SaveChangesAsync();
             await transaction.CommitAsync();
-            
+
             return true;
         }
         catch (Exception ex)
         {
             await transaction.RollbackAsync();
-            throw new InvalidOperationException($"An error occurred while updating the pending question with ID {id}.", ex);
+            throw new InvalidOperationException($"An error occurred while updating the pending question with ID {id}.",
+                ex);
         }
     }
-    
+
     public async Task<bool> DeletePendingQuestion(int id, ClaimsPrincipal user)
     {
         try
@@ -222,13 +231,13 @@ public class PendingQuestionService(QuestionaireDbContext context,
             string? userId = userManager.GetUserId(user);
 
             if (string.IsNullOrEmpty(userId)) throw new UnauthorizedAccessException("The user is not authorized");
-            
+
             PendingQuestion? pendingQuestion = await context.PendingQuestions
                 .Include(a => a.PendingAnswers)
                 .FirstOrDefaultAsync(a => a.Id == id);
-            
+
             if (pendingQuestion == null) return false;
-            
+
             context.PendingQuestions.Remove(pendingQuestion);
             await context.SaveChangesAsync();
 

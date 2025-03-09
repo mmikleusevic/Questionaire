@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using QuestionaireApi.Interfaces;
-using QuestionaireApi.Models;
+using QuestionaireApi.Models.Database;
 using QuestionaireApi.Models.Dto;
 
 namespace QuestionaireApi.Services;
@@ -15,7 +15,7 @@ public class CategoryService(QuestionaireDbContext context) : ICategoryService
 
             categoriesDto.NestedCategories = await GetNestedCategories();
             categoriesDto.FlatCategories = await GetFlatCategories();
-            
+
             return categoriesDto;
         }
         catch (Exception ex)
@@ -23,7 +23,7 @@ public class CategoryService(QuestionaireDbContext context) : ICategoryService
             throw new InvalidOperationException("An error occurred while retrieving categories.", ex);
         }
     }
-    
+
     public async Task<List<CategoryDto>> GetNestedCategories()
     {
         try
@@ -32,7 +32,7 @@ public class CategoryService(QuestionaireDbContext context) : ICategoryService
                 .Include(c => c.ParentCategory)
                 .Include(c => c.ChildCategories)
                 .OrderBy(c => c.CategoryName)
-                .ToListAsync(); 
+                .ToListAsync();
 
             return SortAndMapCategories(categories);
         }
@@ -55,8 +55,8 @@ public class CategoryService(QuestionaireDbContext context) : ICategoryService
                     ParentCategoryId = category.ParentCategoryId,
                     ChildCategories = new List<CategoryDto>()
                 })
-                .ToListAsync(); 
-            
+                .ToListAsync();
+
             return categories;
         }
         catch (Exception ex)
@@ -64,7 +64,7 @@ public class CategoryService(QuestionaireDbContext context) : ICategoryService
             throw new InvalidOperationException("An error occurred while retrieving categories.", ex);
         }
     }
-    
+
     public async Task CreateCategory(CategoryDto category)
     {
         try
@@ -74,7 +74,7 @@ public class CategoryService(QuestionaireDbContext context) : ICategoryService
                 CategoryName = category.CategoryName,
                 ParentCategoryId = category.ParentCategoryId
             });
-            
+
             await context.SaveChangesAsync();
         }
         catch (Exception ex)
@@ -90,12 +90,12 @@ public class CategoryService(QuestionaireDbContext context) : ICategoryService
             Category? category = await context.Categories.FirstOrDefaultAsync(a => a.Id == id);
 
             if (category == null) return false;
-            
+
             category.CategoryName = updatedCategory.CategoryName;
             category.ParentCategoryId = updatedCategory.ParentCategoryId;
-            
+
             await context.SaveChangesAsync();
-            
+
             return true;
         }
         catch (Exception ex)
@@ -113,7 +113,7 @@ public class CategoryService(QuestionaireDbContext context) : ICategoryService
 
             context.Categories.Remove(category);
             await context.SaveChangesAsync();
-            
+
             return true;
         }
         catch (Exception ex)
@@ -121,7 +121,7 @@ public class CategoryService(QuestionaireDbContext context) : ICategoryService
             throw new InvalidOperationException($"An error occurred while deleting the category with ID {id}.", ex);
         }
     }
-    
+
     private List<CategoryDto> SortAndMapCategories(IEnumerable<Category> categories)
     {
         try

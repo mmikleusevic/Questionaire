@@ -8,16 +8,16 @@ namespace Web.Pages.PendingQuestions.PendingQuestionModal;
 
 public partial class CreatePendingQuestion : ComponentBase
 {
+    private readonly PendingQuestion pendingQuestion = new PendingQuestion();
+    private readonly List<Category> selectedCategories = new List<Category>();
+    private EditContext? editContext;
+
+    private List<string> validationMessages = new List<string>();
     [Inject] private IPendingQuestionService? PendingQuestionService { get; set; }
     [Parameter] public EventCallback OnPendingQuestionChanged { get; set; }
     [Parameter] public List<Category> FlatCategories { get; set; }
     [Parameter] public Modal? Modal { get; set; }
-    
-    private List<string> validationMessages = new List<string>();
-    private EditContext? editContext;
-    private readonly PendingQuestion pendingQuestion = new PendingQuestion();
-    private readonly List<Category> selectedCategories = new List<Category>();
-    
+
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
@@ -27,9 +27,9 @@ public partial class CreatePendingQuestion : ComponentBase
     protected override async Task OnParametersSetAsync()
     {
         await base.OnParametersSetAsync();
-        
+
         pendingQuestion.QuestionText = string.Empty;
-        
+
         selectedCategories.Clear();
         selectedCategories.Add(new Category());
 
@@ -45,18 +45,18 @@ public partial class CreatePendingQuestion : ComponentBase
                 pendingAnswer.IsCorrect = false;
             }
         }
-        
+
         validationMessages.Clear();
-        
+
         editContext = new EditContext(pendingQuestion);
     }
-    
+
     public async Task HandleValidSubmit()
     {
         if (PendingQuestionService == null) return;
-        
+
         List<string> errorMessages = new List<string>();
-        
+
         int correctAnswers = pendingQuestion.PendingAnswers.Count(a => a.IsCorrect);
         if (correctAnswers != 1)
         {
@@ -68,19 +68,19 @@ public partial class CreatePendingQuestion : ComponentBase
         {
             errorMessages.Add("You have to add at least one category!");
         }
-        
+
         if (errorMessages.Any())
         {
             validationMessages = errorMessages;
             return;
         }
-        
+
         pendingQuestion.Categories = selectedCategories.Where(a => a.Id != 0).ToList();
         await PendingQuestionService.CreatePendingQuestion(pendingQuestion);
         await OnPendingQuestionChanged.InvokeAsync();
         await Hide();
     }
-    
+
     private void SetAnswers()
     {
         for (int i = 0; i < 3; i++)
@@ -88,12 +88,12 @@ public partial class CreatePendingQuestion : ComponentBase
             pendingQuestion?.PendingAnswers?.Add(new PendingAnswer { AnswerText = string.Empty });
         }
     }
-    
+
     private void AddCategoryDropdown()
     {
         selectedCategories.Add(new Category());
     }
-    
+
     private void RemoveCategoryDropdown()
     {
         if (selectedCategories.Count > 1)
@@ -101,18 +101,18 @@ public partial class CreatePendingQuestion : ComponentBase
             selectedCategories.RemoveAt(selectedCategories.Count - 1);
         }
     }
-    
+
     private void SelectCategory(Category currentCategory, Category newCategory)
     {
         int categoryIndex = selectedCategories.IndexOf(currentCategory);
-        
+
         selectedCategories[categoryIndex] = newCategory;
     }
-    
+
     private async Task Hide()
     {
         if (Modal == null) return;
-        
+
         await Modal.HideAsync();
     }
 }

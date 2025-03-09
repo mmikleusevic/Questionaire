@@ -1,6 +1,4 @@
-using Microsoft.EntityFrameworkCore;
 using QuestionaireApi.Interfaces;
-using QuestionaireApi.Models;
 using QuestionaireApi.Models.Database;
 using QuestionaireApi.Models.Dto;
 
@@ -34,17 +32,17 @@ public class AnswerService(QuestionaireDbContext context) : IAnswerService
             List<Answer> answersToRemove = answers
                 .Where(pa => updatedAnswers.All(ua => ua.Id != pa.Id))
                 .ToList();
-            
+
             foreach (Answer answer in answersToRemove)
             {
                 answers.Remove(answer);
             }
-            
+
             foreach (AnswerDto updatedAnswer in updatedAnswers)
             {
                 Answer? existingAnswer = answers.Where(a => a.Id != 0)
                     .FirstOrDefault(pa => pa.Id == updatedAnswer.Id);
-                
+
                 if (existingAnswer != null)
                 {
                     existingAnswer.AnswerText = updatedAnswer.AnswerText;
@@ -60,12 +58,13 @@ public class AnswerService(QuestionaireDbContext context) : IAnswerService
                     });
                 }
             }
-            
+
             return Task.CompletedTask;
         }
         catch (Exception ex)
         {
-            return Task.FromException(new InvalidOperationException("An error occurred while updating the question answers.", ex));
+            return Task.FromException(
+                new InvalidOperationException("An error occurred while updating the question answers.", ex));
         }
     }
 }

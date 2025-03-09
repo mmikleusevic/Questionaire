@@ -1,6 +1,4 @@
-using Microsoft.AspNetCore.Identity.Data;
-
-namespace QuestionaireApi.IdentityApi;
+namespace QuestionaireApi.IdentityApi.Models;
 
 public class ExtendedInfoResponse
 {

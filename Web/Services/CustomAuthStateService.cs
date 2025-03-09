@@ -2,14 +2,10 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Security.Claims;
-using System.Text;
-using System.Text.Json.Nodes;
 using BlazorBootstrap;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.JSInterop;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Web.Models;
 
@@ -47,7 +43,7 @@ public class CustomAuthStateService(
                     List<Claim> claims = new List<Claim>
                     {
                         new Claim(ClaimTypes.Email, email ?? string.Empty),
-                        new Claim(ClaimTypes.Name, name ?? string.Empty),
+                        new Claim(ClaimTypes.Name, name ?? string.Empty)
                     };
 
                     if (rolesArray != null)
@@ -65,10 +61,11 @@ public class CustomAuthStateService(
         }
         catch (Exception ex)
         {
-            Helper.ShowToast(toastService, HttpStatusCode.InternalServerError, "Error while fetching authentication state.", ex.Message);
+            Helper.ShowToast(toastService, HttpStatusCode.InternalServerError,
+                "Error while fetching authentication state.", ex.Message);
             logger.LogError(ex, "Error while fetching authentication state.");
         }
-        
+
         return new AuthenticationState(user);
     }
 
@@ -76,7 +73,8 @@ public class CustomAuthStateService(
     {
         try
         {
-            HttpResponseMessage response = await httpClient.PostAsJsonAsync("login", new { email = loginData.Username, password = loginData.Password });
+            HttpResponseMessage response = await httpClient.PostAsJsonAsync("login",
+                new { email = loginData.Username, password = loginData.Password });
 
             if (response.IsSuccessStatusCode)
             {
@@ -84,12 +82,12 @@ public class CustomAuthStateService(
                 JObject? jsonResponse = JObject.Parse(responseData);
                 string? accessToken = jsonResponse?["accessToken"]?.ToString();
                 string? refreshToken = jsonResponse?["refreshToken"]?.ToString();
-                
+
                 httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-                
+
                 await localStorageService.SetItemAsync("accessToken", accessToken);
                 await localStorageService.SetItemAsync("refreshToken", refreshToken);
-                
+
                 AuthenticationState authState = await GetAuthenticationStateAsync();
                 NotifyAuthenticationStateChanged(Task.FromResult(authState));
 
@@ -102,29 +100,32 @@ public class CustomAuthStateService(
                     navigationManager.NavigateTo("/PendingQuestions", true);
                 }
 
-                Helper.ShowToast(toastService, response.StatusCode, "User successfully logged in", "User successfully logged in");
+                Helper.ShowToast(toastService, response.StatusCode, "User successfully logged in",
+                    "User successfully logged in");
                 return;
             }
-            
-            Helper.ShowToast(toastService, response.StatusCode, "Incorrect Username or Password", "Incorrect Email or Password");
+
+            Helper.ShowToast(toastService, response.StatusCode, "Incorrect Username or Password",
+                "Incorrect Email or Password");
         }
         catch (Exception ex)
         {
-            Helper.ShowToast(toastService, HttpStatusCode.InternalServerError, "Error while logging user in.", ex.Message);
+            Helper.ShowToast(toastService, HttpStatusCode.InternalServerError, "Error while logging user in.",
+                ex.Message);
             logger.LogError(ex, "Error while logging user in.");
         }
     }
-    
+
     public async Task Logout()
     {
         await localStorageService.RemoveItemAsync("accessToken");
         await localStorageService.RemoveItemAsync("refreshToken");
-        
+
         httpClient.DefaultRequestHeaders.Remove("Authorization");
-        
+
         AuthenticationState authState = await GetAuthenticationStateAsync();
         NotifyAuthenticationStateChanged(Task.FromResult(authState));
-        
+
         navigationManager.NavigateTo("/", true);
     }
 }

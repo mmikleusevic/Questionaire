@@ -8,7 +8,7 @@ public static class Helper
     public static void ShowToast(ToastService toastService, HttpStatusCode statusCode, string? title, string? message)
     {
         ToastType toastType = ToastType.Info;
-        
+
         if (statusCode is HttpStatusCode.Created or HttpStatusCode.OK)
         {
             toastType = ToastType.Success;
@@ -21,7 +21,7 @@ public static class Helper
         {
             toastType = ToastType.Danger;
         }
-        
+
         toastService.Notify(new ToastMessage
         {
             Type = toastType,

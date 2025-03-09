@@ -21,6 +21,7 @@ builder.Services.AddScoped<IQuestionService, QuestionService>();
 builder.Services.AddScoped<IPendingQuestionService, PendingQuestionService>();
 builder.Services.AddScoped<CustomAuthStateService>();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateService>();
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"]) });
+builder.Services.AddScoped(sp => new HttpClient
+    { BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"]) });
 
 await builder.Build().RunAsync();

@@ -8,12 +8,12 @@ namespace Web.Pages.Categories;
 
 public partial class Categories : ComponentBase
 {
+    private CategoryLists? categories;
+    private Modal? modal;
     [Inject] private ICategoryService? CategoryService { get; set; }
 
     private EventCallback OnCategoryChanged => EventCallback.Factory.Create(this, () => GetCategories());
-    private Modal? modal;
-    private CategoryLists? categories;
-    
+
     protected override async Task OnInitializedAsync()
     {
         await GetCategories(true);
@@ -22,21 +22,21 @@ public partial class Categories : ComponentBase
     private async Task ShowCreateCategory()
     {
         if (categories == null || modal == null) return;
-        
+
         Dictionary<string, object> parameters = new Dictionary<string, object>
         {
             { "FlatCategories", categories.FlatCategories },
             { "Modal", modal },
             { "OnCategoryChanged", OnCategoryChanged }
         };
-        
+
         await modal.ShowAsync<CreateCategory>("Create New Category", parameters: parameters);
     }
 
     private async Task GetCategories(bool forceRefresh = false)
     {
         if (CategoryService == null) return;
-        
+
         categories = await CategoryService.GetCategories(forceRefresh);
     }
 }

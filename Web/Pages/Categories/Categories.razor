@@ -1,5 +1,4 @@
 @page "/categories"
-@using Microsoft.AspNetCore.Authorization
 @using Web.Models
 @attribute [Authorize(Roles = "Admin, SuperAdmin")]
 
@@ -30,9 +29,9 @@ else if (categories != null && categories.NestedCategories != null)
     <ul class="category-list">
         @foreach (Category category in categories.NestedCategories)
         {
-            <CategoryItem Category="category" 
-                          Modal="modal" 
-                          OnCategoryChanged="OnCategoryChanged" 
+            <CategoryItem Category="category"
+                          Modal="modal"
+                          OnCategoryChanged="OnCategoryChanged"
                           FlatCategories="categories.FlatCategories"/>
         }
     </ul>

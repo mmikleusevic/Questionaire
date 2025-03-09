@@ -1,12 +1,12 @@
 <EditForm OnValidSubmit="HandleValidSubmit" EditContext="editContext">
-    <DataAnnotationsValidator />
-    <ValidationSummary class="alert alert-danger" />
+    <DataAnnotationsValidator/>
+    <ValidationSummary class="alert alert-danger"/>
 
     <div class="form-group row mb-3 category-name">
         <label class="col-md-2 col-form-label">Category Name: <span class="text-danger">*</span></label>
         <div class="col-md-10">
-            <TextInput @bind-Value="@updatedCategory.CategoryName" Placeholder="Enter category name" />
-            <ValidationMessage For="@(() => updatedCategory.CategoryName)" class="alert alert-danger" />
+            <TextInput @bind-Value="@updatedCategory.CategoryName" Placeholder="Enter category name"/>
+            <ValidationMessage For="@(() => updatedCategory.CategoryName)" class="alert alert-danger"/>
         </div>
     </div>
 

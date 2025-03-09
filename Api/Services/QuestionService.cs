@@ -1,17 +1,15 @@
-using System.Diagnostics;
-using System.Linq.Expressions;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using QuestionaireApi.Interfaces;
-using QuestionaireApi.Models;
 using QuestionaireApi.Models.Database;
 using QuestionaireApi.Models.Dto;
 
 namespace QuestionaireApi.Services;
 
-public class QuestionService(QuestionaireDbContext context, 
+public class QuestionService(
+    QuestionaireDbContext context,
     IUserQuestionHistoryService userQuestionHistoryService,
     IAnswerService answerService,
     IQuestionCategoriesService questionCategoriesService,
@@ -22,15 +20,15 @@ public class QuestionService(QuestionaireDbContext context,
         try
         {
             string? userId = userManager.GetUserId(user);
-            
+
             IQueryable<Question> query = context.Questions
                 .Include(a => a.Answers)
                 .Include(a => a.QuestionCategories)
-                    .ThenInclude(c => c.Category)
+                .ThenInclude(c => c.Category)
                 .OrderBy(q => q.Id);
-            
+
             if (!string.IsNullOrEmpty(userId)) query = query.Where(q => q.CreatedById == userId);
-            
+
             List<Question> questions = await query
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
@@ -60,7 +58,7 @@ public class QuestionService(QuestionaireDbContext context,
                 PageSize = pageSize,
                 TotalPages = (int)Math.Ceiling((double)totalQuestions / pageSize)
             };
-            
+
             return response;
         }
         catch (Exception ex)
@@ -68,7 +66,7 @@ public class QuestionService(QuestionaireDbContext context,
             throw new InvalidOperationException("An error occurred while retrieving the list of questions.", ex);
         }
     }
-    
+
     public async Task<List<QuestionDto>> GetRandomUniqueQuestions(GetRandomUniqueQuestionsRequestDto requestDto)
     {
         try
@@ -78,48 +76,51 @@ public class QuestionService(QuestionaireDbContext context,
                 .Where(q => q.Answers.Count >= (requestDto.IsSingleAnswerMode ? 1 : 3))
                 .Where(q => q.Answers.Any(a => a.IsCorrect))
                 .Where(q => q.QuestionCategories.Any(qc => requestDto.CategoryIds.Contains(qc.CategoryId)))
-                .Where(q => !context.UserQuestionHistory.Any(h => h.UserId == requestDto.UserId && h.QuestionId == q.Id));
-        
+                .Where(q => !context.UserQuestionHistory.Any(h => h.UserId == requestDto.UserId 
+                                                                  && h.QuestionId == q.Id));
+
             List<Question> questions = await FetchRandomQuestions(baseQuery, requestDto.NumberOfQuestions, null);
-        
+
             if (questions.Count < requestDto.NumberOfQuestions)
             {
                 await userQuestionHistoryService.ResetUserQuestionHistory(requestDto.UserId);
 
                 int remainingQuestionsCount = requestDto.NumberOfQuestions - questions.Count;
                 HashSet<int> idsToExclude = questions.Select(q => q.Id).ToHashSet();
-                List<Question> additionalQuestions = await FetchRandomQuestions(baseQuery, remainingQuestionsCount, idsToExclude);
+                List<Question> additionalQuestions =
+                    await FetchRandomQuestions(baseQuery, remainingQuestionsCount, idsToExclude);
 
                 questions.AddRange(additionalQuestions);
             }
-        
+
             await userQuestionHistoryService.CreateUserQuestionHistory(requestDto.UserId, questions);
-        
+
             return MapQuestionsToDtos(questions, requestDto.IsSingleAnswerMode);
         }
         catch (Exception ex)
         {
-            throw new InvalidOperationException($"An error occurred while retrieving the random questions.", ex);
+            throw new InvalidOperationException("An error occurred while retrieving the random questions.", ex);
         }
     }
 
     public async Task<bool> UpdateQuestion(int id, QuestionDto updatedQuestion, ClaimsPrincipal user)
     {
         await using IDbContextTransaction? transaction = await context.Database.BeginTransactionAsync();
-        
+
         try
         {
             string? userId = userManager.GetUserId(user);
 
             if (string.IsNullOrEmpty(userId)) throw new UnauthorizedAccessException("The user is not authorized");
-        
-            if (updatedQuestion.Answers.Count != 3 || 
-                !updatedQuestion.Answers.Any(a => a.IsCorrect) || 
+
+            if (updatedQuestion.Answers.Count != 3 ||
+                !updatedQuestion.Answers.Any(a => a.IsCorrect) ||
                 updatedQuestion.Categories.Count == 0)
             {
-                throw new InvalidOperationException("Invalid question: must have exactly 3 answers, 1 correct answer and at least one category.");
+                throw new InvalidOperationException(
+                    "Invalid question: must have exactly 3 answers, 1 correct answer and at least one category.");
             }
-            
+
             Question? question = await context.Questions
                 .Include(q => q.Answers)
                 .Include(q => q.QuestionCategories)
@@ -134,13 +135,14 @@ public class QuestionService(QuestionaireDbContext context,
             question.QuestionText = updatedQuestion.QuestionText;
             question.LastUpdatedById = userId;
             question.LastUpdatedAt = DateTime.UtcNow;
-            
+
             await answerService.UpdateQuestionAnswers(question.Id, question.Answers, updatedQuestion.Answers);
-            await questionCategoriesService.UpdateQuestionCategories(question.Id, question.QuestionCategories, updatedQuestion.Categories);
+            await questionCategoriesService.UpdateQuestionCategories(question.Id, question.QuestionCategories,
+                updatedQuestion.Categories);
 
             await context.SaveChangesAsync();
             await transaction.CommitAsync();
-            
+
             return true;
         }
         catch (Exception ex)
@@ -157,16 +159,16 @@ public class QuestionService(QuestionaireDbContext context,
             string? userId = userManager.GetUserId(user);
 
             if (string.IsNullOrEmpty(userId)) throw new UnauthorizedAccessException("The user is not authorized");
-            
+
             Question? question = await context.Questions
                 .Include(a => a.Answers)
                 .FirstOrDefaultAsync(a => a.Id == id);
-            
+
             if (question == null) return false;
-            
+
             context.Questions.Remove(question);
             await context.SaveChangesAsync();
-            
+
             return true;
         }
         catch (Exception ex)
@@ -174,8 +176,9 @@ public class QuestionService(QuestionaireDbContext context,
             throw new InvalidOperationException($"An error occurred while deleting the question with ID {id}.", ex);
         }
     }
-    
-    private async Task<List<Question>> FetchRandomQuestions(IQueryable<Question> query, int count, HashSet<int>? excludeIds)
+
+    private async Task<List<Question>> FetchRandomQuestions(IQueryable<Question> query, int count,
+        HashSet<int>? excludeIds)
     {
         try
         {
@@ -188,10 +191,10 @@ public class QuestionService(QuestionaireDbContext context,
         }
         catch (Exception ex)
         {
-            throw new InvalidOperationException($"An error occurred while parsing random questions.", ex);
+            throw new InvalidOperationException("An error occurred while parsing random questions.", ex);
         }
     }
-    
+
     private List<QuestionDto> MapQuestionsToDtos(List<Question> questions, bool isSingleAnswerMode)
     {
         try
@@ -204,8 +207,8 @@ public class QuestionService(QuestionaireDbContext context,
                     Id = q.Id,
                     QuestionText = q.QuestionText,
                     Answers = q.Answers
-                        .OrderBy(a => a.IsCorrect ? 0 : 1) 
-                        .Take(isSingleAnswerMode ? 1 : 3) 
+                        .OrderBy(a => a.IsCorrect ? 0 : 1)
+                        .Take(isSingleAnswerMode ? 1 : 3)
                         .OrderBy(a => random.Next())
                         .Select(a => new AnswerDto
                         {

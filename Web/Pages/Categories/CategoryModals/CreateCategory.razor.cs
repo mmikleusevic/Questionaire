@@ -8,25 +8,24 @@ namespace Web.Pages.Categories.CategoryModals;
 
 public partial class CreateCategory : ComponentBase
 {
+    private readonly Category category = new Category();
+    private EditContext? editContext;
+    private Category? selectedParentCategory;
     [Inject] private ICategoryService? CategoryService { get; set; }
     [Parameter] public List<Category>? FlatCategories { get; set; }
     [Parameter] public Modal? Modal { get; set; }
     [Parameter] public EventCallback OnCategoryChanged { get; set; }
 
-    private readonly Category category = new Category();
-    private Category? selectedParentCategory;
-    private EditContext? editContext;
-    
     protected override async Task OnParametersSetAsync()
     {
         category.CategoryName = string.Empty;
         selectedParentCategory = null;
-        
+
         editContext = new EditContext(category);
-        
+
         await base.OnParametersSetAsync();
     }
-    
+
     private void SelectParentCategory(Category? selectedCategory)
     {
         selectedParentCategory = selectedCategory;
@@ -40,11 +39,11 @@ public partial class CreateCategory : ComponentBase
             category.ParentCategoryId = selectedCategory.Id;
         }
     }
-    
+
     public async Task HandleValidSubmit()
     {
         if (CategoryService == null) return;
-        
+
         await CategoryService.CreateCategory(category);
         await OnCategoryChanged.InvokeAsync();
         await Hide();
@@ -53,7 +52,7 @@ public partial class CreateCategory : ComponentBase
     private async Task Hide()
     {
         if (Modal == null) return;
-        
+
         await Modal.HideAsync();
     }
 }

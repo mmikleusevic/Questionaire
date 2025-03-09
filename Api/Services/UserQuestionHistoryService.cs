@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using QuestionaireApi.Interfaces;
-using QuestionaireApi.Models;
-using QuestionaireApi.Models.Dto;
+using QuestionaireApi.Models.Database;
 
 namespace QuestionaireApi.Services;
 
@@ -17,7 +16,8 @@ public class UserQuestionHistoryService(QuestionaireDbContext context) : IUserQu
         }
         catch (Exception ex)
         {
-            throw new InvalidOperationException($"An error occurred while resetting question history for user with ID {userId}.", ex);
+            throw new InvalidOperationException(
+                $"An error occurred while resetting question history for user with ID {userId}.", ex);
         }
     }
 
@@ -36,7 +36,8 @@ public class UserQuestionHistoryService(QuestionaireDbContext context) : IUserQu
         }
         catch (Exception ex)
         {
-            throw new InvalidOperationException($"An error occurred while creating question history for user with ID {userId}.", ex);
+            throw new InvalidOperationException(
+                $"An error occurred while creating question history for user with ID {userId}.", ex);
         }
     }
 }

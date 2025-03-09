@@ -7,7 +7,8 @@ using Web.Models;
 
 namespace Web.Services;
 
-public class PendingQuestionService(HttpClient httpClient, 
+public class PendingQuestionService(
+    HttpClient httpClient,
     ILogger<PendingQuestionService> logger,
     ToastService toastService) : IPendingQuestionService
 {
@@ -21,7 +22,8 @@ public class PendingQuestionService(HttpClient httpClient,
             if (response.IsSuccessStatusCode)
             {
                 string? responseData = await response.Content.ReadAsStringAsync();
-                PaginatedResponse<PendingQuestion>? paginatedResponse = JsonConvert.DeserializeObject<PaginatedResponse<PendingQuestion>>(responseData);
+                PaginatedResponse<PendingQuestion>? paginatedResponse =
+                    JsonConvert.DeserializeObject<PaginatedResponse<PendingQuestion>>(responseData);
 
                 return paginatedResponse ?? new PaginatedResponse<PendingQuestion>();
             }
@@ -31,10 +33,11 @@ public class PendingQuestionService(HttpClient httpClient,
         }
         catch (Exception ex)
         {
-            Helper.ShowToast(toastService, HttpStatusCode.InternalServerError, "Error fetching pending questions", ex.Message);
+            Helper.ShowToast(toastService, HttpStatusCode.InternalServerError, "Error fetching pending questions",
+                ex.Message);
             logger.LogError(ex, "Error fetching pending questions");
         }
-        
+
         return new PaginatedResponse<PendingQuestion>();
     }
 
@@ -44,33 +47,35 @@ public class PendingQuestionService(HttpClient httpClient,
         {
             string? jsonContent = JsonConvert.SerializeObject(newPendingQuestion);
             StringContent? content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-            
+
             HttpResponseMessage? response = await httpClient.PostAsync("api/PendingQuestion", content);
             string responseResult = await response.Content.ReadAsStringAsync();
 
             if (response.StatusCode == HttpStatusCode.Created) responseResult = "Pending question created successfully";
-            
-            Helper.ShowToast(toastService, response.StatusCode, responseResult ,responseResult);
+
+            Helper.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
         }
         catch (Exception ex)
         {
-            Helper.ShowToast(toastService, HttpStatusCode.InternalServerError, "Error creating a pending question", ex.Message);
+            Helper.ShowToast(toastService, HttpStatusCode.InternalServerError, "Error creating a pending question",
+                ex.Message);
             logger.LogError(ex, "Error creating a pending question");
         }
     }
-    
+
     public async Task ApprovePendingQuestion(int id)
     {
         try
         {
             HttpResponseMessage? response = await httpClient.PutAsync($"api/PendingQuestion/approve/{id}", null);
             string responseResult = await response.Content.ReadAsStringAsync();
-            
-            Helper.ShowToast(toastService, response.StatusCode, responseResult ,responseResult);
+
+            Helper.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
         }
         catch (Exception ex)
         {
-            Helper.ShowToast(toastService, HttpStatusCode.InternalServerError, "Error approving a pending question", ex.Message);
+            Helper.ShowToast(toastService, HttpStatusCode.InternalServerError, "Error approving a pending question",
+                ex.Message);
             logger.LogError(ex, "Error deleting a pending question");
         }
     }
@@ -81,15 +86,17 @@ public class PendingQuestionService(HttpClient httpClient,
         {
             string? jsonContent = JsonConvert.SerializeObject(updatedPendingQuestion);
             StringContent? content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-            
-            HttpResponseMessage? response = await httpClient.PutAsync($"api/PendingQuestion/{updatedPendingQuestion.Id}", content);
+
+            HttpResponseMessage? response =
+                await httpClient.PutAsync($"api/PendingQuestion/{updatedPendingQuestion.Id}", content);
             string responseResult = await response.Content.ReadAsStringAsync();
-            
-            Helper.ShowToast(toastService, response.StatusCode, responseResult ,responseResult);
+
+            Helper.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
         }
         catch (Exception ex)
         {
-            Helper.ShowToast(toastService, HttpStatusCode.InternalServerError, "Error updating a pending question", ex.Message);
+            Helper.ShowToast(toastService, HttpStatusCode.InternalServerError, "Error updating a pending question",
+                ex.Message);
             logger.LogError(ex, "Error updating a pending question");
         }
     }
@@ -100,12 +107,13 @@ public class PendingQuestionService(HttpClient httpClient,
         {
             HttpResponseMessage? response = await httpClient.DeleteAsync($"api/PendingQuestion/{id}");
             string responseResult = await response.Content.ReadAsStringAsync();
-            
-            Helper.ShowToast(toastService, response.StatusCode, responseResult ,responseResult);
+
+            Helper.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
         }
         catch (Exception ex)
         {
-            Helper.ShowToast(toastService, HttpStatusCode.InternalServerError, "Error deleting a pending question", ex.Message);
+            Helper.ShowToast(toastService, HttpStatusCode.InternalServerError, "Error deleting a pending question",
+                ex.Message);
             logger.LogError(ex, "Error deleting a pending question");
         }
     }

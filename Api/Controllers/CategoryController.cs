@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using QuestionaireApi.Interfaces;
-using QuestionaireApi.Models;
 using QuestionaireApi.Models.Dto;
 
 namespace QuestionaireApi.Controllers;
@@ -10,7 +8,8 @@ namespace QuestionaireApi.Controllers;
 [Route("api/[controller]")]
 [Authorize]
 [ApiController]
-public class CategoryController(ICategoryService categoryService,
+public class CategoryController(
+    ICategoryService categoryService,
     ILogger<CategoryController> logger) : ControllerBase
 {
     [HttpGet]
@@ -20,9 +19,9 @@ public class CategoryController(ICategoryService categoryService,
         try
         {
             CategoriesDto categoriesDto = await categoryService.GetCategories();
-            if (categoriesDto.FlatCategories.Count == 0 || 
+            if (categoriesDto.FlatCategories.Count == 0 ||
                 categoriesDto.NestedCategories.Count == 0) return NotFound("No categories found.");
-            
+
             return Ok(categoriesDto);
         }
         catch (Exception ex)
@@ -32,7 +31,7 @@ public class CategoryController(ICategoryService categoryService,
             return StatusCode(500, message);
         }
     }
-    
+
     [HttpGet("nested")]
     [AllowAnonymous]
     public async Task<ActionResult<List<CategoryDto>>> GetNestedCategories()
@@ -50,7 +49,7 @@ public class CategoryController(ICategoryService categoryService,
             return StatusCode(500, message);
         }
     }
-    
+
     [HttpGet("flat")]
     [AllowAnonymous]
     public async Task<ActionResult<List<CategoryDto>>> GetFlatCategories()
@@ -76,7 +75,7 @@ public class CategoryController(ICategoryService categoryService,
         try
         {
             if (newCategory == null) return BadRequest("Category data cannot be null.");
-            
+
             await categoryService.CreateCategory(newCategory);
             return Created();
         }
@@ -95,7 +94,7 @@ public class CategoryController(ICategoryService categoryService,
         try
         {
             if (updatedCategory == null) return BadRequest("Updated category data cannot be null.");
-            
+
             bool success = await categoryService.UpdateCategory(id, updatedCategory);
             if (!success) return NotFound($"Category with ID {id} not found.");
             return Ok($"Category with ID {id} updated successfully.");

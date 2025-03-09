@@ -9,7 +9,7 @@ public class PendingAnswerService(QuestionaireDbContext context) : IPendingAnswe
     public async Task CreatePendingQuestionAnswers(int pendingQuestionId, List<PendingAnswerDto> pendingAnswers)
     {
         try
-        { 
+        {
             await context.PendingAnswers.AddRangeAsync(
                 pendingAnswers.Select(a => new PendingAnswer
                 {
@@ -25,24 +25,25 @@ public class PendingAnswerService(QuestionaireDbContext context) : IPendingAnswe
         }
     }
 
-    public Task UpdatePendingQuestionAnswers(int pendingQuestionId, ICollection<PendingAnswer> pendingAnswers, List<PendingAnswerDto> updatedPendingAnswers)
+    public Task UpdatePendingQuestionAnswers(int pendingQuestionId, ICollection<PendingAnswer> pendingAnswers,
+        List<PendingAnswerDto> updatedPendingAnswers)
     {
         try
         {
             List<PendingAnswer> pendingAnswersToRemove = pendingAnswers
                 .Where(pa => updatedPendingAnswers.All(ua => ua.Id != pa.Id))
                 .ToList();
-            
+
             foreach (PendingAnswer pendingAnswer in pendingAnswersToRemove)
             {
                 pendingAnswers.Remove(pendingAnswer);
             }
-            
+
             foreach (PendingAnswerDto updatedPendingAnswer in updatedPendingAnswers)
             {
                 PendingAnswer? existingAnswer = pendingAnswers.Where(a => a.Id != 0)
                     .FirstOrDefault(pa => pa.Id == updatedPendingAnswer.Id);
-                
+
                 if (existingAnswer != null)
                 {
                     existingAnswer.AnswerText = updatedPendingAnswer.AnswerText;
@@ -58,12 +59,13 @@ public class PendingAnswerService(QuestionaireDbContext context) : IPendingAnswe
                     });
                 }
             }
-            
+
             return Task.CompletedTask;
         }
         catch (Exception ex)
         {
-            return Task.FromException(new InvalidOperationException("An error occurred while updating the pending question answers.", ex));
+            return Task.FromException(
+                new InvalidOperationException("An error occurred while updating the pending question answers.", ex));
         }
     }
 }

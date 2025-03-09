@@ -1,5 +1,4 @@
 using QuestionaireApi.Interfaces;
-using QuestionaireApi.Models;
 using QuestionaireApi.Models.Database;
 using QuestionaireApi.Models.Dto;
 
@@ -7,7 +6,8 @@ namespace QuestionaireApi.Services;
 
 public class QuestionCategoriesService(QuestionaireDbContext context) : IQuestionCategoriesService
 {
-    public async Task CreateQuestionCategories(int questionId, ICollection<PendingQuestionCategory> pendingQuestionCategories)
+    public async Task CreateQuestionCategories(int questionId,
+        ICollection<PendingQuestionCategory> pendingQuestionCategories)
     {
         try
         {
@@ -15,7 +15,7 @@ public class QuestionCategoriesService(QuestionaireDbContext context) : IQuestio
                 pendingQuestionCategories.Select(a => new QuestionCategory
                 {
                     QuestionId = questionId,
-                    CategoryId = a.CategoryId,
+                    CategoryId = a.CategoryId
                 }).ToList()
             );
         }
@@ -25,24 +25,25 @@ public class QuestionCategoriesService(QuestionaireDbContext context) : IQuestio
         }
     }
 
-    public Task UpdateQuestionCategories(int questionId, ICollection<QuestionCategory> questionCategories, List<CategoryDto> categories)
+    public Task UpdateQuestionCategories(int questionId, ICollection<QuestionCategory> questionCategories,
+        List<CategoryDto> categories)
     {
         try
         {
             List<QuestionCategory> questionCategoriesToRemove = questionCategories
                 .Where(pa => categories.All(ua => ua.Id != pa.CategoryId))
                 .ToList();
-            
+
             foreach (QuestionCategory questionCategory in questionCategoriesToRemove)
             {
                 questionCategories.Remove(questionCategory);
             }
-            
+
             foreach (CategoryDto updatedCategory in categories)
             {
                 QuestionCategory? existingQuestionCategory = questionCategories
                     .FirstOrDefault(pa => pa.CategoryId == updatedCategory.Id);
-                
+
                 if (existingQuestionCategory != null)
                 {
                     existingQuestionCategory.QuestionId = questionId;
@@ -57,12 +58,13 @@ public class QuestionCategoriesService(QuestionaireDbContext context) : IQuestio
                     });
                 }
             }
-            
+
             return Task.CompletedTask;
         }
         catch (Exception ex)
         {
-            return Task.FromException(new InvalidOperationException("An error occurred while updating the question categories.", ex));
+            return Task.FromException(
+                new InvalidOperationException("An error occurred while updating the question categories.", ex));
         }
     }
 }

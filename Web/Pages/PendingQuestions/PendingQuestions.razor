@@ -1,9 +1,9 @@
 @page "/PendingQuestions"
-@using Microsoft.AspNetCore.Authorization
 @inject NavigationManager Navigation
 @attribute [Authorize(Roles = "Admin, SuperAdmin, User")]
 
-<Modal @ref="modal" UseStaticBackdrop="true" CloseOnEscape="true" IsVerticallyCentered="true" Size="ModalSize.ExtraLarge"/>
+<Modal @ref="modal" UseStaticBackdrop="true" CloseOnEscape="true" IsVerticallyCentered="true"
+       Size="ModalSize.ExtraLarge"/>
 
 <style scoped>
     body {
@@ -51,14 +51,20 @@ else
                     </div>
                 </div>
                 <div class="actions">
-                    <button class="btn btn-approve" @onclick="@(() => ShowApprovePendingQuestion(pendingQuestion))">Approve</button>
-                    <button class="btn btn-update" @onclick="@(() => ShowUpdatePendingQuestion(pendingQuestion))">Update</button>
-                    <button class="btn btn-delete" @onclick="@(() => ShowDeletePendingQuestion(pendingQuestion))">Delete</button>
+                    <button class="btn btn-approve" @onclick="@(() => ShowApprovePendingQuestion(pendingQuestion))">
+                        Approve
+                    </button>
+                    <button class="btn btn-update" @onclick="@(() => ShowUpdatePendingQuestion(pendingQuestion))">
+                        Update
+                    </button>
+                    <button class="btn btn-delete" @onclick="@(() => ShowDeletePendingQuestion(pendingQuestion))">
+                        Delete
+                    </button>
                 </div>
             </div>
         }
     </div>
-    
+
     <div class="pagination-footer">
         <Pagination ActivePageNumber="currentPage"
                     TotalPages="totalPages"

@@ -8,21 +8,21 @@ namespace Web.Pages.Questions.QuestionModals;
 
 public partial class UpdateQuestion : ComponentBase
 {
+    private EditContext? editContext;
+    private List<Category> selectedCategories = new List<Category>();
+    private Question updatedQuestion = new Question();
+
+    private List<string> validationMessages = new List<string>();
     [Inject] private IQuestionService? QuestionService { get; set; }
     [Parameter] public Question? Question { get; set; }
     [Parameter] public List<Category>? FlatCategories { get; set; }
     [Parameter] public EventCallback OnQuestionChanged { get; set; }
     [Parameter] public Modal? Modal { get; set; }
-    
-    private List<string> validationMessages = new List<string>();
-    private EditContext? editContext;
-    private Question updatedQuestion = new Question();
-    private List<Category> selectedCategories = new List<Category>();
 
     protected override async Task OnParametersSetAsync()
     {
         await base.OnParametersSetAsync();
-        
+
         List<Answer> existingAnswers = Question.Answers
             .Select(a => new Answer
             (
@@ -31,9 +31,9 @@ public partial class UpdateQuestion : ComponentBase
                 a.IsCorrect
             ))
             .ToList();
-        
+
         int additionalAnswersNeeded = Math.Max(0, 3 - existingAnswers.Count);
-        
+
         List<Answer> newEmptyAnswers = Enumerable.Range(0, additionalAnswersNeeded)
             .Select(_ => new Answer
             {
@@ -41,7 +41,7 @@ public partial class UpdateQuestion : ComponentBase
                 IsCorrect = false
             })
             .ToList();
-        
+
         updatedQuestion = new Question
         {
             QuestionText = Question.QuestionText,
@@ -54,17 +54,17 @@ public partial class UpdateQuestion : ComponentBase
         };
 
         selectedCategories = updatedQuestion.Categories.ToList();
-    
+
         validationMessages.Clear();
         editContext = new EditContext(updatedQuestion);
     }
-    
+
     public async Task HandleValidSubmit()
     {
         if (QuestionService == null) return;
-        
+
         List<string> errorMessages = new List<string>();
-        
+
         int correctAnswers = updatedQuestion.Answers.Count(a => a.IsCorrect);
         if (correctAnswers != 1)
         {
@@ -76,29 +76,29 @@ public partial class UpdateQuestion : ComponentBase
         {
             errorMessages.Add("You have to add at least one category!");
         }
-        
+
         if (errorMessages.Any())
         {
             validationMessages = errorMessages;
             return;
         }
-        
+
         updatedQuestion.Categories = selectedCategories.Where(a => a.Id != 0).ToList();
-        
+
         Question.QuestionText = updatedQuestion.QuestionText;
         Question.Answers = updatedQuestion.Answers;
         Question.Categories = updatedQuestion.Categories;
-        
+
         await QuestionService.UpdateQuestion(Question);
         await OnQuestionChanged.InvokeAsync();
         await Hide();
     }
-    
+
     private void AddCategoryDropdown()
     {
         selectedCategories.Add(new Category());
     }
-    
+
     private void RemoveCategoryDropdown()
     {
         if (selectedCategories.Count > 1)
@@ -106,18 +106,18 @@ public partial class UpdateQuestion : ComponentBase
             selectedCategories.RemoveAt(selectedCategories.Count - 1);
         }
     }
-    
+
     private void SelectCategory(Category currentCategory, Category newCategory)
     {
         int categoryIndex = selectedCategories.IndexOf(currentCategory);
-        
+
         selectedCategories[categoryIndex] = newCategory;
     }
-    
+
     private async Task Hide()
     {
         if (Modal == null) return;
-        
+
         await Modal.HideAsync();
     }
 }

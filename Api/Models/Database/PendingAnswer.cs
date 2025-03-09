@@ -9,8 +9,7 @@ public class PendingAnswer
 {
     public int Id { get; set; }
 
-    [Required] 
-    public string AnswerText { get; set; } = null!;
+    [Required] public string AnswerText { get; set; } = null!;
 
     public bool IsCorrect { get; set; }
 
