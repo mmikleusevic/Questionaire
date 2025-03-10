@@ -1,0 +1,43 @@
+@page "/Register"
+
+<EditForm OnValidSubmit="HandleValidSubmit" EditContext="editContext">
+    <div class="mx-auto rounder border p-4 register-form">
+        <h3 class="text-center mb-3">Register</h3>
+        <DataAnnotationsValidator/>
+        <ValidationSummary class="alert alert-danger"/>
+        <hr>
+        <div class="mb-3">
+            <label class="form-label">Email: <span class="text-danger">*</span></label>
+            <div>
+                <TextInput @bind-Value="@registerData.Email" Placeholder="Enter your email"/>
+                <ValidationMessage For="@(() => registerData.Email)" class="alert alert-danger"/>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Password: <span class="text-danger">*</span></label>
+            <div>
+                <TextInput type="password" MaxLength="24" @bind-Value="@registerData.Password"
+                           Placeholder="Enter your password"/>
+                <ValidationMessage For="@(() => registerData.Password)" class="alert alert-danger"/>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Confirm Password: <span class="text-danger">*</span></label>
+            <div>
+                <TextInput type="password" MaxLength="24" @bind-Value="@registerData.ConfirmPassword"
+                           Placeholder="Enter your password again"/>
+                <ValidationMessage For="@(() => registerData.ConfirmPassword)" class="alert alert-danger"/>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col d-grid">
+                <Button Type="ButtonType.Submit" Outline="true" Color="ButtonColor.Primary" Class="float-end me-2">
+                    Submit
+                </Button>
+            </div>
+        </div>
+    </div>
+</EditForm>

@@ -1,0 +1,17 @@
+.header {
+    display: flex;
+    justify-content: center;
+}
+
+h3 {
+    margin-bottom: 0;
+}
+
+.paragraph {
+    display: flex;
+    justify-content: center;
+}
+
+p {
+    font-weight: bold;
+}

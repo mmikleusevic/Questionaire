@@ -29,12 +29,11 @@ public class QuestionService(
             }
 
             string? responseResult = await response.Content.ReadAsStringAsync();
-            Helper.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
+            ToastHandler.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
         }
         catch (Exception ex)
         {
-            Helper.ShowToast(toastService, HttpStatusCode.InternalServerError, "Error fetching questions", ex.Message);
-            logger.LogError(ex, "Error fetching questions");
+            ApiResponseHandler.HandleException(ex, toastService, "fetching questions", logger);
         }
 
         return new PaginatedResponse<Question>();
@@ -50,12 +49,11 @@ public class QuestionService(
             HttpResponseMessage? response = await httpClient.PutAsync($"api/Question/{updatedQuestion.Id}", content);
             string responseResult = await response.Content.ReadAsStringAsync();
 
-            Helper.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
+            ToastHandler.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
         }
         catch (Exception ex)
         {
-            Helper.ShowToast(toastService, HttpStatusCode.InternalServerError, "Error updating a question", ex.Message);
-            logger.LogError(ex, "Error updating a question");
+            ApiResponseHandler.HandleException(ex, toastService, "updating a question", logger);
         }
     }
 
@@ -66,12 +64,11 @@ public class QuestionService(
             HttpResponseMessage? response = await httpClient.DeleteAsync($"api/Question/{id}");
             string responseResult = await response.Content.ReadAsStringAsync();
 
-            Helper.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
+            ToastHandler.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
         }
         catch (Exception ex)
         {
-            Helper.ShowToast(toastService, HttpStatusCode.InternalServerError, "Error deleting a question", ex.Message);
-            logger.LogError(ex, "Error deleting a question");
+            ApiResponseHandler.HandleException(ex, toastService, "deleting a question", logger);
         }
     }
 }

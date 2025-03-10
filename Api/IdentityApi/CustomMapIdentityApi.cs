@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 using QuestionaireApi.IdentityApi.Models;
+using QuestionaireApi.Models.Database;
 
 namespace QuestionaireApi.IdentityApi;
 
@@ -79,6 +80,7 @@ public static class IdentityApiEndpointRouteBuilderExtensions
             await userStore.SetUserNameAsync(user, email, CancellationToken.None);
             await emailStore.SetEmailAsync(user, email, CancellationToken.None);
             var result = await userManager.CreateAsync(user, registration.Password);
+            await userManager.AddToRoleAsync(user, "User");
 
             if (!result.Succeeded)
             {

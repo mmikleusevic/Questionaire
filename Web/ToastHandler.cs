@@ -3,7 +3,7 @@ using BlazorBootstrap;
 
 namespace Web;
 
-public static class Helper
+public static class ToastHandler
 {
     public static void ShowToast(ToastService toastService, HttpStatusCode statusCode, string? title, string? message)
     {

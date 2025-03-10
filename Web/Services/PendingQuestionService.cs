@@ -29,13 +29,11 @@ public class PendingQuestionService(
             }
 
             string? responseResult = await response.Content.ReadAsStringAsync();
-            Helper.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
+            ToastHandler.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
         }
         catch (Exception ex)
         {
-            Helper.ShowToast(toastService, HttpStatusCode.InternalServerError, "Error fetching pending questions",
-                ex.Message);
-            logger.LogError(ex, "Error fetching pending questions");
+            ApiResponseHandler.HandleException(ex, toastService, "fetching pending questions", logger);
         }
 
         return new PaginatedResponse<PendingQuestion>();
@@ -53,13 +51,11 @@ public class PendingQuestionService(
 
             if (response.StatusCode == HttpStatusCode.Created) responseResult = "Pending question created successfully";
 
-            Helper.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
+            ToastHandler.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
         }
         catch (Exception ex)
         {
-            Helper.ShowToast(toastService, HttpStatusCode.InternalServerError, "Error creating a pending question",
-                ex.Message);
-            logger.LogError(ex, "Error creating a pending question");
+            ApiResponseHandler.HandleException(ex, toastService, "creating a pending question", logger);
         }
     }
 
@@ -70,13 +66,11 @@ public class PendingQuestionService(
             HttpResponseMessage? response = await httpClient.PutAsync($"api/PendingQuestion/approve/{id}", null);
             string responseResult = await response.Content.ReadAsStringAsync();
 
-            Helper.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
+            ToastHandler.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
         }
         catch (Exception ex)
         {
-            Helper.ShowToast(toastService, HttpStatusCode.InternalServerError, "Error approving a pending question",
-                ex.Message);
-            logger.LogError(ex, "Error deleting a pending question");
+            ApiResponseHandler.HandleException(ex, toastService, "deleting a pending question", logger);
         }
     }
 
@@ -91,13 +85,11 @@ public class PendingQuestionService(
                 await httpClient.PutAsync($"api/PendingQuestion/{updatedPendingQuestion.Id}", content);
             string responseResult = await response.Content.ReadAsStringAsync();
 
-            Helper.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
+            ToastHandler.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
         }
         catch (Exception ex)
         {
-            Helper.ShowToast(toastService, HttpStatusCode.InternalServerError, "Error updating a pending question",
-                ex.Message);
-            logger.LogError(ex, "Error updating a pending question");
+            ApiResponseHandler.HandleException(ex, toastService, "updating a pending question", logger);
         }
     }
 
@@ -108,13 +100,11 @@ public class PendingQuestionService(
             HttpResponseMessage? response = await httpClient.DeleteAsync($"api/PendingQuestion/{id}");
             string responseResult = await response.Content.ReadAsStringAsync();
 
-            Helper.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
+            ToastHandler.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
         }
         catch (Exception ex)
         {
-            Helper.ShowToast(toastService, HttpStatusCode.InternalServerError, "Error deleting a pending question",
-                ex.Message);
-            logger.LogError(ex, "Error deleting a pending question");
+            ApiResponseHandler.HandleException(ex, toastService, "deleting a pending question", logger);
         }
     }
 }

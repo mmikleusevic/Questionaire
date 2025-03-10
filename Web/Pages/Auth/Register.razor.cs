@@ -5,24 +5,25 @@ using Web.Services;
 
 namespace Web.Pages.Auth;
 
-public partial class Login : ComponentBase
+public partial class Register : ComponentBase
 {
-    private readonly LoginData loginData = new LoginData();
+    private readonly RegisterData registerData = new RegisterData();
     private EditContext? editContext;
     [Inject] private CustomAuthStateService CustomAuthStateService { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        loginData.Email = string.Empty;
-        loginData.Password = string.Empty;
+        registerData.Email = string.Empty;
+        registerData.Password = string.Empty;
+        registerData.ConfirmPassword = string.Empty;
 
-        editContext = new EditContext(loginData);
+        editContext = new EditContext(registerData);
 
         await base.OnInitializedAsync();
     }
 
     public async Task HandleValidSubmit()
     {
-        await CustomAuthStateService.Login(loginData);
+        await CustomAuthStateService.Register(registerData);
     }
 }

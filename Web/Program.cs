@@ -19,9 +19,12 @@ builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IQuestionService, QuestionService>();
 builder.Services.AddScoped<IPendingQuestionService, PendingQuestionService>();
-builder.Services.AddScoped<CustomAuthStateService>();
-builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateService>();
+builder.Services.AddScoped<IAuthRedirectService, AuthRedirectService>();
+
 builder.Services.AddScoped(sp => new HttpClient
     { BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"]) });
+
+builder.Services.AddScoped<CustomAuthStateService>();
+builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateService>();
 
 await builder.Build().RunAsync();

@@ -5,8 +5,9 @@ namespace Web.Models;
 
 public class LoginData
 {
-    [Required(ErrorMessage = "Username is required")]
-    public string Username { get; set; } = string.Empty;
+    [EmailAddress]
+    [Required(ErrorMessage = "Email is required")]
+    public string Email { get; set; } = string.Empty;
 
     [PasswordPropertyText]
     [Required(ErrorMessage = "Password is required")]

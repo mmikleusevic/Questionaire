@@ -48,12 +48,11 @@ public class CategoryService(
             }
 
             string? responseResult = await response.Content.ReadAsStringAsync();
-            Helper.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
+            ToastHandler.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
         }
         catch (Exception ex)
         {
-            Helper.ShowToast(toastService, HttpStatusCode.InternalServerError, "Error fetching categories", ex.Message);
-            logger.LogError(ex, "Error fetching categories");
+            ApiResponseHandler.HandleException(ex, toastService, "fetching categories", logger);
         }
         finally
         {
@@ -61,6 +60,40 @@ public class CategoryService(
         }
 
         return new CategoryLists();
+    }
+    
+    public async Task<List<Category>> GetNestedCategories()
+    {
+        if (nestedCategories != null && DateTime.UtcNow - lastFetchTime < cacheDuration) return nestedCategories;
+
+        await semaphore.WaitAsync();
+
+        try
+        {
+            HttpResponseMessage? response = await httpClient.GetAsync("api/Category/nested");
+
+            if (response.IsSuccessStatusCode)
+            {
+                string? responseData = await response.Content.ReadAsStringAsync();
+                nestedCategories = JsonConvert.DeserializeObject<List<Category>>(responseData);
+                lastFetchTime = DateTime.UtcNow;
+
+                return nestedCategories ?? new List<Category>();
+            }
+
+            string? responseResult = await response.Content.ReadAsStringAsync();
+            ToastHandler.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
+        }
+        catch (Exception ex)
+        {
+            ApiResponseHandler.HandleException(ex, toastService, "fetching nested categories", logger);
+        }
+        finally
+        {
+            semaphore.Release();
+        }
+
+        return new List<Category>();
     }
 
     public async Task<List<Category>> GetFlatCategories()
@@ -83,13 +116,11 @@ public class CategoryService(
             }
 
             string? responseResult = await response.Content.ReadAsStringAsync();
-            Helper.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
+            ToastHandler.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
         }
         catch (Exception ex)
         {
-            Helper.ShowToast(toastService, HttpStatusCode.InternalServerError, "Error fetching flat categories",
-                ex.Message);
-            logger.LogError(ex, "Error fetching flat categories");
+            ApiResponseHandler.HandleException(ex, toastService, "fetching flat categories", logger);
         }
         finally
         {
@@ -111,14 +142,13 @@ public class CategoryService(
 
             if (response.StatusCode == HttpStatusCode.Created) responseResult = "Category created successfully";
 
-            Helper.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
+            ToastHandler.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
 
             ClearCache();
         }
         catch (Exception ex)
         {
-            Helper.ShowToast(toastService, HttpStatusCode.InternalServerError, "Error creating a category", ex.Message);
-            logger.LogError(ex, "Error creating a category");
+            ApiResponseHandler.HandleException(ex, toastService, "creating a category", logger);
         }
     }
 
@@ -132,14 +162,13 @@ public class CategoryService(
             HttpResponseMessage? response = await httpClient.PutAsync($"api/Category/{updatedCategory.Id}", content);
             string responseResult = await response.Content.ReadAsStringAsync();
 
-            Helper.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
+            ToastHandler.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
 
             ClearCache();
         }
         catch (Exception ex)
         {
-            Helper.ShowToast(toastService, HttpStatusCode.InternalServerError, "Error updating a category", ex.Message);
-            logger.LogError(ex, "Error updating a category");
+            ApiResponseHandler.HandleException(ex, toastService, "updating a category", logger);
         }
     }
 
@@ -150,51 +179,14 @@ public class CategoryService(
             HttpResponseMessage? response = await httpClient.DeleteAsync($"api/Category/{id}");
             string responseResult = await response.Content.ReadAsStringAsync();
 
-            Helper.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
+            ToastHandler.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
 
             ClearCache();
         }
         catch (Exception ex)
         {
-            Helper.ShowToast(toastService, HttpStatusCode.InternalServerError, "Error deleting a category", ex.Message);
-            logger.LogError(ex, "Error deleting a category");
+            ApiResponseHandler.HandleException(ex, toastService, "deleting a category", logger);
         }
-    }
-
-    public async Task<List<Category>> GetNestedCategories()
-    {
-        if (nestedCategories != null && DateTime.UtcNow - lastFetchTime < cacheDuration) return nestedCategories;
-
-        await semaphore.WaitAsync();
-
-        try
-        {
-            HttpResponseMessage? response = await httpClient.GetAsync("api/Category/nested");
-
-            if (response.IsSuccessStatusCode)
-            {
-                string? responseData = await response.Content.ReadAsStringAsync();
-                nestedCategories = JsonConvert.DeserializeObject<List<Category>>(responseData);
-                lastFetchTime = DateTime.UtcNow;
-
-                return nestedCategories ?? new List<Category>();
-            }
-
-            string? responseResult = await response.Content.ReadAsStringAsync();
-            Helper.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
-        }
-        catch (Exception ex)
-        {
-            Helper.ShowToast(toastService, HttpStatusCode.InternalServerError, "Error fetching nested categories",
-                ex.Message);
-            logger.LogError(ex, "Error fetching nested categories");
-        }
-        finally
-        {
-            semaphore.Release();
-        }
-
-        return new List<Category>();
     }
 
     private void ClearCache()
