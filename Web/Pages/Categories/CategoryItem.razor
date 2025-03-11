@@ -2,8 +2,10 @@
     <div class="category-content">
         <span class="category-name">@Category?.CategoryName</span>
 
-        <button class="btn btn-update" @onclick="ShowUpdateCategory">Update</button>
-        <button class="btn btn-delete" @onclick="ShowDeleteCategory">Delete</button>
+        <AuthorizeView Roles="Admin, SuperAdmin">
+            <button class="btn btn-update" @onclick="ShowUpdateCategory">Update</button>
+            <button class="btn btn-delete" @onclick="ShowDeleteCategory">Delete</button>
+        </AuthorizeView>
     </div>
 
     @if (Category?.ChildCategories?.Any() == true)
