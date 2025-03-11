@@ -5,11 +5,17 @@
 <Modal @ref="modal" UseStaticBackdrop="true" CloseOnEscape="true" IsVerticallyCentered="true" Size="ModalSize.Large"/>
 
 <PageTitle>Categories</PageTitle>
-<div>
-    <div>
+<div class="header">
+    <div class="header-text">
         <h3>Categories</h3>
+    </div>
+</div>
+<div class="row">
+    <div>
         <button class="btn btn-create" @onclick="ShowCreateCategory">Create</button>
     </div>
+</div>
+<div>
     <div class="header">
         <div class="category-name-header">Category Name</div>
         <div class="actions-header">Actions</div>

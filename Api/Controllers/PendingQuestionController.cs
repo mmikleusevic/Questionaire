@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using QuestionaireApi.Interfaces;
@@ -13,19 +14,18 @@ public class PendingQuestionController(
     IPendingQuestionService pendingQuestionService,
     ILogger<PendingQuestionController> logger) : ControllerBase
 {
-    [HttpGet]
+    [HttpPost("paged")]
     [AllowAnonymous]
     public async Task<ActionResult<PaginatedResponse<PendingQuestion>>> GetPendingQuestions(
-        [FromQuery] int pageNumber = 1,
-        [FromQuery] int pageSize = 50)
+        [FromBody] QuestionsRequestDto pendingQuestionsRequestDto)
     {
         try
         {
-            if (pageNumber < 1 || pageSize < 1)
+            if (pendingQuestionsRequestDto.PageNumber < 1 || pendingQuestionsRequestDto.PageSize < 1)
                 return BadRequest("Page number and page size must be greater than 0.");
 
             PaginatedResponse<PendingQuestionDto> response =
-                await pendingQuestionService.GetPendingQuestions(pageNumber, pageSize, User);
+                await pendingQuestionService.GetPendingQuestions(pendingQuestionsRequestDto, User);
 
             if (response.Items.Count == 0) return NotFound("No pending questions found.");
 

@@ -13,20 +13,17 @@ public class QuestionController(
     IQuestionService questionService,
     ILogger<QuestionController> logger) : ControllerBase
 {
-    [HttpGet]
+    [HttpPost("paged")]
     [AllowAnonymous]
     public async Task<ActionResult<PaginatedResponse<QuestionDto>>> GetQuestions(
-        [FromQuery] int pageNumber = 1,
-        [FromQuery] int pageSize = 50)
+        [FromBody] QuestionsRequestDto questionsRequestDto)
     {
         try
         {
-            if (pageNumber < 1 || pageSize < 1)
+            if (questionsRequestDto.PageNumber < 1 || questionsRequestDto.PageSize < 1)
                 return BadRequest("Page number and page size must be greater than 0.");
 
-            ClaimsPrincipal? user = HttpContext.User;
-
-            PaginatedResponse<QuestionDto> response = await questionService.GetQuestions(pageNumber, pageSize, user);
+            PaginatedResponse<QuestionDto> response = await questionService.GetQuestions(questionsRequestDto, User);
 
             if (response.Items.Count == 0) return NotFound("No questions found.");
 

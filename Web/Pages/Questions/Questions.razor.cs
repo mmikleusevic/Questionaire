@@ -9,8 +9,6 @@ namespace Web.Pages.Questions;
 
 public partial class Questions : ComponentBase
 {
-    private const int PageSize = 50;
-    private int currentPage = 1;
     private List<Category>? flatCategories;
 
     private Modal? modal;
@@ -18,6 +16,13 @@ public partial class Questions : ComponentBase
     private int totalPages = 1;
     [Inject] private IQuestionService? QuestionService { get; set; }
     [Inject] private ICategoryService? CategoryService { get; set; }
+
+    private readonly QuestionsRequest questionsRequest = new QuestionsRequest
+    {
+        PageSize = 50,
+        PageNumber = 1,
+        OnlyMyQuestions = false
+    };
 
     protected override async Task OnInitializedAsync()
     {
@@ -29,7 +34,7 @@ public partial class Questions : ComponentBase
     {
         if (QuestionService == null) return;
 
-        PaginatedResponse<Question> paginatedResponse = await QuestionService.GetQuestions(currentPage, PageSize);
+        PaginatedResponse<Question> paginatedResponse = await QuestionService.GetQuestions(questionsRequest);
         questions = paginatedResponse.Items;
         totalPages = paginatedResponse.TotalPages;
     }
@@ -43,7 +48,7 @@ public partial class Questions : ComponentBase
 
     private async Task OnPageChanged(int newPage)
     {
-        currentPage = newPage;
+        questionsRequest.PageNumber = newPage;
         await GetQuestions();
         Navigation.NavigateTo(Navigation.Uri.Split('#')[0] + "#topElement", false);
     }
@@ -80,5 +85,12 @@ public partial class Questions : ComponentBase
     private string GetAnswerRowClass(bool isCorrect)
     {
         return isCorrect ? "correct-answer" : "incorrect-answer";
+    }
+
+    private async Task ToggleOnlyMyQuestions(ChangeEventArgs e)
+    {
+        questionsRequest.OnlyMyQuestions = (bool)e.Value;
+        questionsRequest.PageNumber = 1;
+        await GetQuestions();
     }
 }

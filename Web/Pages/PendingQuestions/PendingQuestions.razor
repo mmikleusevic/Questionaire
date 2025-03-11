@@ -11,9 +11,21 @@
     }
 </style>
 <PageTitle>Pending Questions</PageTitle>
-<div>
-    <div>
+
+<div class="header">
+    <div class="header-text">
         <h3>Pending Questions</h3>
+    </div>
+    <div class="toggle-container">
+        <span class="toggle-label">Show My Questions</span>
+        <label class="switch">
+            <input type="checkbox" @onchange="ToggleOnlyMyPendingQuestions">
+            <span class="slider"></span>
+        </label>
+    </div>
+</div>
+<div class="row">
+    <div>
         <button class="btn btn-create" @onclick="ShowCreatePendingQuestion">Create</button>
     </div>
 </div>
@@ -66,7 +78,7 @@ else
     </div>
 
     <div class="pagination-footer">
-        <Pagination ActivePageNumber="currentPage"
+        <Pagination ActivePageNumber="pendingQuestionsRequest.PageNumber"
                     TotalPages="totalPages"
                     DisplayPages="5"
                     FirstLinkIcon="IconName.ChevronDoubleLeft"

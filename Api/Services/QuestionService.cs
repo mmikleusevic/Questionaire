@@ -15,11 +15,15 @@ public class QuestionService(
     IQuestionCategoriesService questionCategoriesService,
     UserManager<User> userManager) : IQuestionService
 {
-    public async Task<PaginatedResponse<QuestionDto>> GetQuestions(int pageNumber, int pageSize, ClaimsPrincipal user)
+    public async Task<PaginatedResponse<QuestionDto>> GetQuestions(QuestionsRequestDto questionsRequestDto, 
+        ClaimsPrincipal user)
     {
         try
         {
-            string? userId = userManager.GetUserId(user);
+            User? userDb = await userManager.GetUserAsync(user);
+
+            if (userDb == null)
+                return new PaginatedResponse<QuestionDto> { Items = new List<QuestionDto>() };
 
             IQueryable<Question> query = context.Questions
                 .Include(a => a.Answers)
@@ -27,13 +31,16 @@ public class QuestionService(
                 .ThenInclude(c => c.Category)
                 .OrderBy(q => q.Id);
 
-            if (!string.IsNullOrEmpty(userId)) query = query.Where(q => q.CreatedById == userId);
-
+            if (questionsRequestDto.OnlyMyQuestions)
+            {
+                query = query.Where(q => q.CreatedById == userDb.Id);
+            }
+            
             List<Question> questions = await query
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
+                .Skip((questionsRequestDto.PageNumber - 1) * questionsRequestDto.PageSize)
+                .Take(questionsRequestDto.PageSize)
                 .ToListAsync();
-
+            
             int totalQuestions = await query.CountAsync();
 
             PaginatedResponse<QuestionDto> response = new PaginatedResponse<QuestionDto>
@@ -55,8 +62,8 @@ public class QuestionService(
                     }).ToList()
                 }).ToList(),
                 TotalCount = totalQuestions,
-                PageSize = pageSize,
-                TotalPages = (int)Math.Ceiling((double)totalQuestions / pageSize)
+                PageSize = questionsRequestDto.PageSize,
+                TotalPages = (int)Math.Ceiling((double)totalQuestions / questionsRequestDto.PageSize)
             };
 
             return response;

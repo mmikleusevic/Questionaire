@@ -12,12 +12,15 @@ public class QuestionService(
     ILogger<QuestionService> logger,
     ToastService toastService) : IQuestionService
 {
-    public async Task<PaginatedResponse<Question>> GetQuestions(int currentPage, int pageSize)
+    public async Task<PaginatedResponse<Question>> GetQuestions(QuestionsRequest questionsRequest)
     {
         try
         {
-            HttpResponseMessage? response = await httpClient.GetAsync(
-                $"api/Question?pageNumber={currentPage}&pageSize={pageSize}");
+            string? jsonContent = JsonConvert.SerializeObject(questionsRequest);
+            StringContent? content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+            
+            HttpResponseMessage? response = await httpClient.PostAsync(
+                $"api/Question/paged", content);
 
             if (response.IsSuccessStatusCode)
             {

@@ -12,12 +12,15 @@ public class PendingQuestionService(
     ILogger<PendingQuestionService> logger,
     ToastService toastService) : IPendingQuestionService
 {
-    public async Task<PaginatedResponse<PendingQuestion>> GetPendingQuestions(int currentPage, int pageSize)
+    public async Task<PaginatedResponse<PendingQuestion>> GetPendingQuestions(QuestionsRequest pendingQuestionsRequest)
     {
         try
         {
-            HttpResponseMessage? response = await httpClient.GetAsync(
-                $"api/PendingQuestion?pageNumber={currentPage}&pageSize={pageSize}");
+            string? jsonContent = JsonConvert.SerializeObject(pendingQuestionsRequest);
+            StringContent? content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+            
+            HttpResponseMessage? response = await httpClient.PostAsync(
+                $"api/PendingQuestion/paged", content);
 
             if (response.IsSuccessStatusCode)
             {

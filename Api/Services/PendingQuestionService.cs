@@ -16,12 +16,17 @@ public class PendingQuestionService(
     IQuestionCategoriesService questionCategoriesService,
     UserManager<User> userManager) : IPendingQuestionService
 {
-    public async Task<PaginatedResponse<PendingQuestionDto>> GetPendingQuestions(int pageNumber, int pageSize,
+    public async Task<PaginatedResponse<PendingQuestionDto>> GetPendingQuestions(QuestionsRequestDto pendingQuestionsRequestDto,
         ClaimsPrincipal user)
     {
         try
         {
-            string? userId = userManager.GetUserId(user);
+            User? userDb = await userManager.GetUserAsync(user);
+
+            if (userDb == null)
+                return new PaginatedResponse<PendingQuestionDto> { Items = new List<PendingQuestionDto>() };
+            
+            IList<string> roles = await userManager.GetRolesAsync(userDb);
 
             IQueryable<PendingQuestion> query = context.PendingQuestions
                 .Include(a => a.PendingAnswers)
@@ -29,14 +34,17 @@ public class PendingQuestionService(
                 .ThenInclude(c => c.Category)
                 .OrderBy(q => q.Id);
 
-            if (!string.IsNullOrEmpty(userId)) query = query.Where(q => q.CreatedById == userId);
+            if (roles.Contains("User") && !roles.Contains("Admin") || pendingQuestionsRequestDto.OnlyMyQuestions)
+            {
+                query = query.Where(q => q.CreatedById == userDb.Id);
+            }
 
             List<PendingQuestion> questions = await query
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
+                .Skip((pendingQuestionsRequestDto.PageNumber - 1) * pendingQuestionsRequestDto.PageSize)
+                .Take(pendingQuestionsRequestDto.PageSize)
                 .ToListAsync();
 
-            int totalQuestions = await context.PendingQuestions.CountAsync();
+            int totalQuestions = await query.CountAsync();
 
             PaginatedResponse<PendingQuestionDto> response = new PaginatedResponse<PendingQuestionDto>
             {
@@ -57,8 +65,8 @@ public class PendingQuestionService(
                     }).ToList()
                 }).ToList(),
                 TotalCount = totalQuestions,
-                PageSize = pageSize,
-                TotalPages = (int)Math.Ceiling((double)totalQuestions / pageSize)
+                PageSize = pendingQuestionsRequestDto.PageSize,
+                TotalPages = (int)Math.Ceiling((double)totalQuestions / pendingQuestionsRequestDto.PageSize)
             };
 
             return response;

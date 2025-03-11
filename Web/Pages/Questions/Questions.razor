@@ -11,9 +11,16 @@
     }
 </style>
 <PageTitle>Questions</PageTitle>
-<div>
-    <div>
+<div class="header">
+    <div class="header-text">
         <h3>Questions</h3>
+    </div>
+    <div class="toggle-container">
+        <span class="toggle-label">Show My Questions</span>
+        <label class="switch">
+            <input type="checkbox" @onchange="ToggleOnlyMyQuestions">
+            <span class="slider"></span>
+        </label>
     </div>
 </div>
 @if (questions == null)
@@ -58,7 +65,7 @@ else
     </div>
 
     <div class="pagination-footer">
-        <Pagination ActivePageNumber="currentPage"
+        <Pagination ActivePageNumber="questionsRequest.PageNumber"
                     TotalPages="totalPages"
                     DisplayPages="5"
                     FirstLinkIcon="IconName.ChevronDoubleLeft"

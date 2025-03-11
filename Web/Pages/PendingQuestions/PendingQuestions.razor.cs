@@ -11,8 +11,6 @@ namespace Web.Pages.PendingQuestions;
 
 public partial class PendingQuestions : ComponentBase
 {
-    private const int PageSize = 50;
-    private int currentPage = 1;
     private List<Category>? flatCategories;
 
     private Modal? modal;
@@ -20,6 +18,13 @@ public partial class PendingQuestions : ComponentBase
     private int totalPages = 1;
     [Inject] private IPendingQuestionService? PendingQuestionService { get; set; }
     [Inject] private ICategoryService? CategoryService { get; set; }
+    
+    private readonly QuestionsRequest pendingQuestionsRequest = new QuestionsRequest
+    {
+        PageSize = 50,
+        PageNumber = 1,
+        OnlyMyQuestions = false
+    };
 
     protected override async Task OnInitializedAsync()
     {
@@ -32,7 +37,7 @@ public partial class PendingQuestions : ComponentBase
         if (PendingQuestionService == null) return;
 
         PaginatedResponse<PendingQuestion> paginatedResponse =
-            await PendingQuestionService.GetPendingQuestions(currentPage, PageSize);
+            await PendingQuestionService.GetPendingQuestions(pendingQuestionsRequest);
         pendingQuestions = paginatedResponse.Items;
         totalPages = paginatedResponse.TotalPages;
     }
@@ -46,7 +51,7 @@ public partial class PendingQuestions : ComponentBase
 
     private async Task OnPageChanged(int newPage)
     {
-        currentPage = newPage;
+        pendingQuestionsRequest.PageNumber = newPage;
         await GetPendingQuestions();
         Navigation.NavigateTo(Navigation.Uri.Split('#')[0] + "#topElement", false);
     }
@@ -111,5 +116,12 @@ public partial class PendingQuestions : ComponentBase
     private string GetAnswerRowClass(bool isCorrect)
     {
         return isCorrect ? "correct-pending-answer" : "incorrect-pending-answer";
+    }
+    
+    private async Task ToggleOnlyMyPendingQuestions(ChangeEventArgs e)
+    {
+        pendingQuestionsRequest.OnlyMyQuestions = (bool)e.Value;
+        pendingQuestionsRequest.PageNumber = 1;
+        await GetPendingQuestions();
     }
 }
