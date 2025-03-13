@@ -125,15 +125,11 @@
     color: red;
 }
 
-.category-name,
-.parent-category-dropdown {
+.pending-question-text,
+.dropdown-row {
     display: flex;
     align-items: center;
-}
-
-.modal-buttons {
-    display: flex;
-    justify-content: end;
+    justify-content: center;
 }
 
 .categories {
@@ -142,14 +138,12 @@
     flex-wrap: wrap;
 }
 
+.modal-buttons {
+    display: flex;
+    justify-content: end;
+}
+
 ::deep ul {
     overflow: auto;
     max-height: 250px;
-}
-
-.pending-question-text,
-.dropdown-row {
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }

@@ -40,6 +40,12 @@
     color: red;
 }
 
+.categories {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
 .pending-question-text,
 .dropdown-row {
     display: flex;
@@ -50,12 +56,6 @@
 .modal-buttons {
     display: flex;
     justify-content: end;
-}
-
-.categories {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
 }
 
 ::deep ul {

@@ -44,11 +44,13 @@ public class QuestionaireDbContext(DbContextOptions options) : IdentityDbContext
         modelBuilder.Entity<Answer>()
             .HasOne(a => a.Question)
             .WithMany(q => q.Answers)
+            .HasForeignKey(a => a.QuestionId)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<PendingAnswer>()
             .HasOne(a => a.PendingQuestion)
             .WithMany(q => q.PendingAnswers)
+            .HasForeignKey(a => a.PendingQuestionId)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<PendingQuestionCategory>()
@@ -65,6 +67,11 @@ public class QuestionaireDbContext(DbContextOptions options) : IdentityDbContext
             .WithMany(c => c.PendingQuestionCategories)
             .HasForeignKey(qc => qc.CategoryId)
             .OnDelete(DeleteBehavior.Restrict);
+        
+        modelBuilder.Entity<Question>().HasQueryFilter(q => !q.IsDeleted);
+        modelBuilder.Entity<Answer>().HasQueryFilter(a => !a.Question.IsDeleted);
+        modelBuilder.Entity<QuestionCategory>().HasQueryFilter(qc => !qc.Question.IsDeleted);
+        modelBuilder.Entity<UserQuestionHistory>().HasQueryFilter(uqh => !uqh.Question.IsDeleted);
 
         string userId = "2db072f6-3706-4996-b222-343896c40606";
 

@@ -9,6 +9,11 @@
     border-top: 1px solid #ddd;
 }
 
+.category-content {
+    border: 1px solid #ddd;
+    display: flex;
+}
+
 .category-content:nth-child(even) {
     background-color: #f9f9f9;
 }
@@ -18,9 +23,4 @@
     padding-left: 10px;
     align-content: center;
     font-weight: bold;
-}
-
-.category-content {
-    border: 1px solid #ddd;
-    display: flex;
 }

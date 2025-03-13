@@ -125,12 +125,6 @@
     color: red;
 }
 
-.category-name,
-.parent-category-dropdown {
-    display: flex;
-    align-items: center;
-}
-
 .modal-buttons {
     display: flex;
     justify-content: end;

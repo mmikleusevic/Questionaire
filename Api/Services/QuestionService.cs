@@ -28,7 +28,7 @@ public class QuestionService(
             IQueryable<Question> query = context.Questions
                 .Include(a => a.Answers)
                 .Include(a => a.QuestionCategories)
-                .ThenInclude(c => c.Category)
+                    .ThenInclude(c => c.Category)
                 .OrderBy(q => q.Id);
 
             if (questionsRequestDto.OnlyMyQuestions)
@@ -173,7 +173,7 @@ public class QuestionService(
 
             if (question == null) return false;
 
-            context.Questions.Remove(question);
+            question.IsDeleted = true;
             await context.SaveChangesAsync();
 
             return true;

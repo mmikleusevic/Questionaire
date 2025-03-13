@@ -31,7 +31,7 @@ public class PendingQuestionService(
             IQueryable<PendingQuestion> query = context.PendingQuestions
                 .Include(a => a.PendingAnswers)
                 .Include(a => a.PendingQuestionCategories)
-                .ThenInclude(c => c.Category)
+                    .ThenInclude(c => c.Category)
                 .OrderBy(q => q.Id);
 
             if (roles.Contains("User") && !roles.Contains("Admin") || pendingQuestionsRequestDto.OnlyMyQuestions)
