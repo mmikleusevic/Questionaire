@@ -1,10 +1,8 @@
-using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Security.Claims;
 using BlazorBootstrap;
 using Blazored.LocalStorage;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Newtonsoft.Json.Linq;
 using Web.Interfaces;
@@ -21,7 +19,7 @@ public class CustomAuthStateService(
     : AuthenticationStateProvider
 {
     private readonly ClaimsPrincipal anonymousUser = new ClaimsPrincipal(new ClaimsIdentity());
-    
+
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
         ClaimsPrincipal user = anonymousUser;
@@ -91,17 +89,18 @@ public class CustomAuthStateService(
 
             AuthenticationState authState = await GetAuthenticationStateAsync();
             NotifyAuthenticationStateChanged(Task.FromResult(authState));
-            
+
             await authRedirectService.CheckAndRedirect(authState.User);
-        
-            ToastHandler.ShowToast(toastService, response.StatusCode, "User successfully logged in", "User successfully logged in");
+
+            ToastHandler.ShowToast(toastService, response.StatusCode, "User successfully logged in",
+                "User successfully logged in");
         }
         catch (Exception ex)
         {
             ApiResponseHandler.HandleException(ex, toastService, "logging user in", logger);
         }
     }
-    
+
     public async Task Logout()
     {
         try
@@ -135,7 +134,7 @@ public class CustomAuthStateService(
                 Email = registerData.Email,
                 Password = registerData.Password
             };
-            
+
             await Login(loginData);
         }
         catch (Exception ex)

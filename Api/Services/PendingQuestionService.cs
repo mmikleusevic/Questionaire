@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using QuestionaireApi.Interfaces;
 using QuestionaireApi.Models.Database;
-using QuestionaireApi.Models.Dto;
+using Shared.Models;
 
 namespace QuestionaireApi.Services;
 
@@ -16,7 +16,8 @@ public class PendingQuestionService(
     IQuestionCategoriesService questionCategoriesService,
     UserManager<User> userManager) : IPendingQuestionService
 {
-    public async Task<PaginatedResponse<PendingQuestionDto>> GetPendingQuestions(QuestionsRequestDto pendingQuestionsRequestDto,
+    public async Task<PaginatedResponse<PendingQuestionDto>> GetPendingQuestions(
+        QuestionsRequestDto pendingQuestionsRequestDto,
         ClaimsPrincipal user)
     {
         try
@@ -25,16 +26,16 @@ public class PendingQuestionService(
 
             if (userDb == null)
                 return new PaginatedResponse<PendingQuestionDto> { Items = new List<PendingQuestionDto>() };
-            
+
             IList<string> roles = await userManager.GetRolesAsync(userDb);
 
             IQueryable<PendingQuestion> query = context.PendingQuestions
                 .Include(a => a.PendingAnswers)
                 .Include(a => a.PendingQuestionCategories)
-                    .ThenInclude(c => c.Category)
+                .ThenInclude(c => c.Category)
                 .OrderBy(q => q.Id);
 
-            if (roles.Contains("User") && !roles.Contains("Admin") || pendingQuestionsRequestDto.OnlyMyQuestions)
+            if ((roles.Contains("User") && !roles.Contains("Admin")) || pendingQuestionsRequestDto.OnlyMyQuestions)
             {
                 query = query.Where(q => q.CreatedById == userDb.Id);
             }
@@ -52,15 +53,13 @@ public class PendingQuestionService(
                 {
                     Id = q.Id,
                     QuestionText = q.QuestionText,
-                    PendingAnswers = q.PendingAnswers.Select(a => new PendingAnswerDto
+                    PendingAnswers = q.PendingAnswers.Select(a => new PendingAnswerDto(a.Id)
                     {
-                        Id = a.Id,
                         AnswerText = a.AnswerText,
                         IsCorrect = a.IsCorrect
                     }).ToList(),
-                    Categories = q.PendingQuestionCategories.Select(qc => new CategoryDto
+                    Categories = q.PendingQuestionCategories.Select(qc => new CategoryDto(qc.Category.Id)
                     {
-                        Id = qc.Category.Id,
                         CategoryName = qc.Category.CategoryName
                     }).ToList()
                 }).ToList(),

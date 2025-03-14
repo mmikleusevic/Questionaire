@@ -7,10 +7,10 @@ namespace UI
     public class MainMenuUIController : SafeArea
     {
         [SerializeField] private PlayUIController playUIController;
-    
+
         private Button playButton;
         private Button quitButton;
-    
+
         private void Start()
         {
             VisualElement root = GetComponent<UIDocument>().rootVisualElement;
@@ -26,19 +26,19 @@ namespace UI
             if (playButton != null) playButton.clicked -= PlayPressed;
             if (quitButton != null) quitButton.clicked -= QuitPressed;
         }
-        
+
         private void ApplySafeArea(VisualElement rootElement)
         {
             Rect safeArea = Screen.safeArea;
-            
+
             float screenWidth = Screen.width;
             float screenHeight = Screen.height;
-            
+
             float leftMargin = safeArea.x / screenWidth;
             float bottomMargin = safeArea.y / screenHeight;
             float rightMargin = (screenWidth - (safeArea.x + safeArea.width)) / screenWidth;
             float topMargin = (screenHeight - (safeArea.y + safeArea.height)) / screenHeight;
-            
+
             rootElement.style.marginLeft = Length.Percent(leftMargin * 100);
             rootElement.style.marginRight = Length.Percent(rightMargin * 100);
             rootElement.style.marginTop = Length.Percent(topMargin * 100);
@@ -50,7 +50,7 @@ namespace UI
             playUIController.LoadCategories();
             playUIController.Show();
         }
-    
+
         private void QuitPressed()
         {
 #if UNITY_EDITOR

@@ -1,8 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Models;
 using Newtonsoft.Json;
+using SharedStandard.Models;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -10,7 +10,7 @@ namespace ServiceHandlers
 {
     public class CategoryServiceHandler
     {
-        public IEnumerator GetCategories(Action<List<Category>, string> onComplete)
+        public IEnumerator GetCategories(Action<List<CategoryDto>, string> onComplete)
         {
             string endpoint = "api/Category/nested";
             string url = EnvironmentConfig.ApiBaseUrl + endpoint;
@@ -19,30 +19,32 @@ namespace ServiceHandlers
             {
                 //bypassing validation
                 webRequest.certificateHandler = new BypassCertificate();
-                
+
                 //webRequest.certificateHandler = new CustomCertificateHandler(EnvironmentConfig.CertificateThumbprint);
-                
+
                 yield return webRequest.SendWebRequest();
 
                 if (webRequest.result != UnityWebRequest.Result.Success)
                 {
                     string errorMessage = webRequest.downloadHandler.text;
                     errorMessage = Helper.StripQuotationMarks(errorMessage);
-                    
-                    if (string.IsNullOrEmpty(errorMessage)) errorMessage = "An error has occurred fetching categories. Try again later.";
-                    
+
+                    if (string.IsNullOrEmpty(errorMessage))
+                        errorMessage = "An error has occurred fetching categories. Try again later.";
+
                     Debug.LogError($"Error: {errorMessage}");
                     onComplete?.Invoke(null, errorMessage);
                     yield break;
                 }
-    
-                try 
+
+                try
                 {
                     string jsonResponse = webRequest.downloadHandler.text;
-                    List<Category> questions = JsonConvert.DeserializeObject<List<Category>>(jsonResponse, new JsonSerializerSettings
-                    {
-                        ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-                    });
+                    List<CategoryDto> questions = JsonConvert.DeserializeObject<List<CategoryDto>>(jsonResponse,
+                        new JsonSerializerSettings
+                        {
+                            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                        });
                     onComplete?.Invoke(questions, string.Empty);
                 }
                 catch (Exception ex)

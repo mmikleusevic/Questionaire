@@ -1,6 +1,6 @@
 using QuestionaireApi.Interfaces;
 using QuestionaireApi.Models.Database;
-using QuestionaireApi.Models.Dto;
+using Shared.Models;
 
 namespace QuestionaireApi.Services;
 

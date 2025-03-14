@@ -1,6 +1,6 @@
 using BlazorBootstrap;
 using Microsoft.AspNetCore.Components;
-using Web.Models;
+using Shared.Models;
 using Web.Pages.Categories.CategoryModals;
 using UpdateCategory = Web.Pages.Categories.CategoryModals.UpdateCategory;
 
@@ -8,10 +8,10 @@ namespace Web.Pages.Categories;
 
 public partial class CategoryItem : ComponentBase
 {
-    [Parameter] public Category? Category { get; set; }
+    [Parameter] public CategoryDto? Category { get; set; }
     [Parameter] public Modal? Modal { get; set; }
     [Parameter] public EventCallback OnCategoryChanged { get; set; }
-    [Parameter] public List<Category>? FlatCategories { get; set; }
+    [Parameter] public List<CategoryDto>? FlatCategories { get; set; }
 
     private async Task ShowUpdateCategory()
     {

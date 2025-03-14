@@ -1,7 +1,7 @@
 using BlazorBootstrap;
 using Microsoft.AspNetCore.Components;
+using Shared.Models;
 using Web.Interfaces;
-using Web.Models;
 
 namespace Web.Pages.PendingQuestions.PendingQuestionModal;
 
@@ -9,7 +9,7 @@ public partial class DeletePendingQuestion : ComponentBase
 {
     [Inject] private IPendingQuestionService? PendingQuestionService { get; set; }
     [Parameter] public Modal? Modal { get; set; }
-    [Parameter] public PendingQuestion? PendingQuestion { get; set; }
+    [Parameter] public PendingQuestionDto? PendingQuestion { get; set; }
     [Parameter] public EventCallback OnPendingQuestionChanged { get; set; }
 
     private async Task HandleValidSubmit()

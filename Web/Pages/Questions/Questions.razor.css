@@ -171,6 +171,7 @@ input:checked + .slider:before {
     font-weight: bold;
     margin: 0 auto;
 }
+
 .answers-list span:first-child {
     margin-top: 5px;
 }

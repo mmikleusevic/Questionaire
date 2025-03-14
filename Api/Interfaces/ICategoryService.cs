@@ -1,4 +1,4 @@
-using QuestionaireApi.Models.Dto;
+using Shared.Models;
 
 namespace QuestionaireApi.Interfaces;
 

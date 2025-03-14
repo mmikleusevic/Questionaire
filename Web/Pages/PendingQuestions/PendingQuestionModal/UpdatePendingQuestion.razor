@@ -1,4 +1,4 @@
-@using Web.Models
+@using Shared.Models
 <EditForm OnValidSubmit="HandleValidSubmit" EditContext="editContext">
     <ObjectGraphDataAnnotationsValidator/>
     <ValidationSummary class="alert alert-danger"/>
@@ -68,7 +68,7 @@
                                 @(selectedCategory?.CategoryName ?? "None")
                             </DropdownToggleButton>
                             <DropdownMenu>
-                                <DropdownItem @onclick="() => SelectCategory(selectedCategory, new Category())">
+                                <DropdownItem @onclick="() => SelectCategory(selectedCategory, new CategoryDto())">
                                     None
                                 </DropdownItem>
                                 @foreach (var freeCategory in FlatCategories

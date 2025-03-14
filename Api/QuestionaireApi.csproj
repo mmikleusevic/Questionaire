@@ -7,21 +7,27 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="DotNetEnv" Version="3.1.1" />
-        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.1" />
+        <PackageReference Include="DotNetEnv" Version="3.1.1"/>
+        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.1"/>
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.1"/>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.0"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.1" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.1" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.1"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.1"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.1">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Scalar.AspNetCore" Version="1.2.76" />
+        <PackageReference Include="Scalar.AspNetCore" Version="1.2.76"/>
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Remove="Migrations\20250212115929_AddedNewDatabaseModelsForUsersAndStoringPendingQuestions.cs" />
-      <Compile Remove="Migrations\20250212115929_AddedNewDatabaseModelsForUsersAndStoringPendingQuestions.Designer.cs" />
+        <Compile Remove="Migrations\20250212115929_AddedNewDatabaseModelsForUsersAndStoringPendingQuestions.cs"/>
+        <Compile Remove="Migrations\20250212115929_AddedNewDatabaseModelsForUsersAndStoringPendingQuestions.Designer.cs"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Shared\Shared.csproj"/>
+        <ProjectReference Include="..\SharedStandard\SharedStandard.csproj"/>
     </ItemGroup>
 
 </Project>

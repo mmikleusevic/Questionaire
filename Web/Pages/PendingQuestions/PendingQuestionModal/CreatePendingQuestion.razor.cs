@@ -1,21 +1,21 @@
 using BlazorBootstrap;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using Shared.Models;
 using Web.Interfaces;
-using Web.Models;
 
 namespace Web.Pages.PendingQuestions.PendingQuestionModal;
 
 public partial class CreatePendingQuestion : ComponentBase
 {
-    private readonly PendingQuestion pendingQuestion = new PendingQuestion();
-    private readonly List<Category> selectedCategories = new List<Category>();
+    private readonly PendingQuestionDto pendingQuestion = new PendingQuestionDto();
+    private readonly List<CategoryDto> selectedCategories = new List<CategoryDto>();
     private EditContext? editContext;
 
     private List<string> validationMessages = new List<string>();
     [Inject] private IPendingQuestionService? PendingQuestionService { get; set; }
     [Parameter] public EventCallback OnPendingQuestionChanged { get; set; }
-    [Parameter] public List<Category> FlatCategories { get; set; }
+    [Parameter] public List<CategoryDto> FlatCategories { get; set; }
     [Parameter] public Modal? Modal { get; set; }
 
     protected override async Task OnInitializedAsync()
@@ -31,7 +31,7 @@ public partial class CreatePendingQuestion : ComponentBase
         pendingQuestion.QuestionText = string.Empty;
 
         selectedCategories.Clear();
-        selectedCategories.Add(new Category());
+        selectedCategories.Add(new CategoryDto());
 
         if (pendingQuestion?.PendingAnswers == null || pendingQuestion.PendingAnswers.Count == 0)
         {
@@ -39,7 +39,7 @@ public partial class CreatePendingQuestion : ComponentBase
         }
         else
         {
-            foreach (PendingAnswer pendingAnswer in pendingQuestion.PendingAnswers)
+            foreach (PendingAnswerDto pendingAnswer in pendingQuestion.PendingAnswers)
             {
                 pendingAnswer.AnswerText = string.Empty;
                 pendingAnswer.IsCorrect = false;
@@ -85,13 +85,13 @@ public partial class CreatePendingQuestion : ComponentBase
     {
         for (int i = 0; i < 3; i++)
         {
-            pendingQuestion?.PendingAnswers?.Add(new PendingAnswer { AnswerText = string.Empty });
+            pendingQuestion?.PendingAnswers?.Add(new PendingAnswerDto { AnswerText = string.Empty });
         }
     }
 
     private void AddCategoryDropdown()
     {
-        selectedCategories.Add(new Category());
+        selectedCategories.Add(new CategoryDto());
     }
 
     private void RemoveCategoryDropdown()
@@ -102,7 +102,7 @@ public partial class CreatePendingQuestion : ComponentBase
         }
     }
 
-    private void SelectCategory(Category currentCategory, Category newCategory)
+    private void SelectCategory(CategoryDto currentCategory, CategoryDto newCategory)
     {
         int categoryIndex = selectedCategories.IndexOf(currentCategory);
 

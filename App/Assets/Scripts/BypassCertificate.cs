@@ -6,4 +6,4 @@ public class BypassCertificate : CertificateHandler
     {
         return true;
     }
-} 
+}

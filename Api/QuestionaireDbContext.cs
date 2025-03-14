@@ -67,7 +67,7 @@ public class QuestionaireDbContext(DbContextOptions options) : IdentityDbContext
             .WithMany(c => c.PendingQuestionCategories)
             .HasForeignKey(qc => qc.CategoryId)
             .OnDelete(DeleteBehavior.Restrict);
-        
+
         modelBuilder.Entity<Question>().HasQueryFilter(q => !q.IsDeleted);
         modelBuilder.Entity<Answer>().HasQueryFilter(a => !a.Question.IsDeleted);
         modelBuilder.Entity<QuestionCategory>().HasQueryFilter(qc => !qc.Question.IsDeleted);

@@ -1,8 +1,8 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using QuestionaireApi.Interfaces;
-using QuestionaireApi.Models.Dto;
+using Shared.Models;
+using UniqueQuestionsRequestDto = SharedStandard.Models.UniqueQuestionRequestDto;
 
 namespace QuestionaireApi.Controllers;
 
@@ -40,7 +40,7 @@ public class QuestionController(
     [HttpPost("random")]
     [AllowAnonymous]
     public async Task<ActionResult<List<QuestionDto>>> GetRandomUniqueQuestions(
-        [FromBody] GetRandomUniqueQuestionsRequestDto? request)
+        [FromBody] UniqueQuestionsRequestDto? request)
     {
         try
         {

@@ -2,8 +2,8 @@ using System.Net;
 using System.Text;
 using BlazorBootstrap;
 using Newtonsoft.Json;
+using Shared.Models;
 using Web.Interfaces;
-using Web.Models;
 
 namespace Web.Services;
 
@@ -12,23 +12,24 @@ public class PendingQuestionService(
     ILogger<PendingQuestionService> logger,
     ToastService toastService) : IPendingQuestionService
 {
-    public async Task<PaginatedResponse<PendingQuestion>> GetPendingQuestions(QuestionsRequest pendingQuestionsRequest)
+    public async Task<PaginatedResponse<PendingQuestionDto>> GetPendingQuestions(
+        QuestionsRequestDto pendingQuestionsRequest)
     {
         try
         {
             string? jsonContent = JsonConvert.SerializeObject(pendingQuestionsRequest);
             StringContent? content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-            
+
             HttpResponseMessage? response = await httpClient.PostAsync(
-                $"api/PendingQuestion/paged", content);
+                "api/PendingQuestion/paged", content);
 
             if (response.IsSuccessStatusCode)
             {
                 string? responseData = await response.Content.ReadAsStringAsync();
-                PaginatedResponse<PendingQuestion>? paginatedResponse =
-                    JsonConvert.DeserializeObject<PaginatedResponse<PendingQuestion>>(responseData);
+                PaginatedResponse<PendingQuestionDto>? paginatedResponse =
+                    JsonConvert.DeserializeObject<PaginatedResponse<PendingQuestionDto>>(responseData);
 
-                return paginatedResponse ?? new PaginatedResponse<PendingQuestion>();
+                return paginatedResponse ?? new PaginatedResponse<PendingQuestionDto>();
             }
 
             string? responseResult = await response.Content.ReadAsStringAsync();
@@ -39,10 +40,10 @@ public class PendingQuestionService(
             ApiResponseHandler.HandleException(ex, toastService, "fetching pending questions", logger);
         }
 
-        return new PaginatedResponse<PendingQuestion>();
+        return new PaginatedResponse<PendingQuestionDto>();
     }
 
-    public async Task CreatePendingQuestion(PendingQuestion newPendingQuestion)
+    public async Task CreatePendingQuestion(PendingQuestionDto newPendingQuestion)
     {
         try
         {
@@ -77,7 +78,7 @@ public class PendingQuestionService(
         }
     }
 
-    public async Task UpdatePendingQuestion(PendingQuestion updatedPendingQuestion)
+    public async Task UpdatePendingQuestion(PendingQuestionDto updatedPendingQuestion)
     {
         try
         {

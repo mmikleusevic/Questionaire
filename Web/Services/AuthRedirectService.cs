@@ -2,7 +2,6 @@ using System.Security.Claims;
 using BlazorBootstrap;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Authorization;
 using Web.Interfaces;
 
 namespace Web.Services;
@@ -25,13 +24,13 @@ public class AuthRedirectService(
         try
         {
             string? token = await localStorageService.GetItemAsync<string>("accessToken");
-        
+
             if (string.IsNullOrEmpty(token))
             {
                 navigationManager.NavigateTo("/Login", true);
                 return;
             }
-            
+
             if (user != null)
             {
                 foreach (KeyValuePair<string, string> roleRedirect in RoleRedirects)
@@ -43,7 +42,7 @@ public class AuthRedirectService(
                     }
                 }
             }
-            
+
             navigationManager.NavigateTo("/Login", true);
         }
         catch (Exception ex)

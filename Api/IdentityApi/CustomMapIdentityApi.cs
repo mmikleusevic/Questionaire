@@ -11,7 +11,6 @@ using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 using QuestionaireApi.IdentityApi.Models;
-using QuestionaireApi.Models.Database;
 
 namespace QuestionaireApi.IdentityApi;
 

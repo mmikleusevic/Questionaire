@@ -8,12 +8,12 @@ namespace UI
     {
         [SerializeField] private CategoriesUIController categoriesUIController;
         [SerializeField] private GameUIController gameUIController;
-        
-        private VisualElement playUI;
-        private Button playSingleAnswerButton;
-        private Button playMultipleChoiceButton;
-        private Button categoriesButton;
         private Button backButton;
+        private Button categoriesButton;
+        private Button playMultipleChoiceButton;
+        private Button playSingleAnswerButton;
+
+        private VisualElement playUI;
 
         private void Start()
         {
@@ -23,7 +23,7 @@ namespace UI
             playMultipleChoiceButton = root.Q<Button>("playMultipleChoiceButton");
             categoriesButton = root.Q<Button>("categoriesButton");
             backButton = root.Q<Button>("backButton");
-            
+
             Hide();
 
             if (playMultipleChoiceButton != null) playMultipleChoiceButton.clicked += PlayMultipleChoiceClicked;
@@ -44,12 +44,12 @@ namespace UI
         {
             PlayQuestionaire(false);
         }
-        
+
         private void PlaySingleAnswerClicked()
         {
             PlayQuestionaire(true);
         }
-        
+
         private void OpenCategories()
         {
             StartCoroutine(categoriesUIController.OpenCategories());
@@ -65,7 +65,7 @@ namespace UI
 
                 return;
             }
-            
+
             StartCoroutine(gameUIController.LoadQuestions(selectedCategoryIds, isSingleAnswerMode));
         }
 
@@ -73,7 +73,7 @@ namespace UI
         {
             StartCoroutine(categoriesUIController.GetCategories());
         }
-        
+
         public void Show()
         {
             playUI.style.display = DisplayStyle.Flex;

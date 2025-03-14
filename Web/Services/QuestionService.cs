@@ -1,9 +1,8 @@
-using System.Net;
 using System.Text;
 using BlazorBootstrap;
 using Newtonsoft.Json;
+using Shared.Models;
 using Web.Interfaces;
-using Web.Models;
 
 namespace Web.Services;
 
@@ -12,23 +11,23 @@ public class QuestionService(
     ILogger<QuestionService> logger,
     ToastService toastService) : IQuestionService
 {
-    public async Task<PaginatedResponse<Question>> GetQuestions(QuestionsRequest questionsRequest)
+    public async Task<PaginatedResponse<QuestionDto>> GetQuestions(QuestionsRequestDto questionsRequest)
     {
         try
         {
             string? jsonContent = JsonConvert.SerializeObject(questionsRequest);
             StringContent? content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-            
+
             HttpResponseMessage? response = await httpClient.PostAsync(
-                $"api/Question/paged", content);
+                "api/Question/paged", content);
 
             if (response.IsSuccessStatusCode)
             {
                 string? responseData = await response.Content.ReadAsStringAsync();
-                PaginatedResponse<Question>? paginatedResponse =
-                    JsonConvert.DeserializeObject<PaginatedResponse<Question>>(responseData);
+                PaginatedResponse<QuestionDto>? paginatedResponse =
+                    JsonConvert.DeserializeObject<PaginatedResponse<QuestionDto>>(responseData);
 
-                return paginatedResponse ?? new PaginatedResponse<Question>();
+                return paginatedResponse ?? new PaginatedResponse<QuestionDto>();
             }
 
             string? responseResult = await response.Content.ReadAsStringAsync();
@@ -39,10 +38,10 @@ public class QuestionService(
             ApiResponseHandler.HandleException(ex, toastService, "fetching questions", logger);
         }
 
-        return new PaginatedResponse<Question>();
+        return new PaginatedResponse<QuestionDto>();
     }
 
-    public async Task UpdateQuestion(Question updatedQuestion)
+    public async Task UpdateQuestion(QuestionDto updatedQuestion)
     {
         try
         {

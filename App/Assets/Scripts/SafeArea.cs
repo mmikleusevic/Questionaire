@@ -6,10 +6,10 @@ public class SafeArea : MonoBehaviour
     private void OnEnable()
     {
         VisualElement root = GetComponent<UIDocument>().rootVisualElement;
-        
+
         ApplySafeArea(root);
     }
-    
+
     private void ApplySafeArea(VisualElement root)
     {
         if (root == null) return;

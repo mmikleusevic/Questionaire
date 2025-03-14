@@ -7,8 +7,8 @@ namespace Web;
 public static class ApiResponseHandler
 {
     public static async Task<bool> HandleResponse(
-        HttpResponseMessage response, 
-        ToastService toastService, 
+        HttpResponseMessage response,
+        ToastService toastService,
         string errorContext)
     {
         if (response.IsSuccessStatusCode)
@@ -17,7 +17,7 @@ public static class ApiResponseHandler
         }
 
         string responseData = await response.Content.ReadAsStringAsync();
-        
+
         try
         {
             JObject jsonResponse = JObject.Parse(responseData);
@@ -32,23 +32,26 @@ public static class ApiResponseHandler
                 return false;
             }
 
-            ToastHandler.ShowToast(toastService, response.StatusCode, $"Error while {errorContext}", $"Error while {errorContext}");
+            ToastHandler.ShowToast(toastService, response.StatusCode, $"Error while {errorContext}",
+                $"Error while {errorContext}");
         }
         catch
         {
-            ToastHandler.ShowToast(toastService, response.StatusCode, $"Error while parsing JSON", "Error while parsing JSON");
+            ToastHandler.ShowToast(toastService, response.StatusCode, "Error while parsing JSON",
+                "Error while parsing JSON");
         }
-        
+
         return false;
     }
-    
+
     public static void HandleException(
-        Exception ex, 
-        ToastService toastService, 
+        Exception ex,
+        ToastService toastService,
         string errorContext,
         ILogger? logger = null)
     {
-        ToastHandler.ShowToast(toastService, HttpStatusCode.InternalServerError, $"Error while {errorContext}", ex.Message);
+        ToastHandler.ShowToast(toastService, HttpStatusCode.InternalServerError, $"Error while {errorContext}",
+            ex.Message);
         logger?.LogError(ex, $"Error while {errorContext}");
     }
 }

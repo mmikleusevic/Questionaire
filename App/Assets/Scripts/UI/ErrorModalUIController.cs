@@ -4,12 +4,11 @@ namespace UI
 {
     public class ErrorModalUIController : SafeArea
     {
-        public static ErrorModalUIController Instance { get; private set; }
-        
         private VisualElement errorModalUI;
         private Label errorText;
         private Button okButton;
-        
+        public static ErrorModalUIController Instance { get; private set; }
+
         private void Awake()
         {
             if (Instance == null)
@@ -29,7 +28,7 @@ namespace UI
             errorModalUI = root.Q<VisualElement>("errorModalUI");
             errorText = root.Q<Label>("errorText");
             okButton = root.Q<Button>("okButton");
-            
+
             Hide();
 
             if (okButton != null) okButton.clicked += Hide;
@@ -43,7 +42,7 @@ namespace UI
         public void ShowMessage(string text)
         {
             errorText.text = text;
-            
+
             Show();
         }
 

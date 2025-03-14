@@ -4,7 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using QuestionaireApi.Interfaces;
 using QuestionaireApi.Models.Database;
-using QuestionaireApi.Models.Dto;
+using Shared.Models;
+using UniqueQuestionsRequestDto = SharedStandard.Models.UniqueQuestionRequestDto;
 
 namespace QuestionaireApi.Services;
 
@@ -15,7 +16,7 @@ public class QuestionService(
     IQuestionCategoriesService questionCategoriesService,
     UserManager<User> userManager) : IQuestionService
 {
-    public async Task<PaginatedResponse<QuestionDto>> GetQuestions(QuestionsRequestDto questionsRequestDto, 
+    public async Task<PaginatedResponse<QuestionDto>> GetQuestions(QuestionsRequestDto questionsRequestDto,
         ClaimsPrincipal user)
     {
         try
@@ -28,36 +29,33 @@ public class QuestionService(
             IQueryable<Question> query = context.Questions
                 .Include(a => a.Answers)
                 .Include(a => a.QuestionCategories)
-                    .ThenInclude(c => c.Category)
+                .ThenInclude(c => c.Category)
                 .OrderBy(q => q.Id);
 
             if (questionsRequestDto.OnlyMyQuestions)
             {
                 query = query.Where(q => q.CreatedById == userDb.Id);
             }
-            
+
             List<Question> questions = await query
                 .Skip((questionsRequestDto.PageNumber - 1) * questionsRequestDto.PageSize)
                 .Take(questionsRequestDto.PageSize)
                 .ToListAsync();
-            
+
             int totalQuestions = await query.CountAsync();
 
             PaginatedResponse<QuestionDto> response = new PaginatedResponse<QuestionDto>
             {
-                Items = questions.Select(q => new QuestionDto
+                Items = questions.Select(q => new QuestionDto(q.Id)
                 {
-                    Id = q.Id,
                     QuestionText = q.QuestionText,
-                    Answers = q.Answers.Select(a => new AnswerDto
+                    Answers = q.Answers.Select(a => new AnswerDto(a.Id)
                     {
-                        Id = a.Id,
                         AnswerText = a.AnswerText,
                         IsCorrect = a.IsCorrect
                     }).ToList(),
-                    Categories = q.QuestionCategories.Select(qc => new CategoryDto
+                    Categories = q.QuestionCategories.Select(qc => new CategoryDto(qc.Category.Id)
                     {
-                        Id = qc.Category.Id,
                         CategoryName = qc.Category.CategoryName
                     }).ToList()
                 }).ToList(),
@@ -74,7 +72,7 @@ public class QuestionService(
         }
     }
 
-    public async Task<List<QuestionDto>> GetRandomUniqueQuestions(GetRandomUniqueQuestionsRequestDto requestDto)
+    public async Task<List<QuestionDto>> GetRandomUniqueQuestions(UniqueQuestionsRequestDto requestDto)
     {
         try
         {
@@ -83,7 +81,7 @@ public class QuestionService(
                 .Where(q => q.Answers.Count >= (requestDto.IsSingleAnswerMode ? 1 : 3))
                 .Where(q => q.Answers.Any(a => a.IsCorrect))
                 .Where(q => q.QuestionCategories.Any(qc => requestDto.CategoryIds.Contains(qc.CategoryId)))
-                .Where(q => !context.UserQuestionHistory.Any(h => h.UserId == requestDto.UserId 
+                .Where(q => !context.UserQuestionHistory.Any(h => h.UserId == requestDto.UserId
                                                                   && h.QuestionId == q.Id));
 
             List<Question> questions = await FetchRandomQuestions(baseQuery, requestDto.NumberOfQuestions, null);
@@ -209,17 +207,15 @@ public class QuestionService(
             Random random = new Random();
 
             return questions
-                .Select(q => new QuestionDto
+                .Select(q => new QuestionDto(q.Id)
                 {
-                    Id = q.Id,
                     QuestionText = q.QuestionText,
                     Answers = q.Answers
                         .OrderBy(a => a.IsCorrect ? 0 : 1)
                         .Take(isSingleAnswerMode ? 1 : 3)
                         .OrderBy(a => random.Next())
-                        .Select(a => new AnswerDto
+                        .Select(a => new AnswerDto(a.Id)
                         {
-                            Id = a.Id,
                             AnswerText = a.AnswerText,
                             IsCorrect = a.IsCorrect
                         })

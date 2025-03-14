@@ -1,12 +1,12 @@
-using Web.Models;
+using Shared.Models;
 
 namespace Web.Interfaces;
 
 public interface IPendingQuestionService
 {
-    Task<PaginatedResponse<PendingQuestion>> GetPendingQuestions(QuestionsRequest pendingQuestionsRequest);
-    Task CreatePendingQuestion(PendingQuestion newPendingQuestion);
+    Task<PaginatedResponse<PendingQuestionDto>> GetPendingQuestions(QuestionsRequestDto pendingQuestionsRequest);
+    Task CreatePendingQuestion(PendingQuestionDto newPendingQuestion);
     Task ApprovePendingQuestion(int id);
-    Task UpdatePendingQuestion(PendingQuestion updatedPendingQuestion);
+    Task UpdatePendingQuestion(PendingQuestionDto updatedPendingQuestion);
     Task DeletePendingQuestion(int id);
 }

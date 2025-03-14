@@ -20,7 +20,7 @@ public class Question
     [Required] public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public DateTime? LastUpdatedAt { get; set; }
-    
+
     public bool IsDeleted { get; set; }
 
     [Required] public DateTime ApprovedAt { get; set; } = DateTime.UtcNow;

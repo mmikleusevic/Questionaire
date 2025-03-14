@@ -1,14 +1,14 @@
 using BlazorBootstrap;
 using Microsoft.AspNetCore.Components;
+using Shared.Models;
 using Web.Interfaces;
-using Web.Models;
 using Web.Pages.Categories.CategoryModals;
 
 namespace Web.Pages.Categories;
 
 public partial class Categories : ComponentBase
 {
-    private CategoryLists? categories;
+    private CategoriesDto? categories;
     private Modal? modal;
     [Inject] private ICategoryService? CategoryService { get; set; }
 

@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using QuestionaireApi.Interfaces;
 using QuestionaireApi.Models.Database;
-using QuestionaireApi.Models.Dto;
+using Shared.Models;
 
 namespace QuestionaireApi.Services;
 
@@ -48,12 +48,10 @@ public class CategoryService(QuestionaireDbContext context) : ICategoryService
         {
             List<CategoryDto> categories = await context.Categories
                 .OrderBy(c => c.CategoryName)
-                .Select(category => new CategoryDto
+                .Select(category => new CategoryDto(category.Id)
                 {
-                    Id = category.Id,
                     CategoryName = category.CategoryName,
-                    ParentCategoryId = category.ParentCategoryId,
-                    ChildCategories = new List<CategoryDto>()
+                    ParentCategoryId = category.ParentCategoryId
                 })
                 .ToListAsync();
 
@@ -141,9 +139,8 @@ public class CategoryService(QuestionaireDbContext context) : ICategoryService
     {
         try
         {
-            return new CategoryDto
+            return new CategoryDto(category.Id)
             {
-                Id = category.Id,
                 CategoryName = category.CategoryName,
                 ParentCategoryId = category.ParentCategoryId,
                 ChildCategories = category.ChildCategories

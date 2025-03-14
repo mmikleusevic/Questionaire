@@ -13,40 +13,42 @@ namespace UI.CustomUIElements
         private static readonly string inputCheckedUssClassName = "slideToggleInputChecked";
         private static readonly string inputLabelUssClassName = "slideToggleInputLabel";
 
-        private VisualElement container;
-        private VisualElement input;
-        private VisualElement knob;
-        private Label textLabel;
-        
-        public SlideToggle() : this(null) { }
+        private readonly VisualElement container;
+        private readonly VisualElement input;
+        private readonly VisualElement knob;
+        private readonly Label textLabel;
+
+        public SlideToggle() : this(null)
+        {
+        }
 
         private SlideToggle(string label) : base(label, null)
         {
             pickingMode = PickingMode.Ignore;
             base.focusable = false;
-            
+
             AddToClassList(ussClassName);
 
             container = new VisualElement();
             container.name = "container";
             container.AddToClassList(containerUssClassName);
             Add(container);
-            
+
             input = this.Q(className: BaseField<bool>.inputUssClassName);
             input.name = "slideToggleInput";
             input.AddToClassList(inputUssClassName);
             container.Add(input);
-            
+
             knob = new VisualElement();
             knob.AddToClassList(inputKnobUssClassName);
             knob.name = "knob";
             input.Add(knob);
-            
+
             textLabel = new Label("Text");
             textLabel.AddToClassList(inputLabelUssClassName);
             textLabel.name = "textLabel";
             container.Add(textLabel);
-            
+
             container.RegisterCallback<ClickEvent>(OnClick);
             RegisterCallback<KeyDownEvent>(OnKeydownEvent);
             RegisterCallback<NavigationSubmitEvent>(OnSubmit);
@@ -69,17 +71,17 @@ namespace UI.CustomUIElements
         private static void OnKeydownEvent(KeyDownEvent evt)
         {
             var slideToggle = evt.currentTarget as SlideToggle;
-            
+
             if (slideToggle.panel?.contextType == ContextType.Player)
                 return;
-            
+
             if (evt.keyCode == KeyCode.KeypadEnter || evt.keyCode == KeyCode.Return || evt.keyCode == KeyCode.Space)
             {
                 slideToggle.ToggleValue();
                 evt.StopPropagation();
             }
         }
-        
+
         private void ToggleValue()
         {
             value = !value;
@@ -90,16 +92,16 @@ namespace UI.CustomUIElements
             base.SetValueWithoutNotify(newValue);
             input.EnableInClassList(inputCheckedUssClassName, newValue);
         }
-        
+
         protected override void HandleEventBubbleUp(EventBase evt)
         {
             base.HandleEventBubbleUp(evt);
-            
+
             if (evt is ChangeEvent<bool> changeEvent)
             {
                 input.EnableInClassList(inputCheckedUssClassName, changeEvent.newValue);
             }
-            
+
             evt.StopPropagation();
         }
     }

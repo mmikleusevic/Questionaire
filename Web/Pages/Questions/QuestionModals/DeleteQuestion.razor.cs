@@ -1,7 +1,7 @@
 using BlazorBootstrap;
 using Microsoft.AspNetCore.Components;
+using Shared.Models;
 using Web.Interfaces;
-using Web.Models;
 
 namespace Web.Pages.Questions.QuestionModals;
 
@@ -9,7 +9,7 @@ public partial class DeleteQuestion : ComponentBase
 {
     [Inject] private IQuestionService? QuestionService { get; set; }
     [Parameter] public Modal? Modal { get; set; }
-    [Parameter] public Question? Question { get; set; }
+    [Parameter] public QuestionDto? Question { get; set; }
     [Parameter] public EventCallback OnQuestionChanged { get; set; }
 
     private async Task HandleValidSubmit()

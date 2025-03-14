@@ -1,7 +1,7 @@
 using BlazorBootstrap;
 using Microsoft.AspNetCore.Components;
+using Shared.Models;
 using Web.Interfaces;
-using Web.Models;
 using Web.Pages.PendingQuestions.PendingQuestionModal;
 using CreatePendingQuestion = Web.Pages.PendingQuestions.PendingQuestionModal.CreatePendingQuestion;
 using DeletePendingQuestion = Web.Pages.PendingQuestions.PendingQuestionModal.DeletePendingQuestion;
@@ -11,20 +11,20 @@ namespace Web.Pages.PendingQuestions;
 
 public partial class PendingQuestions : ComponentBase
 {
-    private List<Category>? flatCategories;
-
-    private Modal? modal;
-    private List<PendingQuestion>? pendingQuestions;
-    private int totalPages = 1;
-    [Inject] private IPendingQuestionService? PendingQuestionService { get; set; }
-    [Inject] private ICategoryService? CategoryService { get; set; }
-    
-    private readonly QuestionsRequest pendingQuestionsRequest = new QuestionsRequest
+    private readonly QuestionsRequestDto pendingQuestionsRequest = new QuestionsRequestDto
     {
         PageSize = 50,
         PageNumber = 1,
         OnlyMyQuestions = false
     };
+
+    private List<CategoryDto>? flatCategories;
+
+    private Modal? modal;
+    private List<PendingQuestionDto>? pendingQuestions;
+    private int totalPages = 1;
+    [Inject] private IPendingQuestionService? PendingQuestionService { get; set; }
+    [Inject] private ICategoryService? CategoryService { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -36,7 +36,7 @@ public partial class PendingQuestions : ComponentBase
     {
         if (PendingQuestionService == null) return;
 
-        PaginatedResponse<PendingQuestion> paginatedResponse =
+        PaginatedResponse<PendingQuestionDto> paginatedResponse =
             await PendingQuestionService.GetPendingQuestions(pendingQuestionsRequest);
         pendingQuestions = paginatedResponse.Items;
         totalPages = paginatedResponse.TotalPages;
@@ -70,7 +70,7 @@ public partial class PendingQuestions : ComponentBase
         await modal.ShowAsync<CreatePendingQuestion>("Create New Pending Question", parameters: parameters);
     }
 
-    private async Task ShowApprovePendingQuestion(PendingQuestion? pendingQuestion)
+    private async Task ShowApprovePendingQuestion(PendingQuestionDto? pendingQuestion)
     {
         if (modal == null || pendingQuestion == null) return;
 
@@ -84,7 +84,7 @@ public partial class PendingQuestions : ComponentBase
         await modal.ShowAsync<ApprovePendingQuestion>("Approve Pending Question", parameters: parameters);
     }
 
-    private async Task ShowUpdatePendingQuestion(PendingQuestion? pendingQuestion)
+    private async Task ShowUpdatePendingQuestion(PendingQuestionDto? pendingQuestion)
     {
         if (modal == null || pendingQuestion == null || flatCategories == null) return;
 
@@ -99,7 +99,7 @@ public partial class PendingQuestions : ComponentBase
         await modal.ShowAsync<UpdatePendingQuestion>("Update Pending Question", parameters: parameters);
     }
 
-    private async Task ShowDeletePendingQuestion(PendingQuestion? pendingQuestion)
+    private async Task ShowDeletePendingQuestion(PendingQuestionDto? pendingQuestion)
     {
         if (modal == null || pendingQuestion == null) return;
 
@@ -117,7 +117,7 @@ public partial class PendingQuestions : ComponentBase
     {
         return isCorrect ? "correct-pending-answer" : "incorrect-pending-answer";
     }
-    
+
     private async Task ToggleOnlyMyPendingQuestions(ChangeEventArgs e)
     {
         pendingQuestionsRequest.OnlyMyQuestions = (bool)e.Value;

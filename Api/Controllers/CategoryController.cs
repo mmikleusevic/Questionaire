@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using QuestionaireApi.Interfaces;
-using QuestionaireApi.Models.Dto;
+using Shared.Models;
 
 namespace QuestionaireApi.Controllers;
 

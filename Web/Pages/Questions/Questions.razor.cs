@@ -1,7 +1,7 @@
 using BlazorBootstrap;
 using Microsoft.AspNetCore.Components;
+using Shared.Models;
 using Web.Interfaces;
-using Web.Models;
 using Web.Pages.Questions.QuestionModals;
 using UpdateQuestion = Web.Pages.Questions.QuestionModals.UpdateQuestion;
 
@@ -9,20 +9,20 @@ namespace Web.Pages.Questions;
 
 public partial class Questions : ComponentBase
 {
-    private List<Category>? flatCategories;
-
-    private Modal? modal;
-    private List<Question>? questions;
-    private int totalPages = 1;
-    [Inject] private IQuestionService? QuestionService { get; set; }
-    [Inject] private ICategoryService? CategoryService { get; set; }
-
-    private readonly QuestionsRequest questionsRequest = new QuestionsRequest
+    private readonly QuestionsRequestDto questionsRequest = new QuestionsRequestDto
     {
         PageSize = 50,
         PageNumber = 1,
         OnlyMyQuestions = false
     };
+
+    private List<CategoryDto>? flatCategories;
+
+    private Modal? modal;
+    private List<QuestionDto>? questions;
+    private int totalPages = 1;
+    [Inject] private IQuestionService? QuestionService { get; set; }
+    [Inject] private ICategoryService? CategoryService { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -34,7 +34,7 @@ public partial class Questions : ComponentBase
     {
         if (QuestionService == null) return;
 
-        PaginatedResponse<Question> paginatedResponse = await QuestionService.GetQuestions(questionsRequest);
+        PaginatedResponse<QuestionDto> paginatedResponse = await QuestionService.GetQuestions(questionsRequest);
         questions = paginatedResponse.Items;
         totalPages = paginatedResponse.TotalPages;
     }
@@ -53,7 +53,7 @@ public partial class Questions : ComponentBase
         Navigation.NavigateTo(Navigation.Uri.Split('#')[0] + "#topElement", false);
     }
 
-    private async Task ShowUpdateQuestion(Question? question)
+    private async Task ShowUpdateQuestion(QuestionDto? question)
     {
         if (modal == null || question == null || flatCategories == null) return;
 
@@ -68,7 +68,7 @@ public partial class Questions : ComponentBase
         await modal.ShowAsync<UpdateQuestion>("Update Question", parameters: parameters);
     }
 
-    private async Task ShowDeleteQuestion(Question? question)
+    private async Task ShowDeleteQuestion(QuestionDto? question)
     {
         if (modal == null || question == null) return;
 
