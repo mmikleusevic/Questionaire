@@ -1,10 +1,11 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using SharedStandard.Models;
 
-namespace SharedStandard.Models
+namespace Models
 {
     [JsonObject]
-    public class QuestionDto
+    public class Question
     {
         [JsonProperty] public List<AnswerDto> Answers;
 

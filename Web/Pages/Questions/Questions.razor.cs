@@ -1,8 +1,10 @@
 using BlazorBootstrap;
 using Microsoft.AspNetCore.Components;
 using Shared.Models;
+using SharedStandard.Models;
 using Web.Interfaces;
 using Web.Pages.Questions.QuestionModals;
+using QuestionDto = Shared.Models.QuestionDto;
 using UpdateQuestion = Web.Pages.Questions.QuestionModals.UpdateQuestion;
 
 namespace Web.Pages.Questions;

@@ -1,4 +1,5 @@
 using Shared.Models;
+using SharedStandard.Models;
 
 namespace Web.Interfaces;
 

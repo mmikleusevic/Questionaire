@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using Models;
 using Newtonsoft.Json;
 using SharedStandard.Models;
 using UnityEngine;
@@ -12,7 +13,7 @@ namespace ServiceHandlers
     public class QuestionServiceHandler
     {
         public IEnumerator GetRandomUniqueQuestions(UniqueQuestionRequestDto request,
-            Action<List<QuestionDto>, string> onComplete)
+            Action<List<Question>, string> onComplete)
         {
             string endpoint = "api/Question/random";
             string url = EnvironmentConfig.ApiBaseUrl + endpoint;
@@ -49,7 +50,7 @@ namespace ServiceHandlers
                 try
                 {
                     string jsonResponse = webRequest.downloadHandler.text;
-                    List<QuestionDto> questions = JsonConvert.DeserializeObject<List<QuestionDto>>(jsonResponse);
+                    List<Question> questions = JsonConvert.DeserializeObject<List<Question>>(jsonResponse);
                     onComplete?.Invoke(questions, string.Empty);
                 }
                 catch (Exception ex)

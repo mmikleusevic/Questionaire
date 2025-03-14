@@ -1,7 +1,7 @@
 using BlazorBootstrap;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
-using Shared.Models;
+using SharedStandard.Models;
 using Web.Interfaces;
 
 namespace Web.Pages.Categories.CategoryModals;

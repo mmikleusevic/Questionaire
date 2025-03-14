@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Models;
 using ServiceHandlers;
 using SharedStandard.Models;
 using UnityEngine;
@@ -32,7 +33,7 @@ public class GameManager : MonoBehaviour
     }
 
     public IEnumerator GetUniqueQuestions(int numberOfQuestions, List<int> categoryIds, bool isSingleAnswerMode,
-        Action<List<QuestionDto>, string> onComplete)
+        Action<List<Question>, string> onComplete)
     {
         UniqueQuestionRequestDto request = new UniqueQuestionRequestDto
         {

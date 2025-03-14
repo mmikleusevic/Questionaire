@@ -5,79 +5,48 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4ef859c7-2968-4dd1-bdb7-699153b52210" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/.idea.Shared.dir/.idea/indexLayout.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/.idea.Shared.dir/.idea/projectSettingsUpdater.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/.idea.Shared.dir/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/.idea.Shared.dir/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Api/Api.sln" beforeDir="false" afterPath="$PROJECT_DIR$/../Api/Api.sln" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../App/Assets/Scripts/Models.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../App/Assets/Scripts/Models/Question.cs.meta" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Api/Controllers/CategoryController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Api/Controllers/CategoryController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Api/Controllers/PendingQuestionController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Api/Controllers/PendingQuestionController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Api/Controllers/QuestionController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Api/Controllers/QuestionController.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Api/Interfaces/IAnswerService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Api/Interfaces/IAnswerService.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Api/Interfaces/ICategoryService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Api/Interfaces/ICategoryService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Api/Interfaces/IPendingAnswerService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Api/Interfaces/IPendingAnswerService.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Api/Interfaces/IPendingQuestionCategoriesService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Api/Interfaces/IPendingQuestionCategoriesService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Api/Interfaces/IPendingQuestionService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Api/Interfaces/IPendingQuestionService.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Api/Interfaces/IQuestionCategoriesService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Api/Interfaces/IQuestionCategoriesService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Api/Interfaces/IQuestionService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Api/Interfaces/IQuestionService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Api/Models/Database/Answer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Api/Models/Database/Category.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Api/Models/Database/PendingAnswer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Api/Models/Database/PendingQuestion.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Api/Models/Database/PendingQuestionCategory.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Api/Models/Database/Question.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Api/Models/Database/QuestionCategory.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Api/Models/Database/User.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Api/Models/Database/UserQuestionHistory.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Api/Models/Dto/AnswerDto.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/AnswerDto.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Api/Models/Dto/CategoriesDto.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/CategoriesDto.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Api/Models/Dto/CategoryDto.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/CategoryDto.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Api/Models/Dto/PaginatedResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/PaginatedResponse.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Api/Models/Dto/PendingAnswerDto.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/PendingAnswerDto.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Api/Models/Dto/PendingQuestionDto.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/PendingQuestionDto.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Api/Models/Dto/QuestionDto.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/QuestionDto.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Api/Models/Dto/QuestionsRequestDto.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/QuestionsRequestDto.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Api/Models/Dto/RoleDto.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Api/Models/Dto/UserDto.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Api/QuestionaireApi.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/../Api/QuestionaireApi.csproj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Api/Services/AnswerService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Api/Services/AnswerService.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Api/Services/CategoryService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Api/Services/CategoryService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Api/Services/PendingAnswerService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Api/Services/PendingAnswerService.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Api/Services/PendingQuestionCategoriesService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Api/Services/PendingQuestionCategoriesService.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Api/Services/PendingQuestionService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Api/Services/PendingQuestionService.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Api/Services/QuestionCategoriesService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Api/Services/QuestionCategoriesService.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Api/Services/QuestionService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Api/Services/QuestionService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../App/Assets/Plugins/SharedStandard.dll" beforeDir="false" afterPath="$PROJECT_DIR$/../App/Assets/Plugins/SharedStandard.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../App/Assets/Scripts/GameManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../App/Assets/Scripts/GameManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../App/Assets/Scripts/ServiceHandlers/QuestionServiceHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../App/Assets/Scripts/ServiceHandlers/QuestionServiceHandler.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../App/Assets/Scripts/UI/GameUIController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../App/Assets/Scripts/UI/GameUIController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Models/AnswerDto.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Models/CategoriesDto.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/CategoriesDto.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Models/CategoryDto.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Models/PendingQuestionDto.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/PendingQuestionDto.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Models/QuestionDto.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/QuestionDto.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Shared.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Shared.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../SharedStandard/Models/AnswerDto.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../SharedStandard/Models/AnswerDto.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../SharedStandard/Models/CategoryDto.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../SharedStandard/Models/CategoryDto.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../SharedStandard/Models/QuestionDto.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../App/Assets/Scripts/Models/Question.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../SharedStandard/SharedStandard.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/../SharedStandard/SharedStandard.csproj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Web/Interfaces/ICategoryService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Web/Interfaces/ICategoryService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Web/Interfaces/IPendingQuestionService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Web/Interfaces/IPendingQuestionService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Web/Interfaces/IQuestionService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Web/Interfaces/IQuestionService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Web/Models/Answer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Web/Models/Category.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Web/Models/CategoryLists.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Web/Models/PaginatedResponse.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Web/Models/PendingAnswer.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Web/Models/PendingQuestion.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Web/Models/Question.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Web/Models/QuestionsRequest.cs" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../Web/Pages/Categories/Categories.razor" beforeDir="false" afterPath="$PROJECT_DIR$/../Web/Pages/Categories/Categories.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Web/Pages/Categories/Categories.razor.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Web/Pages/Categories/Categories.razor.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Web/Pages/Categories/CategoryItem.razor.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Web/Pages/Categories/CategoryItem.razor.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Web/Pages/Categories/CategoryModals/CreateCategory.razor.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Web/Pages/Categories/CategoryModals/CreateCategory.razor.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Web/Pages/Categories/CategoryModals/DeleteCategory.razor.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Web/Pages/Categories/CategoryModals/DeleteCategory.razor.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Web/Pages/Categories/CategoryModals/UpdateCategory.razor.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Web/Pages/Categories/CategoryModals/UpdateCategory.razor.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Web/Pages/PendingQuestions/PendingQuestionModal/ApprovePendingQuestion.razor.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Web/Pages/PendingQuestions/PendingQuestionModal/ApprovePendingQuestion.razor.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Web/Pages/PendingQuestions/PendingQuestionModal/CreatePendingQuestion.razor" beforeDir="false" afterPath="$PROJECT_DIR$/../Web/Pages/PendingQuestions/PendingQuestionModal/CreatePendingQuestion.razor" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Web/Pages/PendingQuestions/PendingQuestionModal/CreatePendingQuestion.razor.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Web/Pages/PendingQuestions/PendingQuestionModal/CreatePendingQuestion.razor.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Web/Pages/PendingQuestions/PendingQuestionModal/DeletePendingQuestion.razor.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Web/Pages/PendingQuestions/PendingQuestionModal/DeletePendingQuestion.razor.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Web/Pages/PendingQuestions/PendingQuestionModal/UpdatePendingQuestion.razor" beforeDir="false" afterPath="$PROJECT_DIR$/../Web/Pages/PendingQuestions/PendingQuestionModal/UpdatePendingQuestion.razor" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Web/Pages/PendingQuestions/PendingQuestionModal/UpdatePendingQuestion.razor.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Web/Pages/PendingQuestions/PendingQuestionModal/UpdatePendingQuestion.razor.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Web/Pages/PendingQuestions/PendingQuestions.razor.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Web/Pages/PendingQuestions/PendingQuestions.razor.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Web/Pages/Questions/QuestionModals/DeleteQuestion.razor.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Web/Pages/Questions/QuestionModals/DeleteQuestion.razor.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Web/Pages/Questions/QuestionModals/UpdateQuestion.razor" beforeDir="false" afterPath="$PROJECT_DIR$/../Web/Pages/Questions/QuestionModals/UpdateQuestion.razor" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Web/Pages/Questions/QuestionModals/UpdateQuestion.razor.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Web/Pages/Questions/QuestionModals/UpdateQuestion.razor.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Web/Pages/Questions/Questions.razor.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Web/Pages/Questions/Questions.razor.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Web/Services/CategoryService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Web/Services/CategoryService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Web/Services/PendingQuestionService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Web/Services/PendingQuestionService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Web/Services/QuestionService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Web/Services/QuestionService.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Web/Web.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/../Web/Web.csproj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Web/Web.sln" beforeDir="false" afterPath="$PROJECT_DIR$/../Web/Web.sln" afterDir="false" />
     </list>
@@ -101,6 +70,9 @@
     &quot;accountId&quot;: &quot;0eccbc12-198d-4f78-aa5a-f8849c381093&quot;
   }
 }</component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/Models/CategoriesDto.cs" root0="FORCE_HIGHLIGHTING" />
+  </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 2
@@ -135,6 +107,7 @@
       <workItem from="1741877312876" duration="4322000" />
       <workItem from="1741935725480" duration="1207000" />
       <workItem from="1741941522349" duration="193000" />
+      <workItem from="1741959334127" duration="308000" />
     </task>
     <servers />
   </component>
