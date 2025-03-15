@@ -1,6 +1,6 @@
 using BlazorBootstrap;
 using Microsoft.AspNetCore.Components;
-using SharedStandard.Models;
+using Shared.Models;
 using Web.Interfaces;
 
 namespace Web.Pages.Categories.CategoryModals;
@@ -9,7 +9,7 @@ public partial class DeleteCategory : ComponentBase
 {
     [Inject] private ICategoryService? CategoryService { get; set; }
     [Parameter] public Modal? Modal { get; set; }
-    [Parameter] public CategoryDto? Category { get; set; }
+    [Parameter] public CategoryValidationDto? Category { get; set; }
     [Parameter] public EventCallback OnCategoryChanged { get; set; }
 
     private async Task HandleValidSubmit()

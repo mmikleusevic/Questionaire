@@ -4,7 +4,7 @@ namespace Web.Interfaces;
 
 public interface IQuestionService
 {
-    Task<PaginatedResponse<QuestionDto>> GetQuestions(QuestionsRequestDto questionsRequest);
-    Task UpdateQuestion(QuestionDto updatedQuestion);
+    Task<PaginatedResponse<QuestionValidationDto>> GetQuestions(QuestionsRequestDto questionsRequest);
+    Task UpdateQuestion(QuestionValidationDto updatedQuestion);
     Task DeleteQuestion(int id);
 }

@@ -23,7 +23,7 @@ namespace QuestionaireApi.IdentityApi;
 public static class IdentityApiEndpointRouteBuilderExtensions
 {
     // Validate the email address using DataAnnotations like the UserValidator does when RequireUniqueEmail = true.
-    private static readonly EmailAddressAttribute _emailAddressAttribute = new();
+    private static readonly EmailAddressAttribute _emailAddressAttribute = new EmailAddressAttribute();
 
     /// <summary>
     ///     Add endpoints for registering, logging in, and logging out using ASP.NET Core Identity.
@@ -480,7 +480,7 @@ public static class IdentityApiEndpointRouteBuilderExtensions
         UserManager<TUser> userManager)
         where TUser : class
     {
-        return new()
+        return new ExtendedInfoResponse
         {
             Email = await userManager.GetEmailAsync(user) ??
                     throw new NotSupportedException("Users must have an email."),

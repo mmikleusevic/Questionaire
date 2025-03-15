@@ -4,9 +4,11 @@ namespace Web.Interfaces;
 
 public interface IPendingQuestionService
 {
-    Task<PaginatedResponse<PendingQuestionDto>> GetPendingQuestions(QuestionsRequestDto pendingQuestionsRequest);
-    Task CreatePendingQuestion(PendingQuestionDto newPendingQuestion);
+    Task<PaginatedResponse<PendingQuestionValidationDto>> GetPendingQuestions(
+        QuestionsRequestDto pendingQuestionsRequest);
+
+    Task CreatePendingQuestion(PendingQuestionValidationDto newPendingQuestionValidation);
     Task ApprovePendingQuestion(int id);
-    Task UpdatePendingQuestion(PendingQuestionDto updatedPendingQuestion);
+    Task UpdatePendingQuestion(PendingQuestionValidationDto updatedPendingQuestionValidation);
     Task DeletePendingQuestion(int id);
 }

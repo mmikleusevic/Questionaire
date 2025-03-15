@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using QuestionaireApi.Interfaces;
-using QuestionaireApi.Models.Database;
 using Shared.Models;
 
 namespace QuestionaireApi.Controllers;
@@ -15,7 +14,7 @@ public class PendingQuestionController(
 {
     [HttpPost("paged")]
     [AllowAnonymous]
-    public async Task<ActionResult<PaginatedResponse<PendingQuestion>>> GetPendingQuestions(
+    public async Task<IActionResult> GetPendingQuestions(
         [FromBody] QuestionsRequestDto pendingQuestionsRequestDto)
     {
         try
@@ -23,7 +22,7 @@ public class PendingQuestionController(
             if (pendingQuestionsRequestDto.PageNumber < 1 || pendingQuestionsRequestDto.PageSize < 1)
                 return BadRequest("Page number and page size must be greater than 0.");
 
-            PaginatedResponse<PendingQuestionDto> response =
+            PaginatedResponse<PendingQuestionValidationDto> response =
                 await pendingQuestionService.GetPendingQuestions(pendingQuestionsRequestDto, User);
 
             if (response.Items.Count == 0) return NotFound("No pending questions found.");
@@ -40,7 +39,7 @@ public class PendingQuestionController(
 
     [HttpPost]
     [AllowAnonymous]
-    public async Task<IActionResult> CreatePendingQuestion([FromBody] PendingQuestionDto? newPendingQuestion)
+    public async Task<IActionResult> CreatePendingQuestion([FromBody] PendingQuestionValidationDto? newPendingQuestion)
     {
         try
         {
@@ -77,7 +76,7 @@ public class PendingQuestionController(
 
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdatePendingQuestion(int id,
-        [FromBody] PendingQuestionDto? updatedPendingQuestion)
+        [FromBody] PendingQuestionValidationDto? updatedPendingQuestion)
     {
         try
         {

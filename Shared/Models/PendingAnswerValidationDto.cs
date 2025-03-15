@@ -4,13 +4,13 @@ using Newtonsoft.Json;
 namespace Shared.Models;
 
 [JsonObject]
-public class PendingAnswerDto
+public class PendingAnswerValidationDto
 {
-    public PendingAnswerDto()
+    public PendingAnswerValidationDto()
     {
     }
 
-    public PendingAnswerDto(int id)
+    public PendingAnswerValidationDto(int id)
     {
         Id = id;
     }

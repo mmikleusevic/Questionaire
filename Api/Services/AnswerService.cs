@@ -1,6 +1,6 @@
 using QuestionaireApi.Interfaces;
 using QuestionaireApi.Models.Database;
-using SharedStandard.Models;
+using Shared.Models;
 
 namespace QuestionaireApi.Services;
 
@@ -25,7 +25,8 @@ public class AnswerService(QuestionaireDbContext context) : IAnswerService
         }
     }
 
-    public Task UpdateQuestionAnswers(int questionId, ICollection<Answer> answers, List<AnswerDto> updatedAnswers)
+    public Task UpdateQuestionAnswers(int questionId, ICollection<Answer> answers,
+        List<AnswerValidationDto> updatedAnswers)
     {
         try
         {
@@ -38,7 +39,7 @@ public class AnswerService(QuestionaireDbContext context) : IAnswerService
                 answers.Remove(answer);
             }
 
-            foreach (AnswerDto updatedAnswer in updatedAnswers)
+            foreach (AnswerValidationDto updatedAnswer in updatedAnswers)
             {
                 Answer? existingAnswer = answers.Where(a => a.Id != 0)
                     .FirstOrDefault(pa => pa.Id == updatedAnswer.Id);

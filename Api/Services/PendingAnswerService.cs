@@ -6,7 +6,8 @@ namespace QuestionaireApi.Services;
 
 public class PendingAnswerService(QuestionaireDbContext context) : IPendingAnswerService
 {
-    public async Task CreatePendingQuestionAnswers(int pendingQuestionId, List<PendingAnswerDto> pendingAnswers)
+    public async Task CreatePendingQuestionAnswers(int pendingQuestionId,
+        List<PendingAnswerValidationDto> pendingAnswers)
     {
         try
         {
@@ -26,7 +27,7 @@ public class PendingAnswerService(QuestionaireDbContext context) : IPendingAnswe
     }
 
     public Task UpdatePendingQuestionAnswers(int pendingQuestionId, ICollection<PendingAnswer> pendingAnswers,
-        List<PendingAnswerDto> updatedPendingAnswers)
+        List<PendingAnswerValidationDto> updatedPendingAnswers)
     {
         try
         {
@@ -39,7 +40,7 @@ public class PendingAnswerService(QuestionaireDbContext context) : IPendingAnswe
                 pendingAnswers.Remove(pendingAnswer);
             }
 
-            foreach (PendingAnswerDto updatedPendingAnswer in updatedPendingAnswers)
+            foreach (PendingAnswerValidationDto updatedPendingAnswer in updatedPendingAnswers)
             {
                 PendingAnswer? existingAnswer = pendingAnswers.Where(a => a.Id != 0)
                     .FirstOrDefault(pa => pa.Id == updatedPendingAnswer.Id);

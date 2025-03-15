@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using QuestionaireApi.Interfaces;
 using Shared.Models;
-using SharedStandard.Models;
 
 namespace QuestionaireApi.Controllers;
 
@@ -15,7 +14,7 @@ public class CategoryController(
 {
     [HttpGet]
     [AllowAnonymous]
-    public async Task<ActionResult<List<CategoryDto>>> GetCategories()
+    public async Task<IActionResult> GetCategories()
     {
         try
         {
@@ -35,11 +34,11 @@ public class CategoryController(
 
     [HttpGet("nested")]
     [AllowAnonymous]
-    public async Task<ActionResult<List<CategoryDto>>> GetNestedCategories()
+    public async Task<IActionResult> GetNestedCategories()
     {
         try
         {
-            List<CategoryDto> categories = await categoryService.GetNestedCategories();
+            List<CategoryValidationDto> categories = await categoryService.GetNestedCategories();
             if (categories.Count == 0) return NotFound("No categories found.");
             return Ok(categories);
         }
@@ -53,11 +52,11 @@ public class CategoryController(
 
     [HttpGet("flat")]
     [AllowAnonymous]
-    public async Task<ActionResult<List<CategoryDto>>> GetFlatCategories()
+    public async Task<IActionResult> GetFlatCategories()
     {
         try
         {
-            List<CategoryDto> categories = await categoryService.GetFlatCategories();
+            List<CategoryValidationDto> categories = await categoryService.GetFlatCategories();
             if (categories.Count == 0) return NotFound("No categories found.");
             return Ok(categories);
         }
@@ -71,7 +70,7 @@ public class CategoryController(
 
     [HttpPost]
     [Authorize(Roles = "Admin, SuperAdmin")]
-    public async Task<IActionResult> CreateCategory([FromBody] CategoryDto? newCategory)
+    public async Task<IActionResult> CreateCategory([FromBody] CategoryValidationDto? newCategory)
     {
         try
         {
@@ -90,7 +89,7 @@ public class CategoryController(
 
     [HttpPut("{id:int}")]
     [Authorize(Roles = "Admin, SuperAdmin")]
-    public async Task<IActionResult> UpdateCategory(int id, [FromBody] CategoryDto? updatedCategory)
+    public async Task<IActionResult> UpdateCategory(int id, [FromBody] CategoryValidationDto? updatedCategory)
     {
         try
         {

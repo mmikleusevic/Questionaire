@@ -1,18 +1,18 @@
 using BlazorBootstrap;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
-using SharedStandard.Models;
+using Shared.Models;
 using Web.Interfaces;
 
 namespace Web.Pages.Categories.CategoryModals;
 
 public partial class CreateCategory : ComponentBase
 {
-    private readonly CategoryDto category = new CategoryDto();
+    private readonly CategoryValidationDto category = new CategoryValidationDto();
     private EditContext? editContext;
-    private CategoryDto? selectedParentCategory;
+    private CategoryValidationDto? selectedParentCategory;
     [Inject] private ICategoryService? CategoryService { get; set; }
-    [Parameter] public List<CategoryDto>? FlatCategories { get; set; }
+    [Parameter] public List<CategoryValidationDto>? FlatCategories { get; set; }
     [Parameter] public Modal? Modal { get; set; }
     [Parameter] public EventCallback OnCategoryChanged { get; set; }
 
@@ -26,7 +26,7 @@ public partial class CreateCategory : ComponentBase
         await base.OnParametersSetAsync();
     }
 
-    private void SelectParentCategory(CategoryDto? selectedCategory)
+    private void SelectParentCategory(CategoryValidationDto? selectedCategory)
     {
         selectedParentCategory = selectedCategory;
 

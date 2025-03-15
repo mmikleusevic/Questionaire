@@ -1,12 +1,12 @@
 using QuestionaireApi.Models.Database;
-using SharedStandard.Models;
+using Shared.Models;
 
 namespace QuestionaireApi.Interfaces;
 
 public interface IPendingQuestionCategoriesService
 {
-    Task CreatePendingQuestionCategories(int pendingQuestionId, List<CategoryDto> categories);
+    Task CreatePendingQuestionCategories(int pendingQuestionId, List<CategoryValidationDto> categories);
 
     Task UpdatePendingQuestionCategories(int pendingQuestionId,
-        ICollection<PendingQuestionCategory> pendingQuestionCategories, List<CategoryDto> categories);
+        ICollection<PendingQuestionCategory> pendingQuestionCategories, List<CategoryValidationDto> categories);
 }

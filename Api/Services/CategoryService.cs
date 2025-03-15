@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using QuestionaireApi.Interfaces;
 using QuestionaireApi.Models.Database;
 using Shared.Models;
-using SharedStandard.Models;
 
 namespace QuestionaireApi.Services;
 
@@ -25,7 +24,7 @@ public class CategoryService(QuestionaireDbContext context) : ICategoryService
         }
     }
 
-    public async Task<List<CategoryDto>> GetNestedCategories()
+    public async Task<List<CategoryValidationDto>> GetNestedCategories()
     {
         try
         {
@@ -43,13 +42,13 @@ public class CategoryService(QuestionaireDbContext context) : ICategoryService
         }
     }
 
-    public async Task<List<CategoryDto>> GetFlatCategories()
+    public async Task<List<CategoryValidationDto>> GetFlatCategories()
     {
         try
         {
-            List<CategoryDto> categories = await context.Categories
+            List<CategoryValidationDto> categories = await context.Categories
                 .OrderBy(c => c.CategoryName)
-                .Select(category => new CategoryDto(category.Id)
+                .Select(category => new CategoryValidationDto(category.Id)
                 {
                     CategoryName = category.CategoryName,
                     ParentCategoryId = category.ParentCategoryId
@@ -64,7 +63,7 @@ public class CategoryService(QuestionaireDbContext context) : ICategoryService
         }
     }
 
-    public async Task CreateCategory(CategoryDto category)
+    public async Task CreateCategory(CategoryValidationDto category)
     {
         try
         {
@@ -82,7 +81,7 @@ public class CategoryService(QuestionaireDbContext context) : ICategoryService
         }
     }
 
-    public async Task<bool> UpdateCategory(int id, CategoryDto updatedCategory)
+    public async Task<bool> UpdateCategory(int id, CategoryValidationDto updatedCategory)
     {
         try
         {
@@ -121,7 +120,7 @@ public class CategoryService(QuestionaireDbContext context) : ICategoryService
         }
     }
 
-    private List<CategoryDto> SortAndMapCategories(IEnumerable<Category> categories)
+    private List<CategoryValidationDto> SortAndMapCategories(IEnumerable<Category> categories)
     {
         try
         {
@@ -136,11 +135,11 @@ public class CategoryService(QuestionaireDbContext context) : ICategoryService
         }
     }
 
-    private static CategoryDto MapCategoriesToDto(Category category)
+    private static CategoryValidationDto MapCategoriesToDto(Category category)
     {
         try
         {
-            return new CategoryDto(category.Id)
+            return new CategoryValidationDto(category.Id)
             {
                 CategoryName = category.CategoryName,
                 ParentCategoryId = category.ParentCategoryId,

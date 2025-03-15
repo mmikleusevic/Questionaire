@@ -1,10 +1,10 @@
 using QuestionaireApi.Models.Database;
-using SharedStandard.Models;
+using Shared.Models;
 
 namespace QuestionaireApi.Interfaces;
 
 public interface IAnswerService
 {
     Task CreateQuestionAnswers(int questionId, ICollection<PendingAnswer> pendingAnswers);
-    Task UpdateQuestionAnswers(int questionId, ICollection<Answer> answers, List<AnswerDto> updatedAnswers);
+    Task UpdateQuestionAnswers(int questionId, ICollection<Answer> answers, List<AnswerValidationDto> updatedAnswers);
 }

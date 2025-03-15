@@ -11,7 +11,7 @@ public class QuestionService(
     ILogger<QuestionService> logger,
     ToastService toastService) : IQuestionService
 {
-    public async Task<PaginatedResponse<QuestionDto>> GetQuestions(QuestionsRequestDto questionsRequest)
+    public async Task<PaginatedResponse<QuestionValidationDto>> GetQuestions(QuestionsRequestDto questionsRequest)
     {
         try
         {
@@ -24,10 +24,10 @@ public class QuestionService(
             if (response.IsSuccessStatusCode)
             {
                 string? responseData = await response.Content.ReadAsStringAsync();
-                PaginatedResponse<QuestionDto>? paginatedResponse =
-                    JsonConvert.DeserializeObject<PaginatedResponse<QuestionDto>>(responseData);
+                PaginatedResponse<QuestionValidationDto>? paginatedResponse =
+                    JsonConvert.DeserializeObject<PaginatedResponse<QuestionValidationDto>>(responseData);
 
-                return paginatedResponse ?? new PaginatedResponse<QuestionDto>();
+                return paginatedResponse ?? new PaginatedResponse<QuestionValidationDto>();
             }
 
             string? responseResult = await response.Content.ReadAsStringAsync();
@@ -38,10 +38,10 @@ public class QuestionService(
             ApiResponseHandler.HandleException(ex, toastService, "fetching questions", logger);
         }
 
-        return new PaginatedResponse<QuestionDto>();
+        return new PaginatedResponse<QuestionValidationDto>();
     }
 
-    public async Task UpdateQuestion(QuestionDto updatedQuestion)
+    public async Task UpdateQuestion(QuestionValidationDto updatedQuestion)
     {
         try
         {

@@ -1,12 +1,12 @@
 using QuestionaireApi.Interfaces;
 using QuestionaireApi.Models.Database;
-using SharedStandard.Models;
+using Shared.Models;
 
 namespace QuestionaireApi.Services;
 
 public class PendingQuestionCategoriesService(QuestionaireDbContext context) : IPendingQuestionCategoriesService
 {
-    public async Task CreatePendingQuestionCategories(int pendingQuestionId, List<CategoryDto> categories)
+    public async Task CreatePendingQuestionCategories(int pendingQuestionId, List<CategoryValidationDto> categories)
     {
         try
         {
@@ -26,7 +26,7 @@ public class PendingQuestionCategoriesService(QuestionaireDbContext context) : I
     }
 
     public Task UpdatePendingQuestionCategories(int pendingQuestionId,
-        ICollection<PendingQuestionCategory> pendingQuestionCategories, List<CategoryDto> categories)
+        ICollection<PendingQuestionCategory> pendingQuestionCategories, List<CategoryValidationDto> categories)
     {
         try
         {
@@ -39,7 +39,7 @@ public class PendingQuestionCategoriesService(QuestionaireDbContext context) : I
                 pendingQuestionCategories.Remove(pendingQuestionCategory);
             }
 
-            foreach (CategoryDto updatedCategory in categories)
+            foreach (CategoryValidationDto updatedCategory in categories)
             {
                 PendingQuestionCategory? existingQuestionCategory = pendingQuestionCategories
                     .FirstOrDefault(pa => pa.CategoryId == updatedCategory.Id);

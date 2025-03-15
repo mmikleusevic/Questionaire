@@ -1,4 +1,4 @@
-@using SharedStandard.Models
+@using Shared.Models
 <EditForm OnValidSubmit="HandleValidSubmit" EditContext="editContext">
     <ObjectGraphDataAnnotationsValidator/>
     <ValidationSummary class="alert alert-danger"/>
@@ -17,18 +17,19 @@
         <div class="col-md-12">
             <label class="col-md-3 col-form-label">Pending Question Text:<span class="text-danger">*</span></label>
             <div class="col-lg-12">
-                <TextAreaInput @bind-Value="@updatedPendingQuestion.QuestionText"
+                <TextAreaInput @bind-Value="@updatedPendingQuestionValidation.QuestionText"
                                TextAlignment="Alignment.Start"
                                Placeholder="Enter pending question text here"
                                MaxLength="500"
                                Rows="3"/>
-                <ValidationMessage For="@(() => updatedPendingQuestion.QuestionText)" class="alert alert-danger"/>
+                <ValidationMessage For="@(() => updatedPendingQuestionValidation.QuestionText)"
+                                   class="alert alert-danger"/>
             </div>
         </div>
         <div class="col-md-12">
             <label class="col-form-label">Pending Answers:<span class="text-danger">*</span></label>
             <div class="row">
-                @foreach (var answer in updatedPendingQuestion.PendingAnswers)
+                @foreach (var answer in updatedPendingQuestionValidation.PendingAnswers)
                 {
                     <div class="col-md-10">
                         <div class="input-group">
@@ -68,7 +69,8 @@
                                 @(selectedCategory?.CategoryName ?? "None")
                             </DropdownToggleButton>
                             <DropdownMenu>
-                                <DropdownItem @onclick="() => SelectCategory(selectedCategory, new CategoryDto())">
+                                <DropdownItem
+                                    @onclick="() => SelectCategory(selectedCategory, new CategoryValidationDto())">
                                     None
                                 </DropdownItem>
                                 @foreach (var freeCategory in FlatCategories

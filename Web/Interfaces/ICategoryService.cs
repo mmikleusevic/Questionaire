@@ -1,14 +1,13 @@
 using Shared.Models;
-using SharedStandard.Models;
 
 namespace Web.Interfaces;
 
 public interface ICategoryService
 {
     Task<CategoriesDto> GetCategories(bool forceRefresh = false);
-    Task<List<CategoryDto>> GetNestedCategories();
-    Task<List<CategoryDto>> GetFlatCategories();
-    Task CreateCategory(CategoryDto newCategory);
-    Task UpdateCategory(CategoryDto updatedCategory);
+    Task<List<CategoryValidationDto>> GetNestedCategories();
+    Task<List<CategoryValidationDto>> GetFlatCategories();
+    Task CreateCategory(CategoryValidationDto newCategory);
+    Task UpdateCategory(CategoryValidationDto updatedCategory);
     Task DeleteCategory(int id);
 }

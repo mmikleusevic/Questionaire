@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore.Storage;
 using QuestionaireApi.Interfaces;
 using QuestionaireApi.Models.Database;
 using Shared.Models;
-using SharedStandard.Models;
 
 namespace QuestionaireApi.Services;
 
@@ -17,7 +16,7 @@ public class PendingQuestionService(
     IQuestionCategoriesService questionCategoriesService,
     UserManager<User> userManager) : IPendingQuestionService
 {
-    public async Task<PaginatedResponse<PendingQuestionDto>> GetPendingQuestions(
+    public async Task<PaginatedResponse<PendingQuestionValidationDto>> GetPendingQuestions(
         QuestionsRequestDto pendingQuestionsRequestDto,
         ClaimsPrincipal user)
     {
@@ -26,7 +25,8 @@ public class PendingQuestionService(
             User? userDb = await userManager.GetUserAsync(user);
 
             if (userDb == null)
-                return new PaginatedResponse<PendingQuestionDto> { Items = new List<PendingQuestionDto>() };
+                return new PaginatedResponse<PendingQuestionValidationDto>
+                    { Items = new List<PendingQuestionValidationDto>() };
 
             IList<string> roles = await userManager.GetRolesAsync(userDb);
 
@@ -48,26 +48,27 @@ public class PendingQuestionService(
 
             int totalQuestions = await query.CountAsync();
 
-            PaginatedResponse<PendingQuestionDto> response = new PaginatedResponse<PendingQuestionDto>
-            {
-                Items = questions.Select(q => new PendingQuestionDto
+            PaginatedResponse<PendingQuestionValidationDto> response =
+                new PaginatedResponse<PendingQuestionValidationDto>
                 {
-                    Id = q.Id,
-                    QuestionText = q.QuestionText,
-                    PendingAnswers = q.PendingAnswers.Select(a => new PendingAnswerDto(a.Id)
+                    Items = questions.Select(q => new PendingQuestionValidationDto
                     {
-                        AnswerText = a.AnswerText,
-                        IsCorrect = a.IsCorrect
+                        Id = q.Id,
+                        QuestionText = q.QuestionText,
+                        PendingAnswers = q.PendingAnswers.Select(a => new PendingAnswerValidationDto(a.Id)
+                        {
+                            AnswerText = a.AnswerText,
+                            IsCorrect = a.IsCorrect
+                        }).ToList(),
+                        Categories = q.PendingQuestionCategories.Select(qc => new CategoryValidationDto(qc.Category.Id)
+                        {
+                            CategoryName = qc.Category.CategoryName
+                        }).ToList()
                     }).ToList(),
-                    Categories = q.PendingQuestionCategories.Select(qc => new CategoryDto(qc.Category.Id)
-                    {
-                        CategoryName = qc.Category.CategoryName
-                    }).ToList()
-                }).ToList(),
-                TotalCount = totalQuestions,
-                PageSize = pendingQuestionsRequestDto.PageSize,
-                TotalPages = (int)Math.Ceiling((double)totalQuestions / pendingQuestionsRequestDto.PageSize)
-            };
+                    TotalCount = totalQuestions,
+                    PageSize = pendingQuestionsRequestDto.PageSize,
+                    TotalPages = (int)Math.Ceiling((double)totalQuestions / pendingQuestionsRequestDto.PageSize)
+                };
 
             return response;
         }
@@ -77,7 +78,7 @@ public class PendingQuestionService(
         }
     }
 
-    public async Task CreatePendingQuestion(PendingQuestionDto pendingQuestion, ClaimsPrincipal user)
+    public async Task CreatePendingQuestion(PendingQuestionValidationDto pendingQuestion, ClaimsPrincipal user)
     {
         await using IDbContextTransaction? transaction = await context.Database.BeginTransactionAsync();
 
@@ -180,7 +181,7 @@ public class PendingQuestionService(
         }
     }
 
-    public async Task<bool> UpdatePendingQuestion(int id, PendingQuestionDto updatedPendingQuestion,
+    public async Task<bool> UpdatePendingQuestion(int id, PendingQuestionValidationDto updatedPendingQuestion,
         ClaimsPrincipal user)
     {
         await using IDbContextTransaction? transaction = await context.Database.BeginTransactionAsync();

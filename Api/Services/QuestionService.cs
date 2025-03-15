@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.Storage;
 using QuestionaireApi.Interfaces;
 using QuestionaireApi.Models.Database;
 using Shared.Models;
-using SharedStandard.Models;
-using QuestionDto = Shared.Models.QuestionDto;
 using UniqueQuestionsRequestDto = SharedStandard.Models.UniqueQuestionRequestDto;
 
 namespace QuestionaireApi.Services;
@@ -18,7 +16,7 @@ public class QuestionService(
     IQuestionCategoriesService questionCategoriesService,
     UserManager<User> userManager) : IQuestionService
 {
-    public async Task<PaginatedResponse<QuestionDto>> GetQuestions(QuestionsRequestDto questionsRequestDto,
+    public async Task<PaginatedResponse<QuestionValidationDto>> GetQuestions(QuestionsRequestDto questionsRequestDto,
         ClaimsPrincipal user)
     {
         try
@@ -26,7 +24,7 @@ public class QuestionService(
             User? userDb = await userManager.GetUserAsync(user);
 
             if (userDb == null)
-                return new PaginatedResponse<QuestionDto> { Items = new List<QuestionDto>() };
+                return new PaginatedResponse<QuestionValidationDto> { Items = new List<QuestionValidationDto>() };
 
             IQueryable<Question> query = context.Questions
                 .Include(a => a.Answers)
@@ -46,17 +44,17 @@ public class QuestionService(
 
             int totalQuestions = await query.CountAsync();
 
-            PaginatedResponse<QuestionDto> response = new PaginatedResponse<QuestionDto>
+            PaginatedResponse<QuestionValidationDto> response = new PaginatedResponse<QuestionValidationDto>
             {
-                Items = questions.Select(q => new QuestionDto(q.Id)
+                Items = questions.Select(q => new QuestionValidationDto(q.Id)
                 {
                     QuestionText = q.QuestionText,
-                    Answers = q.Answers.Select(a => new AnswerDto(a.Id)
+                    Answers = q.Answers.Select(a => new AnswerValidationDto(a.Id)
                     {
                         AnswerText = a.AnswerText,
                         IsCorrect = a.IsCorrect
                     }).ToList(),
-                    Categories = q.QuestionCategories.Select(qc => new CategoryDto(qc.Category.Id)
+                    Categories = q.QuestionCategories.Select(qc => new CategoryValidationDto(qc.Category.Id)
                     {
                         CategoryName = qc.Category.CategoryName
                     }).ToList()
@@ -74,7 +72,7 @@ public class QuestionService(
         }
     }
 
-    public async Task<List<QuestionDto>> GetRandomUniqueQuestions(UniqueQuestionsRequestDto requestDto)
+    public async Task<List<QuestionValidationDto>> GetRandomUniqueQuestions(UniqueQuestionsRequestDto requestDto)
     {
         try
         {
@@ -110,7 +108,7 @@ public class QuestionService(
         }
     }
 
-    public async Task<bool> UpdateQuestion(int id, QuestionDto updatedQuestion, ClaimsPrincipal user)
+    public async Task<bool> UpdateQuestion(int id, QuestionValidationDto updatedQuestion, ClaimsPrincipal user)
     {
         await using IDbContextTransaction? transaction = await context.Database.BeginTransactionAsync();
 
@@ -202,21 +200,21 @@ public class QuestionService(
         }
     }
 
-    private List<QuestionDto> MapQuestionsToDtos(List<Question> questions, bool isSingleAnswerMode)
+    private List<QuestionValidationDto> MapQuestionsToDtos(List<Question> questions, bool isSingleAnswerMode)
     {
         try
         {
             Random random = new Random();
 
             return questions
-                .Select(q => new QuestionDto(q.Id)
+                .Select(q => new QuestionValidationDto(q.Id)
                 {
                     QuestionText = q.QuestionText,
                     Answers = q.Answers
                         .OrderBy(a => a.IsCorrect ? 0 : 1)
                         .Take(isSingleAnswerMode ? 1 : 3)
                         .OrderBy(a => random.Next())
-                        .Select(a => new AnswerDto(a.Id)
+                        .Select(a => new AnswerValidationDto(a.Id)
                         {
                             AnswerText = a.AnswerText,
                             IsCorrect = a.IsCorrect

@@ -1,6 +1,6 @@
 using QuestionaireApi.Interfaces;
 using QuestionaireApi.Models.Database;
-using SharedStandard.Models;
+using Shared.Models;
 
 namespace QuestionaireApi.Services;
 
@@ -26,7 +26,7 @@ public class QuestionCategoriesService(QuestionaireDbContext context) : IQuestio
     }
 
     public Task UpdateQuestionCategories(int questionId, ICollection<QuestionCategory> questionCategories,
-        List<CategoryDto> categories)
+        List<CategoryValidationDto> categories)
     {
         try
         {
@@ -39,7 +39,7 @@ public class QuestionCategoriesService(QuestionaireDbContext context) : IQuestio
                 questionCategories.Remove(questionCategory);
             }
 
-            foreach (CategoryDto updatedCategory in categories)
+            foreach (CategoryValidationDto updatedCategory in categories)
             {
                 QuestionCategory? existingQuestionCategory = questionCategories
                     .FirstOrDefault(pa => pa.CategoryId == updatedCategory.Id);

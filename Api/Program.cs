@@ -54,6 +54,8 @@ builder.Services.AddScoped<IPendingQuestionService, PendingQuestionService>();
 builder.Services.AddScoped<IQuestionCategoriesService, QuestionCategoriesService>();
 builder.Services.AddScoped<IPendingAnswerService, PendingAnswerService>();
 builder.Services.AddScoped<IPendingQuestionCategoriesService, PendingQuestionCategoriesService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IRoleService, RoleService>();
 
 string applicationUrl = Environment.GetEnvironmentVariable("API_URL");
 string webUrl = Environment.GetEnvironmentVariable("WEB_URL");

@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Models;
 using SharedStandard.Models;
 using UnityEngine.UIElements;
 
@@ -21,7 +20,7 @@ namespace UI
         private bool isSingleAnswerMode;
         private Button nextButton;
         private Button previousButton;
-        private List<Question> questions;
+        private List<QuestionDto> questions;
         private Label questionText;
 
         private void Start()
@@ -36,7 +35,7 @@ namespace UI
             previousButton = root.Q<Button>("previousButton");
             nextButton = root.Q<Button>("nextButton");
 
-            questions = new List<Question>();
+            questions = new List<QuestionDto>();
             currentCategoryIds = new List<int>();
             answerTexts = new[] { answer1Text, answer2Text, answer3Text };
 
@@ -130,7 +129,7 @@ namespace UI
         {
             if (questions == null || questions.Count == 0) return;
 
-            Question question = questions[currentQuestionIndex];
+            QuestionDto question = questions[currentQuestionIndex];
             question.isRead = true;
             questionText.text = question.QuestionText;
 

@@ -1,5 +1,5 @@
 @page "/categories"
-@using SharedStandard.Models
+@using Shared.Models
 @attribute [Authorize(Roles = "Admin, SuperAdmin")]
 
 <Modal @ref="modal" UseStaticBackdrop="true" CloseOnEscape="true" IsVerticallyCentered="true" Size="ModalSize.Large"/>
@@ -33,7 +33,7 @@ else if (categories?.NestedCategories?.Count == 0)
 else if (categories != null && categories.NestedCategories != null)
 {
     <ul class="category-list">
-        @foreach (CategoryDto category in categories.NestedCategories)
+        @foreach (CategoryValidationDto category in categories.NestedCategories)
         {
             <CategoryItem Category="category"
                           Modal="modal"
