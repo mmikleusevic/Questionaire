@@ -47,7 +47,8 @@ public partial class UpdatePendingQuestion : ComponentBase
             Categories = PendingQuestion.Categories.Select(c => new CategoryValidationDto(c.Id)
             {
                 CategoryName = c.CategoryName,
-                ParentCategoryId = c.ParentCategoryId
+                ParentCategoryId = c.ParentCategoryId,
+                ParentCategoryName = c.ParentCategoryName
             }).ToList()
         };
 

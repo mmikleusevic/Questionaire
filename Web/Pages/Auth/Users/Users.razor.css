@@ -1,0 +1,101 @@
+.header {
+    gap: 10px;
+    padding-left: 10px;
+}
+
+.header-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.header-text {
+    display: flex;
+    align-items: center;
+}
+
+.header-text h3 {
+    margin-bottom: 0;
+}
+
+.user-email-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 6;
+    font-weight: bold;
+}
+
+.roles-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 2;
+    font-weight: bold;
+}
+
+.actions-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 2;
+    font-weight: bold;
+}
+
+.user-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    overflow: auto;
+}
+
+.user-list li {
+    padding: 10px;
+}
+
+.user-item {
+    display: contents;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: #fff;
+    font-size: 14px;
+    border-bottom: 1px solid #ddd;
+    border-top: 1px solid #ddd;
+}
+
+.user-content {
+    padding: 10px;
+    border: 1px solid #ddd;
+    display: flex;
+    gap: 10px;
+}
+
+.user-content:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.user-email {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 6;
+}
+
+.user-roles {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    flex: 2;
+}
+
+.actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 2;
+}

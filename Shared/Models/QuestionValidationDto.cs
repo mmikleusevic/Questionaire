@@ -1,8 +1,10 @@
 using System.ComponentModel.DataAnnotations;
+using Newtonsoft.Json;
 using SharedStandard.Models;
 
 namespace Shared.Models;
 
+[JsonObject]
 public class QuestionValidationDto : QuestionDto
 {
     public QuestionValidationDto()
@@ -13,11 +15,16 @@ public class QuestionValidationDto : QuestionDto
     {
     }
 
+    [JsonProperty]
     [Required(ErrorMessage = "Question Text is required")]
     [StringLength(500, ErrorMessage = "Question Text must be between 1 and 500 characters", MinimumLength = 1)]
     public new string QuestionText { get; set; }
 
-    [ValidateComplexType] public new List<AnswerValidationDto> Answers { get; set; } = new List<AnswerValidationDto>();
+    [ValidateComplexType]
+    [JsonProperty]
+    public new List<AnswerValidationDto> Answers { get; set; } = new List<AnswerValidationDto>();
 
-    [ValidateComplexType] public new List<CategoryValidationDto> Categories { get; set; } = new List<CategoryValidationDto>();
+    [ValidateComplexType]
+    [JsonProperty]
+    public new List<CategoryValidationDto> Categories { get; set; } = new List<CategoryValidationDto>();
 }

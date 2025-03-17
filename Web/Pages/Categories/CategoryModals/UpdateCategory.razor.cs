@@ -51,6 +51,7 @@ public partial class UpdateCategory : ComponentBase
         else
         {
             updatedCategory.ParentCategoryId = selectedCategory.Id;
+            updatedCategory.ParentCategoryName = selectedCategory.ParentCategoryName;
         }
     }
 

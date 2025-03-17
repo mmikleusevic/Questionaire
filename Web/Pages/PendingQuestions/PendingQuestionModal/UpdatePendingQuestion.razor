@@ -66,7 +66,18 @@
                     <div>
                         <Dropdown Color="DropdownColor.Secondary">
                             <DropdownToggleButton>
-                                @(selectedCategory?.CategoryName ?? "None")
+                                @if (string.IsNullOrEmpty(selectedCategory?.ParentCategoryName) && !string.IsNullOrEmpty(selectedCategory?.CategoryName))
+                                {
+                                    @selectedCategory?.CategoryName
+                                }
+                                else if (!string.IsNullOrEmpty(selectedCategory?.ParentCategoryName))
+                                {
+                                    @(selectedCategory.ParentCategoryName + " > " + selectedCategory.CategoryName)
+                                }
+                                else
+                                {
+                                    @("None")
+                                }
                             </DropdownToggleButton>
                             <DropdownMenu>
                                 <DropdownItem
@@ -78,7 +89,7 @@
                                                       .Select(b => b.Id).Contains(a.Id)))
                                 {
                                     <DropdownItem @onclick="() => SelectCategory(selectedCategory, freeCategory)">
-                                        @freeCategory.CategoryName
+                                        @(!string.IsNullOrEmpty(freeCategory.ParentCategoryName) ? freeCategory.ParentCategoryName + " > " + freeCategory.CategoryName : freeCategory.CategoryName)
                                     </DropdownItem>
                                 }
                             </DropdownMenu>

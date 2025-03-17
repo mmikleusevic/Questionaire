@@ -34,6 +34,7 @@ public class PendingQuestionService(
                 .Include(a => a.PendingAnswers)
                 .Include(a => a.PendingQuestionCategories)
                 .ThenInclude(c => c.Category)
+                .ThenInclude(pc => pc.ParentCategory)
                 .OrderBy(q => q.Id);
 
             if ((roles.Contains("User") && !roles.Contains("Admin")) || pendingQuestionsRequestDto.OnlyMyQuestions)
@@ -62,7 +63,10 @@ public class PendingQuestionService(
                         }).ToList(),
                         Categories = q.PendingQuestionCategories.Select(qc => new CategoryValidationDto(qc.Category.Id)
                         {
-                            CategoryName = qc.Category.CategoryName
+                            CategoryName = qc.Category.CategoryName,
+                            ParentCategoryName = qc.Category.ParentCategory != null
+                                ? qc.Category.ParentCategory.CategoryName
+                                : string.Empty
                         }).ToList()
                     }).ToList(),
                     TotalCount = totalQuestions,

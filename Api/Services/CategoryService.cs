@@ -46,16 +46,27 @@ public class CategoryService(QuestionaireDbContext context) : ICategoryService
     {
         try
         {
-            List<CategoryValidationDto> categories = await context.Categories
-                .OrderBy(c => c.CategoryName)
+            List<CategoryValidationDto> allCategories = await context.Categories
+                .Include(c => c.ParentCategory)
                 .Select(category => new CategoryValidationDto(category.Id)
                 {
                     CategoryName = category.CategoryName,
-                    ParentCategoryId = category.ParentCategoryId
+                    ParentCategoryId = category.ParentCategoryId,
+                    ParentCategoryName = category.ParentCategory != null
+                        ? category.ParentCategory.CategoryName
+                        : string.Empty
                 })
                 .ToListAsync();
 
-            return categories;
+            Dictionary<int, List<CategoryValidationDto>> categoryChildrenDict = allCategories
+                .GroupBy(c => c.ParentCategoryId ?? -1)
+                .ToDictionary(g => g.Key, g => g.OrderBy(c => c.CategoryName).ToList());
+
+            List<CategoryValidationDto> result = new List<CategoryValidationDto>();
+
+            AddDescendantsInOrder(-1, categoryChildrenDict, result);
+
+            return result;
         }
         catch (Exception ex)
         {
@@ -151,6 +162,26 @@ public class CategoryService(QuestionaireDbContext context) : ICategoryService
         catch (Exception ex)
         {
             throw new InvalidOperationException("An error occurred while mapping categories.", ex);
+        }
+    }
+
+    private void AddDescendantsInOrder(int parentId, Dictionary<int, List<CategoryValidationDto>> categoryChildrenDict,
+        List<CategoryValidationDto> result)
+    {
+        try
+        {
+            if (categoryChildrenDict.TryGetValue(parentId, out List<CategoryValidationDto>? children))
+            {
+                foreach (CategoryValidationDto child in children)
+                {
+                    result.Add(child);
+                    AddDescendantsInOrder(child.Id, categoryChildrenDict, result);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException("An error occurred while adding sub categories.", ex);
         }
     }
 }

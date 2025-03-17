@@ -15,7 +15,18 @@
         <div class="col-md-10">
             <Dropdown Color="DropdownColor.Secondary" Direction="DropdownDirection.Dropdown">
                 <DropdownToggleButton>
-                    @(selectedParentCategory?.CategoryName ?? "None")
+                    @if (string.IsNullOrEmpty(selectedParentCategory?.ParentCategoryName) && !string.IsNullOrEmpty(selectedParentCategory?.CategoryName))
+                    {
+                        @selectedParentCategory?.CategoryName
+                    }
+                    else if (!string.IsNullOrEmpty(selectedParentCategory?.ParentCategoryName))
+                    {
+                        @(selectedParentCategory.ParentCategoryName + " > " + selectedParentCategory.CategoryName)
+                    }
+                    else
+                    {
+                        @("None")
+                    }
                 </DropdownToggleButton>
                 <DropdownMenu>
                     <DropdownItem @onclick="() => SelectParentCategory(null)">
@@ -24,7 +35,7 @@
                     @foreach (var freeCategory in FlatCategories)
                     {
                         <DropdownItem @onclick="() => SelectParentCategory(freeCategory)">
-                            @freeCategory.CategoryName
+                            @(!string.IsNullOrEmpty(freeCategory.ParentCategoryName) ? freeCategory.ParentCategoryName + " > " + freeCategory.CategoryName : freeCategory.CategoryName)
                         </DropdownItem>
                     }
                 </DropdownMenu>

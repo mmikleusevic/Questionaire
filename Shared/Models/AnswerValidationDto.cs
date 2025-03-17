@@ -1,8 +1,10 @@
 using System.ComponentModel.DataAnnotations;
+using Newtonsoft.Json;
 using SharedStandard.Models;
 
 namespace Shared.Models;
 
+[JsonObject]
 public class AnswerValidationDto : AnswerDto
 {
     public AnswerValidationDto()
@@ -13,6 +15,7 @@ public class AnswerValidationDto : AnswerDto
     {
     }
 
+    [JsonProperty]
     [Required(ErrorMessage = "Answer Text is required")]
     [StringLength(500, ErrorMessage = "Answer Text must be between 1 and 100 characters", MinimumLength = 1)]
     public new string AnswerText { get; set; }

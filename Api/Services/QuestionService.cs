@@ -30,6 +30,7 @@ public class QuestionService(
                 .Include(a => a.Answers)
                 .Include(a => a.QuestionCategories)
                 .ThenInclude(c => c.Category)
+                .ThenInclude(pc => pc.ParentCategory)
                 .OrderBy(q => q.Id);
 
             if (questionsRequestDto.OnlyMyQuestions)
@@ -56,7 +57,10 @@ public class QuestionService(
                     }).ToList(),
                     Categories = q.QuestionCategories.Select(qc => new CategoryValidationDto(qc.Category.Id)
                     {
-                        CategoryName = qc.Category.CategoryName
+                        CategoryName = qc.Category.CategoryName,
+                        ParentCategoryName = qc.Category.ParentCategory != null
+                            ? qc.Category.ParentCategory.CategoryName
+                            : string.Empty
                     }).ToList()
                 }).ToList(),
                 TotalCount = totalQuestions,

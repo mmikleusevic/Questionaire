@@ -19,7 +19,11 @@ public class UserService(UserManager<User> userManager) : IUserService
             {
                 IList<string>? roles = await userManager.GetRolesAsync(user);
 
-                userDtos.Add(new UserDto(user.Email, roles));
+                userDtos.Add(new UserDto
+                {
+                    Email = user.Email ?? string.Empty,
+                    Roles = roles
+                });
             }
 
             return userDtos;
@@ -32,13 +36,13 @@ public class UserService(UserManager<User> userManager) : IUserService
 
     public async Task<bool> UpdateUser(UserDto updatedUser)
     {
-        User? user = await userManager.FindByEmailAsync(updatedUser?.Email);
+        User? user = await userManager.FindByEmailAsync(updatedUser.Email);
         if (user == null) return false;
 
         IList<string> currentRoles = await userManager.GetRolesAsync(user);
 
         await userManager.RemoveFromRolesAsync(user, currentRoles);
-        await userManager.AddToRolesAsync(user, updatedUser?.Roles);
+        await userManager.AddToRolesAsync(user, updatedUser.Roles);
 
         return true;
     }
