@@ -94,4 +94,10 @@ public partial class Questions : ComponentBase
         questionsRequest.PageNumber = 1;
         await GetQuestions();
     }
+    
+    private async Task SearchQueryChanged(string value)
+    {
+        questionsRequest.SearchQuery = value;
+        await GetQuestions();
+    }
 }

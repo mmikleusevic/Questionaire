@@ -124,4 +124,10 @@ public partial class PendingQuestions : ComponentBase
         pendingQuestionsRequest.PageNumber = 1;
         await GetPendingQuestions();
     }
+    
+    private async Task SearchQueryChanged(string value)
+    {
+        pendingQuestionsRequest.SearchQuery = value;
+        await GetPendingQuestions();
+    }
 }

@@ -38,6 +38,11 @@ public class QuestionService(
                 query = query.Where(q => q.CreatedById == userDb.Id);
             }
 
+            if (!string.IsNullOrEmpty(questionsRequestDto.SearchQuery))
+            {
+                query = query.Where(q => EF.Functions.FreeText(q.QuestionText, questionsRequestDto.SearchQuery));
+            }
+
             List<Question> questions = await query
                 .Skip((questionsRequestDto.PageNumber - 1) * questionsRequestDto.PageSize)
                 .Take(questionsRequestDto.PageSize)

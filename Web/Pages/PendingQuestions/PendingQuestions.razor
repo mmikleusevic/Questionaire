@@ -31,6 +31,7 @@
             <button class="btn btn-create" @onclick="ShowCreatePendingQuestion">Create</button>
         </div>
     </div>
+    <TextInput Value="@pendingQuestionsRequest.SearchQuery" ValueExpression="() => pendingQuestionsRequest.SearchQuery" ValueChanged="(value) => SearchQueryChanged(value)" Placeholder="Enter text to search" />
     @if (pendingQuestions == null)
     {
         <p><em>Loading...</em></p>

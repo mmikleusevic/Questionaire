@@ -41,6 +41,11 @@ public class PendingQuestionService(
             {
                 query = query.Where(q => q.CreatedById == userDb.Id);
             }
+            
+            if (!string.IsNullOrEmpty(pendingQuestionsRequestDto.SearchQuery))
+            {
+                query = query.Where(q => EF.Functions.FreeText(q.QuestionText, pendingQuestionsRequestDto.SearchQuery));
+            }
 
             List<PendingQuestion> questions = await query
                 .Skip((pendingQuestionsRequestDto.PageNumber - 1) * pendingQuestionsRequestDto.PageSize)

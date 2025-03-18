@@ -24,6 +24,7 @@
             </label>
         </div>
     </div>
+    <TextInput Value="@questionsRequest.SearchQuery" ValueExpression="() => questionsRequest.SearchQuery" ValueChanged="(value) => SearchQueryChanged(value)" Placeholder="Enter text to search" />
     @if (questions == null)
     {
         <p><em>Loading...</em></p>
@@ -52,8 +53,8 @@
                                 @foreach (var answer in question.Answers)
                                 {
                                     <span class="@GetAnswerRowClass(answer.IsCorrect)">
-                                @answer.AnswerText
-                            </span>
+                                        @answer.AnswerText
+                                    </span>
                                 }
                             </div>
                         </div>

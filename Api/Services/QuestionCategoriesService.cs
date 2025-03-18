@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using QuestionaireApi.Interfaces;
 using QuestionaireApi.Models.Database;
 using Shared.Models;
@@ -38,7 +39,7 @@ public class QuestionCategoriesService(QuestionaireDbContext context) : IQuestio
             {
                 questionCategories.Remove(questionCategory);
             }
-
+            
             foreach (CategoryValidationDto updatedCategory in categories)
             {
                 QuestionCategory? existingQuestionCategory = questionCategories
