@@ -9,13 +9,13 @@ namespace Web.Pages.Questions.QuestionModals;
 public partial class UpdateQuestion : ComponentBase
 {
     private EditContext? editContext;
-    private List<CategoryValidationDto> selectedCategories = new List<CategoryValidationDto>();
-    private QuestionValidationDto updatedQuestion = new QuestionValidationDto();
+    private List<CategoryExtendedDto> selectedCategories = new List<CategoryExtendedDto>();
+    private QuestionExtendedDto updatedQuestion = new QuestionExtendedDto();
 
     private List<string> validationMessages = new List<string>();
     [Inject] private IQuestionService? QuestionService { get; set; }
-    [Parameter] public QuestionValidationDto? Question { get; set; }
-    [Parameter] public List<CategoryValidationDto>? FlatCategories { get; set; }
+    [Parameter] public QuestionExtendedDto? Question { get; set; }
+    [Parameter] public List<CategoryExtendedDto>? FlatCategories { get; set; }
     [Parameter] public EventCallback OnQuestionChanged { get; set; }
     [Parameter] public Modal? Modal { get; set; }
 
@@ -23,8 +23,8 @@ public partial class UpdateQuestion : ComponentBase
     {
         await base.OnParametersSetAsync();
 
-        List<AnswerValidationDto> existingAnswers = Question.Answers
-            .Select(a => new AnswerValidationDto(a.Id)
+        List<AnswerExtendedDto> existingAnswers = Question.Answers
+            .Select(a => new AnswerExtendedDto(a.Id)
             {
                 AnswerText = a.AnswerText,
                 IsCorrect = a.IsCorrect
@@ -32,19 +32,19 @@ public partial class UpdateQuestion : ComponentBase
 
         int additionalAnswersNeeded = Math.Max(0, 3 - existingAnswers.Count);
 
-        List<AnswerValidationDto> newEmptyAnswers = Enumerable.Range(0, additionalAnswersNeeded)
-            .Select(_ => new AnswerValidationDto
+        List<AnswerExtendedDto> newEmptyAnswers = Enumerable.Range(0, additionalAnswersNeeded)
+            .Select(_ => new AnswerExtendedDto
             {
                 AnswerText = string.Empty,
                 IsCorrect = false
             })
             .ToList();
 
-        updatedQuestion = new QuestionValidationDto
+        updatedQuestion = new QuestionExtendedDto
         {
             QuestionText = Question.QuestionText,
             Answers = existingAnswers.Concat(newEmptyAnswers).ToList(),
-            Categories = Question.Categories.Select(c => new CategoryValidationDto(c.Id)
+            Categories = Question.Categories.Select(c => new CategoryExtendedDto(c.Id)
             {
                 CategoryName = c.CategoryName,
                 ParentCategoryId = c.ParentCategoryId,
@@ -95,7 +95,7 @@ public partial class UpdateQuestion : ComponentBase
 
     private void AddCategoryDropdown()
     {
-        selectedCategories.Add(new CategoryValidationDto());
+        selectedCategories.Add(new CategoryExtendedDto());
     }
 
     private void RemoveCategoryDropdown()
@@ -106,7 +106,7 @@ public partial class UpdateQuestion : ComponentBase
         }
     }
 
-    private void SelectCategory(CategoryValidationDto currentCategory, CategoryValidationDto newCategory)
+    private void SelectCategory(CategoryExtendedDto currentCategory, CategoryExtendedDto newCategory)
     {
         int categoryIndex = selectedCategories.IndexOf(currentCategory);
 

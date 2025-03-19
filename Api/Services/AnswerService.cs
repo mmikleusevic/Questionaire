@@ -26,7 +26,7 @@ public class AnswerService(QuestionaireDbContext context) : IAnswerService
     }
 
     public Task UpdateQuestionAnswers(int questionId, ICollection<Answer> answers,
-        List<AnswerValidationDto> updatedAnswers)
+        List<AnswerExtendedDto> updatedAnswers)
     {
         try
         {
@@ -39,7 +39,7 @@ public class AnswerService(QuestionaireDbContext context) : IAnswerService
                 answers.Remove(answer);
             }
 
-            foreach (AnswerValidationDto updatedAnswer in updatedAnswers)
+            foreach (AnswerExtendedDto updatedAnswer in updatedAnswers)
             {
                 Answer? existingAnswer = answers.Where(a => a.Id != 0)
                     .FirstOrDefault(pa => pa.Id == updatedAnswer.Id);

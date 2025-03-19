@@ -5,13 +5,13 @@ using SharedStandard.Models;
 namespace Shared.Models;
 
 [JsonObject]
-public class AnswerValidationDto : AnswerDto
+public class AnswerExtendedDto : AnswerDto
 {
-    public AnswerValidationDto()
+    public AnswerExtendedDto()
     {
     }
 
-    public AnswerValidationDto(int id) : base(id)
+    public AnswerExtendedDto(int id) : base(id)
     {
     }
 

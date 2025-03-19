@@ -5,13 +5,13 @@ using SharedStandard.Models;
 namespace Shared.Models;
 
 [JsonObject]
-public class CategoryValidationDto : CategoryDto
+public class CategoryExtendedDto : CategoryDto
 {
-    public CategoryValidationDto()
+    public CategoryExtendedDto()
     {
     }
 
-    public CategoryValidationDto(int id) : base(id)
+    public CategoryExtendedDto(int id) : base(id)
     {
     }
 
@@ -24,5 +24,5 @@ public class CategoryValidationDto : CategoryDto
 
     [ValidateComplexType]
     [JsonProperty]
-    public new List<CategoryValidationDto> ChildCategories { get; set; } = new List<CategoryValidationDto>();
+    public new List<CategoryExtendedDto> ChildCategories { get; set; } = new List<CategoryExtendedDto>();
 }

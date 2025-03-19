@@ -14,9 +14,9 @@ public class CategoryService(
 {
     private readonly TimeSpan cacheDuration = TimeSpan.FromMinutes(10);
     private readonly SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
-    private List<CategoryValidationDto>? flatCategories;
+    private List<CategoryExtendedDto>? flatCategories;
     private DateTime lastFetchTime;
-    private List<CategoryValidationDto>? nestedCategories;
+    private List<CategoryExtendedDto>? nestedCategories;
 
     public async Task<CategoriesDto> GetCategories(bool forceRefresh = false)
     {
@@ -62,7 +62,7 @@ public class CategoryService(
         return new CategoriesDto();
     }
 
-    public async Task<List<CategoryValidationDto>> GetNestedCategories()
+    public async Task<List<CategoryExtendedDto>> GetNestedCategories()
     {
         if (nestedCategories != null && DateTime.UtcNow - lastFetchTime < cacheDuration) return nestedCategories;
 
@@ -75,10 +75,10 @@ public class CategoryService(
             if (response.IsSuccessStatusCode)
             {
                 string? responseData = await response.Content.ReadAsStringAsync();
-                nestedCategories = JsonConvert.DeserializeObject<List<CategoryValidationDto>>(responseData);
+                nestedCategories = JsonConvert.DeserializeObject<List<CategoryExtendedDto>>(responseData);
                 lastFetchTime = DateTime.UtcNow;
 
-                return nestedCategories ?? new List<CategoryValidationDto>();
+                return nestedCategories ?? new List<CategoryExtendedDto>();
             }
 
             string? responseResult = await response.Content.ReadAsStringAsync();
@@ -93,10 +93,10 @@ public class CategoryService(
             semaphore.Release();
         }
 
-        return new List<CategoryValidationDto>();
+        return new List<CategoryExtendedDto>();
     }
 
-    public async Task<List<CategoryValidationDto>> GetFlatCategories()
+    public async Task<List<CategoryExtendedDto>> GetFlatCategories()
     {
         if (flatCategories != null && DateTime.UtcNow - lastFetchTime < cacheDuration) return flatCategories;
 
@@ -109,10 +109,10 @@ public class CategoryService(
             if (response.IsSuccessStatusCode)
             {
                 string? responseData = await response.Content.ReadAsStringAsync();
-                flatCategories = JsonConvert.DeserializeObject<List<CategoryValidationDto>>(responseData);
+                flatCategories = JsonConvert.DeserializeObject<List<CategoryExtendedDto>>(responseData);
                 lastFetchTime = DateTime.UtcNow;
 
-                return flatCategories ?? new List<CategoryValidationDto>();
+                return flatCategories ?? new List<CategoryExtendedDto>();
             }
 
             string? responseResult = await response.Content.ReadAsStringAsync();
@@ -127,10 +127,10 @@ public class CategoryService(
             semaphore.Release();
         }
 
-        return new List<CategoryValidationDto>();
+        return new List<CategoryExtendedDto>();
     }
 
-    public async Task CreateCategory(CategoryValidationDto newCategory)
+    public async Task CreateCategory(CategoryExtendedDto newCategory)
     {
         try
         {
@@ -152,7 +152,7 @@ public class CategoryService(
         }
     }
 
-    public async Task UpdateCategory(CategoryValidationDto updatedCategory)
+    public async Task UpdateCategory(CategoryExtendedDto updatedCategory)
     {
         try
         {

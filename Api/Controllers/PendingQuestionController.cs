@@ -22,7 +22,7 @@ public class PendingQuestionController(
             if (pendingQuestionsRequestDto.PageNumber < 1 || pendingQuestionsRequestDto.PageSize < 1)
                 return BadRequest("Page number and page size must be greater than 0.");
 
-            PaginatedResponse<PendingQuestionValidationDto> response =
+            PaginatedResponse<PendingQuestionDto> response =
                 await pendingQuestionService.GetPendingQuestions(pendingQuestionsRequestDto, User);
 
             if (response.Items.Count == 0) return NotFound("No pending questions found.");
@@ -39,7 +39,7 @@ public class PendingQuestionController(
 
     [HttpPost]
     [AllowAnonymous]
-    public async Task<IActionResult> CreatePendingQuestion([FromBody] PendingQuestionValidationDto? newPendingQuestion)
+    public async Task<IActionResult> CreatePendingQuestion([FromBody] PendingQuestionDto? newPendingQuestion)
     {
         try
         {
@@ -76,7 +76,7 @@ public class PendingQuestionController(
 
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdatePendingQuestion(int id,
-        [FromBody] PendingQuestionValidationDto? updatedPendingQuestion)
+        [FromBody] PendingQuestionDto? updatedPendingQuestion)
     {
         try
         {

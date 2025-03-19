@@ -9,7 +9,7 @@ public partial class DeletePendingQuestion : ComponentBase
 {
     [Inject] private IPendingQuestionService? PendingQuestionService { get; set; }
     [Parameter] public Modal? Modal { get; set; }
-    [Parameter] public PendingQuestionValidationDto? PendingQuestion { get; set; }
+    [Parameter] public PendingQuestionDto? PendingQuestion { get; set; }
     [Parameter] public EventCallback OnPendingQuestionChanged { get; set; }
 
     private async Task HandleValidSubmit()

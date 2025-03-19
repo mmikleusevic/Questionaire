@@ -8,10 +8,10 @@ namespace Web.Pages.Categories;
 
 public partial class CategoryItem : ComponentBase
 {
-    [Parameter] public CategoryValidationDto? Category { get; set; }
+    [Parameter] public CategoryExtendedDto? Category { get; set; }
     [Parameter] public Modal? Modal { get; set; }
     [Parameter] public EventCallback OnCategoryChanged { get; set; }
-    [Parameter] public List<CategoryValidationDto>? FlatCategories { get; set; }
+    [Parameter] public List<CategoryExtendedDto>? FlatCategories { get; set; }
 
     private async Task ShowUpdateCategory()
     {

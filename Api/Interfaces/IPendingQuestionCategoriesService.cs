@@ -5,8 +5,8 @@ namespace QuestionaireApi.Interfaces;
 
 public interface IPendingQuestionCategoriesService
 {
-    Task CreatePendingQuestionCategories(int pendingQuestionId, List<CategoryValidationDto> categories);
+    Task CreatePendingQuestionCategories(int pendingQuestionId, List<CategoryExtendedDto> categories);
 
     Task UpdatePendingQuestionCategories(int pendingQuestionId,
-        ICollection<PendingQuestionCategory> pendingQuestionCategories, List<CategoryValidationDto> categories);
+        ICollection<PendingQuestionCategory> pendingQuestionCategories, List<CategoryExtendedDto> categories);
 }

@@ -27,7 +27,7 @@ public class QuestionCategoriesService(QuestionaireDbContext context) : IQuestio
     }
 
     public Task UpdateQuestionCategories(int questionId, ICollection<QuestionCategory> questionCategories,
-        List<CategoryValidationDto> categories)
+        List<CategoryExtendedDto> categories)
     {
         try
         {
@@ -40,7 +40,7 @@ public class QuestionCategoriesService(QuestionaireDbContext context) : IQuestio
                 questionCategories.Remove(questionCategory);
             }
             
-            foreach (CategoryValidationDto updatedCategory in categories)
+            foreach (CategoryExtendedDto updatedCategory in categories)
             {
                 QuestionCategory? existingQuestionCategory = questionCategories
                     .FirstOrDefault(pa => pa.CategoryId == updatedCategory.Id);

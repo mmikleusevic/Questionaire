@@ -5,13 +5,13 @@ using SharedStandard.Models;
 namespace Shared.Models;
 
 [JsonObject]
-public class QuestionValidationDto : QuestionDto
+public class QuestionExtendedDto : QuestionDto
 {
-    public QuestionValidationDto()
+    public QuestionExtendedDto()
     {
     }
 
-    public QuestionValidationDto(int id) : base(id)
+    public QuestionExtendedDto(int id) : base(id)
     {
     }
 
@@ -22,9 +22,9 @@ public class QuestionValidationDto : QuestionDto
 
     [ValidateComplexType]
     [JsonProperty]
-    public new List<AnswerValidationDto> Answers { get; set; } = new List<AnswerValidationDto>();
+    public new List<AnswerExtendedDto> Answers { get; set; } = new List<AnswerExtendedDto>();
 
     [ValidateComplexType]
     [JsonProperty]
-    public new List<CategoryValidationDto> Categories { get; set; } = new List<CategoryValidationDto>();
+    public new List<CategoryExtendedDto> Categories { get; set; } = new List<CategoryExtendedDto>();
 }

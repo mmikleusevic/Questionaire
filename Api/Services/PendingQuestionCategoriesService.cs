@@ -6,7 +6,7 @@ namespace QuestionaireApi.Services;
 
 public class PendingQuestionCategoriesService(QuestionaireDbContext context) : IPendingQuestionCategoriesService
 {
-    public async Task CreatePendingQuestionCategories(int pendingQuestionId, List<CategoryValidationDto> categories)
+    public async Task CreatePendingQuestionCategories(int pendingQuestionId, List<CategoryExtendedDto> categories)
     {
         try
         {
@@ -26,7 +26,7 @@ public class PendingQuestionCategoriesService(QuestionaireDbContext context) : I
     }
 
     public Task UpdatePendingQuestionCategories(int pendingQuestionId,
-        ICollection<PendingQuestionCategory> pendingQuestionCategories, List<CategoryValidationDto> categories)
+        ICollection<PendingQuestionCategory> pendingQuestionCategories, List<CategoryExtendedDto> categories)
     {
         try
         {
@@ -39,7 +39,7 @@ public class PendingQuestionCategoriesService(QuestionaireDbContext context) : I
                 pendingQuestionCategories.Remove(pendingQuestionCategory);
             }
 
-            foreach (CategoryValidationDto updatedCategory in categories)
+            foreach (CategoryExtendedDto updatedCategory in categories)
             {
                 PendingQuestionCategory? existingQuestionCategory = pendingQuestionCategories
                     .FirstOrDefault(pa => pa.CategoryId == updatedCategory.Id);

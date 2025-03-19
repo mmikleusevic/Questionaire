@@ -8,11 +8,11 @@ namespace Web.Pages.Categories.CategoryModals;
 
 public partial class CreateCategory : ComponentBase
 {
-    private readonly CategoryValidationDto category = new CategoryValidationDto();
+    private readonly CategoryExtendedDto category = new CategoryExtendedDto();
     private EditContext? editContext;
-    private CategoryValidationDto? selectedParentCategory;
+    private CategoryExtendedDto? selectedParentCategory;
     [Inject] private ICategoryService? CategoryService { get; set; }
-    [Parameter] public List<CategoryValidationDto>? FlatCategories { get; set; }
+    [Parameter] public List<CategoryExtendedDto>? FlatCategories { get; set; }
     [Parameter] public Modal? Modal { get; set; }
     [Parameter] public EventCallback OnCategoryChanged { get; set; }
 
@@ -26,7 +26,7 @@ public partial class CreateCategory : ComponentBase
         await base.OnParametersSetAsync();
     }
 
-    private void SelectParentCategory(CategoryValidationDto? selectedCategory)
+    private void SelectParentCategory(CategoryExtendedDto? selectedCategory)
     {
         selectedParentCategory = selectedCategory;
 

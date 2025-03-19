@@ -16,7 +16,7 @@ public class PendingQuestionService(
     IQuestionCategoriesService questionCategoriesService,
     UserManager<User> userManager) : IPendingQuestionService
 {
-    public async Task<PaginatedResponse<PendingQuestionValidationDto>> GetPendingQuestions(
+    public async Task<PaginatedResponse<PendingQuestionDto>> GetPendingQuestions(
         QuestionsRequestDto pendingQuestionsRequestDto,
         ClaimsPrincipal user)
     {
@@ -25,8 +25,8 @@ public class PendingQuestionService(
             User? userDb = await userManager.GetUserAsync(user);
 
             if (userDb == null)
-                return new PaginatedResponse<PendingQuestionValidationDto>
-                    { Items = new List<PendingQuestionValidationDto>() };
+                return new PaginatedResponse<PendingQuestionDto>
+                    { Items = new List<PendingQuestionDto>() };
 
             IList<string> roles = await userManager.GetRolesAsync(userDb);
 
@@ -54,19 +54,19 @@ public class PendingQuestionService(
 
             int totalQuestions = await query.CountAsync();
 
-            PaginatedResponse<PendingQuestionValidationDto> response =
-                new PaginatedResponse<PendingQuestionValidationDto>
+            PaginatedResponse<PendingQuestionDto> response =
+                new PaginatedResponse<PendingQuestionDto>
                 {
-                    Items = questions.Select(q => new PendingQuestionValidationDto
+                    Items = questions.Select(q => new PendingQuestionDto
                     {
                         Id = q.Id,
                         QuestionText = q.QuestionText,
-                        PendingAnswers = q.PendingAnswers.Select(a => new PendingAnswerValidationDto(a.Id)
+                        PendingAnswers = q.PendingAnswers.Select(a => new PendingAnswerDto(a.Id)
                         {
                             AnswerText = a.AnswerText,
                             IsCorrect = a.IsCorrect
                         }).ToList(),
-                        Categories = q.PendingQuestionCategories.Select(qc => new CategoryValidationDto(qc.Category.Id)
+                        Categories = q.PendingQuestionCategories.Select(qc => new CategoryExtendedDto(qc.Category.Id)
                         {
                             CategoryName = qc.Category.CategoryName,
                             ParentCategoryName = qc.Category.ParentCategory != null
@@ -87,7 +87,7 @@ public class PendingQuestionService(
         }
     }
 
-    public async Task CreatePendingQuestion(PendingQuestionValidationDto pendingQuestion, ClaimsPrincipal user)
+    public async Task CreatePendingQuestion(PendingQuestionDto pendingQuestion, ClaimsPrincipal user)
     {
         await using IDbContextTransaction? transaction = await context.Database.BeginTransactionAsync();
 
@@ -190,7 +190,7 @@ public class PendingQuestionService(
         }
     }
 
-    public async Task<bool> UpdatePendingQuestion(int id, PendingQuestionValidationDto updatedPendingQuestion,
+    public async Task<bool> UpdatePendingQuestion(int id, PendingQuestionDto updatedPendingQuestion,
         ClaimsPrincipal user)
     {
         await using IDbContextTransaction? transaction = await context.Database.BeginTransactionAsync();

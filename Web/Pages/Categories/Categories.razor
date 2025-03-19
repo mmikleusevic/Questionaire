@@ -33,7 +33,7 @@ else if (categories?.NestedCategories?.Count == 0)
 else if (categories != null && categories.NestedCategories != null)
 {
     <ul class="category-list">
-        @foreach (CategoryValidationDto category in categories.NestedCategories)
+        @foreach (CategoryExtendedDto category in categories.NestedCategories)
         {
             <CategoryItem Category="category"
                           Modal="modal"

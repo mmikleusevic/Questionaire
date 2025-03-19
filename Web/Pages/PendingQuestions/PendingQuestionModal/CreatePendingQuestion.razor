@@ -17,18 +17,18 @@
         <div class="col-md-12">
             <label class="col-md-3 col-form-label">Pending Question Text:<span class="text-danger">*</span></label>
             <div class="col-lg-12">
-                <TextAreaInput @bind-Value="@pendingQuestionValidation.QuestionText"
+                <TextAreaInput @bind-Value="@pendingQuestion.QuestionText"
                                TextAlignment="Alignment.Start"
                                Placeholder="Enter pending question text here"
                                MaxLength="500"
                                Rows="3"/>
-                <ValidationMessage For="@(() => pendingQuestionValidation.QuestionText)" class="alert alert-danger"/>
+                <ValidationMessage For="@(() => pendingQuestion.QuestionText)" class="alert alert-danger"/>
             </div>
         </div>
         <div class="col-md-12">
             <label class="col-form-label">Pending Answers:<span class="text-danger">*</span></label>
             <div class="row">
-                @foreach (var pendingAnswer in pendingQuestionValidation.PendingAnswers)
+                @foreach (var pendingAnswer in pendingQuestion.PendingAnswers)
                 {
                     <div class="col-md-10">
                         <div class="input-group">
@@ -80,7 +80,7 @@
                             </DropdownToggleButton>
                             <DropdownMenu>
                                 <DropdownItem
-                                    @onclick="() => SelectCategory(selectedCategory, new CategoryValidationDto())">
+                                    @onclick="() => SelectCategory(selectedCategory, new CategoryExtendedDto())">
                                     None
                                 </DropdownItem>
                                 @foreach (var freeCategory in FlatCategories

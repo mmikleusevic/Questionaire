@@ -8,5 +8,5 @@ public interface IQuestionCategoriesService
     Task CreateQuestionCategories(int questionId, ICollection<PendingQuestionCategory> pendingQuestionCategories);
 
     Task UpdateQuestionCategories(int questionId, ICollection<QuestionCategory> questionCategories,
-        List<CategoryValidationDto> categories);
+        List<CategoryExtendedDto> categories);
 }

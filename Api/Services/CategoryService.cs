@@ -24,7 +24,7 @@ public class CategoryService(QuestionaireDbContext context) : ICategoryService
         }
     }
 
-    public async Task<List<CategoryValidationDto>> GetNestedCategories()
+    public async Task<List<CategoryExtendedDto>> GetNestedCategories()
     {
         try
         {
@@ -42,13 +42,13 @@ public class CategoryService(QuestionaireDbContext context) : ICategoryService
         }
     }
 
-    public async Task<List<CategoryValidationDto>> GetFlatCategories()
+    public async Task<List<CategoryExtendedDto>> GetFlatCategories()
     {
         try
         {
-            List<CategoryValidationDto> allCategories = await context.Categories
+            List<CategoryExtendedDto> allCategories = await context.Categories
                 .Include(c => c.ParentCategory)
-                .Select(category => new CategoryValidationDto(category.Id)
+                .Select(category => new CategoryExtendedDto(category.Id)
                 {
                     CategoryName = category.CategoryName,
                     ParentCategoryId = category.ParentCategoryId,
@@ -58,11 +58,11 @@ public class CategoryService(QuestionaireDbContext context) : ICategoryService
                 })
                 .ToListAsync();
 
-            Dictionary<int, List<CategoryValidationDto>> categoryChildrenDict = allCategories
+            Dictionary<int, List<CategoryExtendedDto>> categoryChildrenDict = allCategories
                 .GroupBy(c => c.ParentCategoryId ?? -1)
                 .ToDictionary(g => g.Key, g => g.OrderBy(c => c.CategoryName).ToList());
 
-            List<CategoryValidationDto> result = new List<CategoryValidationDto>();
+            List<CategoryExtendedDto> result = new List<CategoryExtendedDto>();
 
             AddDescendantsInOrder(-1, categoryChildrenDict, result);
 
@@ -74,7 +74,7 @@ public class CategoryService(QuestionaireDbContext context) : ICategoryService
         }
     }
 
-    public async Task CreateCategory(CategoryValidationDto category)
+    public async Task CreateCategory(CategoryExtendedDto category)
     {
         try
         {
@@ -92,7 +92,7 @@ public class CategoryService(QuestionaireDbContext context) : ICategoryService
         }
     }
 
-    public async Task<bool> UpdateCategory(int id, CategoryValidationDto updatedCategory)
+    public async Task<bool> UpdateCategory(int id, CategoryExtendedDto updatedCategory)
     {
         try
         {
@@ -131,7 +131,7 @@ public class CategoryService(QuestionaireDbContext context) : ICategoryService
         }
     }
 
-    private List<CategoryValidationDto> SortAndMapCategories(IEnumerable<Category> categories)
+    private List<CategoryExtendedDto> SortAndMapCategories(IEnumerable<Category> categories)
     {
         try
         {
@@ -146,11 +146,11 @@ public class CategoryService(QuestionaireDbContext context) : ICategoryService
         }
     }
 
-    private static CategoryValidationDto MapCategoriesToDto(Category category)
+    private static CategoryExtendedDto MapCategoriesToDto(Category category)
     {
         try
         {
-            return new CategoryValidationDto(category.Id)
+            return new CategoryExtendedDto(category.Id)
             {
                 CategoryName = category.CategoryName,
                 ParentCategoryId = category.ParentCategoryId,
@@ -165,14 +165,14 @@ public class CategoryService(QuestionaireDbContext context) : ICategoryService
         }
     }
 
-    private void AddDescendantsInOrder(int parentId, Dictionary<int, List<CategoryValidationDto>> categoryChildrenDict,
-        List<CategoryValidationDto> result)
+    private void AddDescendantsInOrder(int parentId, Dictionary<int, List<CategoryExtendedDto>> categoryChildrenDict,
+        List<CategoryExtendedDto> result)
     {
         try
         {
-            if (categoryChildrenDict.TryGetValue(parentId, out List<CategoryValidationDto>? children))
+            if (categoryChildrenDict.TryGetValue(parentId, out List<CategoryExtendedDto>? children))
             {
-                foreach (CategoryValidationDto child in children)
+                foreach (CategoryExtendedDto child in children)
                 {
                     result.Add(child);
                     AddDescendantsInOrder(child.Id, categoryChildrenDict, result);

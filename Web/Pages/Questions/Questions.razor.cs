@@ -16,10 +16,10 @@ public partial class Questions : ComponentBase
         OnlyMyQuestions = false
     };
 
-    private List<CategoryValidationDto>? flatCategories;
+    private List<CategoryExtendedDto>? flatCategories;
 
     private Modal? modal;
-    private List<QuestionValidationDto>? questions;
+    private List<QuestionExtendedDto>? questions;
     private int totalPages = 1;
     [Inject] private IQuestionService? QuestionService { get; set; }
     [Inject] private ICategoryService? CategoryService { get; set; }
@@ -34,7 +34,7 @@ public partial class Questions : ComponentBase
     {
         if (QuestionService == null) return;
 
-        PaginatedResponse<QuestionValidationDto> paginatedResponse =
+        PaginatedResponse<QuestionExtendedDto> paginatedResponse =
             await QuestionService.GetQuestions(questionsRequest);
         questions = paginatedResponse.Items;
         totalPages = paginatedResponse.TotalPages;
@@ -54,7 +54,7 @@ public partial class Questions : ComponentBase
         Navigation.NavigateTo(Navigation.Uri.Split('#')[0] + "#topElement", false);
     }
 
-    private async Task ShowUpdateQuestion(QuestionValidationDto? question)
+    private async Task ShowUpdateQuestion(QuestionExtendedDto? question)
     {
         if (modal == null || question == null || flatCategories == null) return;
 
@@ -69,7 +69,7 @@ public partial class Questions : ComponentBase
         await modal.ShowAsync<UpdateQuestion>("Update Question", parameters: parameters);
     }
 
-    private async Task ShowDeleteQuestion(QuestionValidationDto? question)
+    private async Task ShowDeleteQuestion(QuestionExtendedDto? question)
     {
         if (modal == null || question == null) return;
 

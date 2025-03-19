@@ -15,7 +15,7 @@ public class QuestionController(
 {
     [HttpPost("paged")]
     [AllowAnonymous]
-    public async Task<ActionResult<PaginatedResponse<QuestionValidationDto>>> GetQuestions(
+    public async Task<ActionResult<PaginatedResponse<QuestionExtendedDto>>> GetQuestions(
         [FromBody] QuestionsRequestDto questionsRequestDto)
     {
         try
@@ -23,7 +23,7 @@ public class QuestionController(
             if (questionsRequestDto.PageNumber < 1 || questionsRequestDto.PageSize < 1)
                 return BadRequest("Page number and page size must be greater than 0.");
 
-            PaginatedResponse<QuestionValidationDto> response =
+            PaginatedResponse<QuestionExtendedDto> response =
                 await questionService.GetQuestions(questionsRequestDto, User);
 
             if (response.Items.Count == 0) return NotFound("No questions found.");
@@ -40,14 +40,14 @@ public class QuestionController(
 
     [HttpPost("random")]
     [AllowAnonymous]
-    public async Task<ActionResult<List<QuestionValidationDto>>> GetRandomUniqueQuestions(
+    public async Task<ActionResult<List<QuestionExtendedDto>>> GetRandomUniqueQuestions(
         [FromBody] UniqueQuestionsRequestDto? request)
     {
         try
         {
             if (request == null) return BadRequest("Get random unique questions data cannot be null.");
 
-            List<QuestionValidationDto> questions = await questionService.GetRandomUniqueQuestions(request);
+            List<QuestionExtendedDto> questions = await questionService.GetRandomUniqueQuestions(request);
             if (questions.Count == 0) return NotFound("No questions found.");
             return Ok(questions);
         }
@@ -61,7 +61,7 @@ public class QuestionController(
 
     [HttpPut("{id:int}")]
     [Authorize(Roles = "Admin, SuperAdmin")]
-    public async Task<IActionResult> UpdateQuestion(int id, [FromBody] QuestionValidationDto? updatedQuestion)
+    public async Task<IActionResult> UpdateQuestion(int id, [FromBody] QuestionExtendedDto? updatedQuestion)
     {
         try
         {

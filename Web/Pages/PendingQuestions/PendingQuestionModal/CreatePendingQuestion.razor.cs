@@ -8,14 +8,14 @@ namespace Web.Pages.PendingQuestions.PendingQuestionModal;
 
 public partial class CreatePendingQuestion : ComponentBase
 {
-    private readonly PendingQuestionValidationDto pendingQuestionValidation = new PendingQuestionValidationDto();
-    private readonly List<CategoryValidationDto> selectedCategories = new List<CategoryValidationDto>();
+    private readonly PendingQuestionDto pendingQuestion = new PendingQuestionDto();
+    private readonly List<CategoryExtendedDto> selectedCategories = new List<CategoryExtendedDto>();
     private EditContext? editContext;
 
     private List<string> validationMessages = new List<string>();
     [Inject] private IPendingQuestionService? PendingQuestionService { get; set; }
     [Parameter] public EventCallback OnPendingQuestionChanged { get; set; }
-    [Parameter] public List<CategoryValidationDto> FlatCategories { get; set; }
+    [Parameter] public List<CategoryExtendedDto> FlatCategories { get; set; }
     [Parameter] public Modal? Modal { get; set; }
 
     protected override async Task OnInitializedAsync()
@@ -28,18 +28,18 @@ public partial class CreatePendingQuestion : ComponentBase
     {
         await base.OnParametersSetAsync();
 
-        pendingQuestionValidation.QuestionText = string.Empty;
+        pendingQuestion.QuestionText = string.Empty;
 
         selectedCategories.Clear();
-        selectedCategories.Add(new CategoryValidationDto());
+        selectedCategories.Add(new CategoryExtendedDto());
 
-        if (pendingQuestionValidation?.PendingAnswers == null || pendingQuestionValidation.PendingAnswers.Count == 0)
+        if (pendingQuestion?.PendingAnswers == null || pendingQuestion.PendingAnswers.Count == 0)
         {
             SetAnswers();
         }
         else
         {
-            foreach (PendingAnswerValidationDto pendingAnswer in pendingQuestionValidation.PendingAnswers)
+            foreach (PendingAnswerDto pendingAnswer in pendingQuestion.PendingAnswers)
             {
                 pendingAnswer.AnswerText = string.Empty;
                 pendingAnswer.IsCorrect = false;
@@ -48,7 +48,7 @@ public partial class CreatePendingQuestion : ComponentBase
 
         validationMessages.Clear();
 
-        editContext = new EditContext(pendingQuestionValidation);
+        editContext = new EditContext(pendingQuestion);
     }
 
     public async Task HandleValidSubmit()
@@ -57,7 +57,7 @@ public partial class CreatePendingQuestion : ComponentBase
 
         List<string> errorMessages = new List<string>();
 
-        int correctAnswers = pendingQuestionValidation.PendingAnswers.Count(a => a.IsCorrect);
+        int correctAnswers = pendingQuestion.PendingAnswers.Count(a => a.IsCorrect);
         if (correctAnswers != 1)
         {
             errorMessages.Add("You have to mark exactly one pending answer as correct and 2 as incorrect!");
@@ -75,8 +75,8 @@ public partial class CreatePendingQuestion : ComponentBase
             return;
         }
 
-        pendingQuestionValidation.Categories = selectedCategories.Where(a => a.Id != 0).ToList();
-        await PendingQuestionService.CreatePendingQuestion(pendingQuestionValidation);
+        pendingQuestion.Categories = selectedCategories.Where(a => a.Id != 0).ToList();
+        await PendingQuestionService.CreatePendingQuestion(pendingQuestion);
         await OnPendingQuestionChanged.InvokeAsync();
         await Hide();
     }
@@ -85,14 +85,14 @@ public partial class CreatePendingQuestion : ComponentBase
     {
         for (int i = 0; i < 3; i++)
         {
-            pendingQuestionValidation?.PendingAnswers?.Add(new PendingAnswerValidationDto
+            pendingQuestion?.PendingAnswers?.Add(new PendingAnswerDto
                 { AnswerText = string.Empty });
         }
     }
 
     private void AddCategoryDropdown()
     {
-        selectedCategories.Add(new CategoryValidationDto());
+        selectedCategories.Add(new CategoryExtendedDto());
     }
 
     private void RemoveCategoryDropdown()
@@ -103,7 +103,7 @@ public partial class CreatePendingQuestion : ComponentBase
         }
     }
 
-    private void SelectCategory(CategoryValidationDto currentCategory, CategoryValidationDto newCategory)
+    private void SelectCategory(CategoryExtendedDto currentCategory, CategoryExtendedDto newCategory)
     {
         int categoryIndex = selectedCategories.IndexOf(currentCategory);
 

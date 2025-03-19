@@ -18,10 +18,10 @@ public partial class PendingQuestions : ComponentBase
         OnlyMyQuestions = false
     };
 
-    private List<CategoryValidationDto>? flatCategories;
+    private List<CategoryExtendedDto>? flatCategories;
 
     private Modal? modal;
-    private List<PendingQuestionValidationDto>? pendingQuestions;
+    private List<PendingQuestionDto>? pendingQuestions;
     private int totalPages = 1;
     [Inject] private IPendingQuestionService? PendingQuestionService { get; set; }
     [Inject] private ICategoryService? CategoryService { get; set; }
@@ -36,7 +36,7 @@ public partial class PendingQuestions : ComponentBase
     {
         if (PendingQuestionService == null) return;
 
-        PaginatedResponse<PendingQuestionValidationDto> paginatedResponse =
+        PaginatedResponse<PendingQuestionDto> paginatedResponse =
             await PendingQuestionService.GetPendingQuestions(pendingQuestionsRequest);
         pendingQuestions = paginatedResponse.Items;
         totalPages = paginatedResponse.TotalPages;
@@ -70,7 +70,7 @@ public partial class PendingQuestions : ComponentBase
         await modal.ShowAsync<CreatePendingQuestion>("Create New Pending Question", parameters: parameters);
     }
 
-    private async Task ShowApprovePendingQuestion(PendingQuestionValidationDto? pendingQuestion)
+    private async Task ShowApprovePendingQuestion(PendingQuestionDto? pendingQuestion)
     {
         if (modal == null || pendingQuestion == null) return;
 
@@ -84,7 +84,7 @@ public partial class PendingQuestions : ComponentBase
         await modal.ShowAsync<ApprovePendingQuestion>("Approve Pending Question", parameters: parameters);
     }
 
-    private async Task ShowUpdatePendingQuestion(PendingQuestionValidationDto? pendingQuestion)
+    private async Task ShowUpdatePendingQuestion(PendingQuestionDto? pendingQuestion)
     {
         if (modal == null || pendingQuestion == null || flatCategories == null) return;
 
@@ -99,7 +99,7 @@ public partial class PendingQuestions : ComponentBase
         await modal.ShowAsync<UpdatePendingQuestion>("Update Pending Question", parameters: parameters);
     }
 
-    private async Task ShowDeletePendingQuestion(PendingQuestionValidationDto? pendingQuestion)
+    private async Task ShowDeletePendingQuestion(PendingQuestionDto? pendingQuestion)
     {
         if (modal == null || pendingQuestion == null) return;
 

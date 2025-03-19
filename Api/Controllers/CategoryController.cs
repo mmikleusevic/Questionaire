@@ -38,7 +38,7 @@ public class CategoryController(
     {
         try
         {
-            List<CategoryValidationDto> categories = await categoryService.GetNestedCategories();
+            List<CategoryExtendedDto> categories = await categoryService.GetNestedCategories();
             if (categories.Count == 0) return NotFound("No categories found.");
             return Ok(categories);
         }
@@ -56,7 +56,7 @@ public class CategoryController(
     {
         try
         {
-            List<CategoryValidationDto> categories = await categoryService.GetFlatCategories();
+            List<CategoryExtendedDto> categories = await categoryService.GetFlatCategories();
             if (categories.Count == 0) return NotFound("No categories found.");
             return Ok(categories);
         }
@@ -70,7 +70,7 @@ public class CategoryController(
 
     [HttpPost]
     [Authorize(Roles = "Admin, SuperAdmin")]
-    public async Task<IActionResult> CreateCategory([FromBody] CategoryValidationDto? newCategory)
+    public async Task<IActionResult> CreateCategory([FromBody] CategoryExtendedDto? newCategory)
     {
         try
         {
@@ -89,7 +89,7 @@ public class CategoryController(
 
     [HttpPut("{id:int}")]
     [Authorize(Roles = "Admin, SuperAdmin")]
-    public async Task<IActionResult> UpdateCategory(int id, [FromBody] CategoryValidationDto? updatedCategory)
+    public async Task<IActionResult> UpdateCategory(int id, [FromBody] CategoryExtendedDto? updatedCategory)
     {
         try
         {

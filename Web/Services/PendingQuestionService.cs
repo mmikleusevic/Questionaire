@@ -12,7 +12,7 @@ public class PendingQuestionService(
     ILogger<PendingQuestionService> logger,
     ToastService toastService) : IPendingQuestionService
 {
-    public async Task<PaginatedResponse<PendingQuestionValidationDto>> GetPendingQuestions(
+    public async Task<PaginatedResponse<PendingQuestionDto>> GetPendingQuestions(
         QuestionsRequestDto pendingQuestionsRequest)
     {
         try
@@ -26,10 +26,10 @@ public class PendingQuestionService(
             if (response.IsSuccessStatusCode)
             {
                 string? responseData = await response.Content.ReadAsStringAsync();
-                PaginatedResponse<PendingQuestionValidationDto>? paginatedResponse =
-                    JsonConvert.DeserializeObject<PaginatedResponse<PendingQuestionValidationDto>>(responseData);
+                PaginatedResponse<PendingQuestionDto>? paginatedResponse =
+                    JsonConvert.DeserializeObject<PaginatedResponse<PendingQuestionDto>>(responseData);
 
-                return paginatedResponse ?? new PaginatedResponse<PendingQuestionValidationDto>();
+                return paginatedResponse ?? new PaginatedResponse<PendingQuestionDto>();
             }
 
             string? responseResult = await response.Content.ReadAsStringAsync();
@@ -40,14 +40,14 @@ public class PendingQuestionService(
             ApiResponseHandler.HandleException(ex, toastService, "fetching pending questions", logger);
         }
 
-        return new PaginatedResponse<PendingQuestionValidationDto>();
+        return new PaginatedResponse<PendingQuestionDto>();
     }
 
-    public async Task CreatePendingQuestion(PendingQuestionValidationDto newPendingQuestionValidation)
+    public async Task CreatePendingQuestion(PendingQuestionDto newPendingQuestion)
     {
         try
         {
-            string? jsonContent = JsonConvert.SerializeObject(newPendingQuestionValidation);
+            string? jsonContent = JsonConvert.SerializeObject(newPendingQuestion);
             StringContent? content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
             HttpResponseMessage? response = await httpClient.PostAsync("api/PendingQuestion", content);
@@ -78,15 +78,15 @@ public class PendingQuestionService(
         }
     }
 
-    public async Task UpdatePendingQuestion(PendingQuestionValidationDto updatedPendingQuestionValidation)
+    public async Task UpdatePendingQuestion(PendingQuestionDto updatedPendingQuestion)
     {
         try
         {
-            string? jsonContent = JsonConvert.SerializeObject(updatedPendingQuestionValidation);
+            string? jsonContent = JsonConvert.SerializeObject(updatedPendingQuestion);
             StringContent? content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
             HttpResponseMessage? response =
-                await httpClient.PutAsync($"api/PendingQuestion/{updatedPendingQuestionValidation.Id}", content);
+                await httpClient.PutAsync($"api/PendingQuestion/{updatedPendingQuestion.Id}", content);
             string responseResult = await response.Content.ReadAsStringAsync();
 
             ToastHandler.ShowToast(toastService, response.StatusCode, responseResult, responseResult);

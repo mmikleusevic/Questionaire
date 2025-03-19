@@ -9,13 +9,13 @@ namespace Web.Pages.PendingQuestions.PendingQuestionModal;
 public partial class UpdatePendingQuestion : ComponentBase
 {
     private EditContext? editContext;
-    private List<CategoryValidationDto> selectedCategories = new List<CategoryValidationDto>();
-    private PendingQuestionValidationDto updatedPendingQuestionValidation = new PendingQuestionValidationDto();
+    private List<CategoryExtendedDto> selectedCategories = new List<CategoryExtendedDto>();
+    private PendingQuestionDto updatedPendingQuestion = new PendingQuestionDto();
 
     private List<string> validationMessages = new List<string>();
     [Inject] private IPendingQuestionService? PendingQuestionService { get; set; }
-    [Parameter] public PendingQuestionValidationDto? PendingQuestion { get; set; }
-    [Parameter] public List<CategoryValidationDto>? FlatCategories { get; set; }
+    [Parameter] public PendingQuestionDto? PendingQuestion { get; set; }
+    [Parameter] public List<CategoryExtendedDto>? FlatCategories { get; set; }
     [Parameter] public EventCallback OnPendingQuestionChanged { get; set; }
     [Parameter] public Modal? Modal { get; set; }
 
@@ -23,8 +23,8 @@ public partial class UpdatePendingQuestion : ComponentBase
     {
         await base.OnParametersSetAsync();
 
-        List<PendingAnswerValidationDto> existingPendingAnswers = PendingQuestion.PendingAnswers
-            .Select(a => new PendingAnswerValidationDto(a.Id)
+        List<PendingAnswerDto> existingPendingAnswers = PendingQuestion.PendingAnswers
+            .Select(a => new PendingAnswerDto(a.Id)
             {
                 AnswerText = a.AnswerText,
                 IsCorrect = a.IsCorrect
@@ -32,19 +32,19 @@ public partial class UpdatePendingQuestion : ComponentBase
 
         int additionalPendingAnswersNeeded = Math.Max(0, 3 - existingPendingAnswers.Count);
 
-        List<PendingAnswerValidationDto> newEmptyPendingAnswers = Enumerable.Range(0, additionalPendingAnswersNeeded)
-            .Select(_ => new PendingAnswerValidationDto
+        List<PendingAnswerDto> newEmptyPendingAnswers = Enumerable.Range(0, additionalPendingAnswersNeeded)
+            .Select(_ => new PendingAnswerDto
             {
                 AnswerText = string.Empty,
                 IsCorrect = false
             })
             .ToList();
 
-        updatedPendingQuestionValidation = new PendingQuestionValidationDto
+        updatedPendingQuestion = new PendingQuestionDto
         {
             QuestionText = PendingQuestion.QuestionText,
             PendingAnswers = existingPendingAnswers.Concat(newEmptyPendingAnswers).ToList(),
-            Categories = PendingQuestion.Categories.Select(c => new CategoryValidationDto(c.Id)
+            Categories = PendingQuestion.Categories.Select(c => new CategoryExtendedDto(c.Id)
             {
                 CategoryName = c.CategoryName,
                 ParentCategoryId = c.ParentCategoryId,
@@ -52,10 +52,10 @@ public partial class UpdatePendingQuestion : ComponentBase
             }).ToList()
         };
 
-        selectedCategories = updatedPendingQuestionValidation.Categories.ToList();
+        selectedCategories = updatedPendingQuestion.Categories.ToList();
 
         validationMessages.Clear();
-        editContext = new EditContext(updatedPendingQuestionValidation);
+        editContext = new EditContext(updatedPendingQuestion);
     }
 
     public async Task HandleValidSubmit()
@@ -64,7 +64,7 @@ public partial class UpdatePendingQuestion : ComponentBase
 
         List<string> errorMessages = new List<string>();
 
-        int correctAnswers = updatedPendingQuestionValidation.PendingAnswers.Count(a => a.IsCorrect);
+        int correctAnswers = updatedPendingQuestion.PendingAnswers.Count(a => a.IsCorrect);
         if (correctAnswers != 1)
         {
             errorMessages.Add("You have to mark exactly one pending answer as correct and 2 as incorrect!");
@@ -82,11 +82,11 @@ public partial class UpdatePendingQuestion : ComponentBase
             return;
         }
 
-        updatedPendingQuestionValidation.Categories = selectedCategories.Where(a => a.Id != 0).ToList();
+        updatedPendingQuestion.Categories = selectedCategories.Where(a => a.Id != 0).ToList();
 
-        PendingQuestion.QuestionText = updatedPendingQuestionValidation.QuestionText;
-        PendingQuestion.PendingAnswers = updatedPendingQuestionValidation.PendingAnswers;
-        PendingQuestion.Categories = updatedPendingQuestionValidation.Categories;
+        PendingQuestion.QuestionText = updatedPendingQuestion.QuestionText;
+        PendingQuestion.PendingAnswers = updatedPendingQuestion.PendingAnswers;
+        PendingQuestion.Categories = updatedPendingQuestion.Categories;
 
         await PendingQuestionService.UpdatePendingQuestion(PendingQuestion);
         await OnPendingQuestionChanged.InvokeAsync();
@@ -95,7 +95,7 @@ public partial class UpdatePendingQuestion : ComponentBase
 
     private void AddCategoryDropdown()
     {
-        selectedCategories.Add(new CategoryValidationDto());
+        selectedCategories.Add(new CategoryExtendedDto());
     }
 
     private void RemoveCategoryDropdown()
@@ -106,7 +106,7 @@ public partial class UpdatePendingQuestion : ComponentBase
         }
     }
 
-    private void SelectCategory(CategoryValidationDto currentCategory, CategoryValidationDto newCategory)
+    private void SelectCategory(CategoryExtendedDto currentCategory, CategoryExtendedDto newCategory)
     {
         int categoryIndex = selectedCategories.IndexOf(currentCategory);
 
