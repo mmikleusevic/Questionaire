@@ -42,31 +42,22 @@ public class CategoryService(QuestionaireDbContext context) : ICategoryService
         }
     }
 
-    public async Task<List<CategoryExtendedDto>> GetFlatCategories()
+    public async Task<List<CategoryExtendedDto>> GetFlatCategories(string searchQuery = "")
     {
         try
         {
-            List<CategoryExtendedDto> allCategories = await context.Categories
+            List<CategoryExtendedDto> categories = await context.Categories
                 .Include(c => c.ParentCategory)
+                .Where(c => EF.Functions.Like(c.CategoryName, $"%{searchQuery}%"))
                 .Select(category => new CategoryExtendedDto(category.Id)
                 {
                     CategoryName = category.CategoryName,
-                    ParentCategoryId = category.ParentCategoryId,
-                    ParentCategoryName = category.ParentCategory != null
-                        ? category.ParentCategory.CategoryName
-                        : string.Empty
+                    ParentCategoryId = category.ParentCategoryId
                 })
+                .OrderBy(c => c.CategoryName)
                 .ToListAsync();
 
-            Dictionary<int, List<CategoryExtendedDto>> categoryChildrenDict = allCategories
-                .GroupBy(c => c.ParentCategoryId ?? -1)
-                .ToDictionary(g => g.Key, g => g.OrderBy(c => c.CategoryName).ToList());
-
-            List<CategoryExtendedDto> result = new List<CategoryExtendedDto>();
-
-            AddDescendantsInOrder(-1, categoryChildrenDict, result);
-
-            return result;
+            return categories;
         }
         catch (Exception ex)
         {
@@ -162,26 +153,6 @@ public class CategoryService(QuestionaireDbContext context) : ICategoryService
         catch (Exception ex)
         {
             throw new InvalidOperationException("An error occurred while mapping categories.", ex);
-        }
-    }
-
-    private void AddDescendantsInOrder(int parentId, Dictionary<int, List<CategoryExtendedDto>> categoryChildrenDict,
-        List<CategoryExtendedDto> result)
-    {
-        try
-        {
-            if (categoryChildrenDict.TryGetValue(parentId, out List<CategoryExtendedDto>? children))
-            {
-                foreach (CategoryExtendedDto child in children)
-                {
-                    result.Add(child);
-                    AddDescendantsInOrder(child.Id, categoryChildrenDict, result);
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException("An error occurred while adding sub categories.", ex);
         }
     }
 }

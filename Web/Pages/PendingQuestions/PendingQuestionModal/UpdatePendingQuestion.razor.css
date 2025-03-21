@@ -125,17 +125,19 @@
     color: red;
 }
 
-.pending-question-text,
+.pending-question {
+    width: 100%;
+}
+
 .dropdown-row {
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.categories {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
+.answers {
+    align-items: center;
+    width: 100%;
 }
 
 .modal-buttons {

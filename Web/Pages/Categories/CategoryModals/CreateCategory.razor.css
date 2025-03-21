@@ -126,9 +126,14 @@
 }
 
 .category-name,
+.category-name-unique,
 .parent-category-dropdown {
     display: flex;
     align-items: center;
+}
+
+.category-name-unique label {
+    color: red;
 }
 
 .modal-buttons {

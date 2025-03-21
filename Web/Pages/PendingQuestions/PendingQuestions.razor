@@ -52,8 +52,7 @@
                             <div class="categories-row">
                                 @foreach (var category in pendingQuestion.Categories)
                                 {
-                                    <span
-                                        class="category-item">@(!string.IsNullOrEmpty(category.ParentCategoryName) ? category.ParentCategoryName + " > " + category.CategoryName : category.CategoryName)</span>
+                                    <span class="category-item">@category.CategoryName</span>
                                 }
                             </div>
                             <div class="pending-answers-list">

@@ -1,5 +1,6 @@
 @using Shared.Models
-<EditForm OnValidSubmit="HandleValidSubmit" EditContext="editContext">
+@using Web.Pages.Custom
+<EditForm EditContext="editContext">
     <ObjectGraphDataAnnotationsValidator/>
     <ValidationSummary class="alert alert-danger"/>
 
@@ -13,7 +14,7 @@
         </div>
     }
 
-    <div class="form-group row mb-3 pending-question-text">
+    <div class="form-group row mb-3 pending-question">
         <div class="col-md-12">
             <label class="col-md-3 col-form-label">Pending Question Text:<span class="text-danger">*</span></label>
             <div class="col-lg-12">
@@ -27,7 +28,7 @@
         </div>
         <div class="col-md-12">
             <label class="col-form-label">Pending Answers:<span class="text-danger">*</span></label>
-            <div class="row">
+            <div class="row answers">
                 @foreach (var pendingAnswer in pendingQuestion.PendingAnswers)
                 {
                     <div class="col-md-10">
@@ -57,56 +58,11 @@
                 }
             </div>
         </div>
-        <div class="col-md-12">
-            <label class="col-form-label">Categories:<span class="text-danger">*</span></label>
-            <div class="categories">
-                @foreach (var selectedCategory in selectedCategories)
-                {
-                    <div>
-                        <Dropdown Color="DropdownColor.Secondary">
-                            <DropdownToggleButton>
-                                @if (string.IsNullOrEmpty(selectedCategory?.ParentCategoryName) && !string.IsNullOrEmpty(selectedCategory?.CategoryName))
-                                {
-                                    @selectedCategory?.CategoryName
-                                }
-                                else if (!string.IsNullOrEmpty(selectedCategory?.ParentCategoryName))
-                                {
-                                    @(selectedCategory.ParentCategoryName + " > " + selectedCategory.CategoryName)
-                                }
-                                else
-                                {
-                                    @("None")
-                                }
-                            </DropdownToggleButton>
-                            <DropdownMenu>
-                                <DropdownItem
-                                    @onclick="() => SelectCategory(selectedCategory, new CategoryExtendedDto())">
-                                    None
-                                </DropdownItem>
-                                @foreach (var freeCategory in FlatCategories
-                                                  .Where(a => !selectedCategories
-                                                      .Select(b => b.Id).Contains(a.Id)))
-                                {
-                                    <DropdownItem @onclick="() => SelectCategory(selectedCategory, freeCategory)">
-                                        @(!string.IsNullOrEmpty(freeCategory.ParentCategoryName) ? freeCategory.ParentCategoryName + " > " + freeCategory.CategoryName : freeCategory.CategoryName)
-                                    </DropdownItem>
-                                }
-                            </DropdownMenu>
-                        </Dropdown>
-                    </div>
-                }
-            </div>
-            <div class="col-md-12">
-                <Button Color="ButtonColor.Primary" @onclick="AddCategoryDropdown">+ Add Category</Button>
-                <Button Color="ButtonColor.Warning" Disabled="@(selectedCategories.Count <= 1)"
-                        @onclick="RemoveCategoryDropdown">- Remove Category
-                </Button>
-            </div>
-        </div>
+        <CategorySelector SelectedCategories="selectedCategories" />
     </div>
     <div class="row">
         <div class="col-md-12 text-right modal-buttons">
-            <Button Type="ButtonType.Submit" Color="ButtonColor.Primary" Class="float-end me-2">Submit</Button>
+            <Button Type="ButtonType.Button" Color="ButtonColor.Primary" @onclick="HandleValidSubmit" Class="float-end me-2">Submit</Button>
             <Button Type="ButtonType.Button" Color="ButtonColor.Danger" Class="float-end" @onclick="Hide">Close</Button>
         </div>
     </div>

@@ -309,6 +309,9 @@ namespace QuestionaireApi.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CategoryName")
+                        .IsUnique();
+
                     b.HasIndex("ParentCategoryId");
 
                     b.ToTable("Categories");
@@ -689,7 +692,7 @@ namespace QuestionaireApi.Migrations
                         new
                         {
                             Id = 65,
-                            CategoryName = "Comedy",
+                            CategoryName = "Comedy (Movies)",
                             ParentCategoryId = 28
                         },
                         new
@@ -713,7 +716,7 @@ namespace QuestionaireApi.Migrations
                         new
                         {
                             Id = 69,
-                            CategoryName = "Animation",
+                            CategoryName = "Animation (Movies)",
                             ParentCategoryId = 28
                         },
                         new
@@ -731,7 +734,7 @@ namespace QuestionaireApi.Migrations
                         new
                         {
                             Id = 72,
-                            CategoryName = "Drama",
+                            CategoryName = "Drama (Movies)",
                             ParentCategoryId = 28
                         },
                         new
@@ -743,54 +746,48 @@ namespace QuestionaireApi.Migrations
                         new
                         {
                             Id = 74,
-                            CategoryName = "Comedy",
-                            ParentCategoryId = 28
-                        },
-                        new
-                        {
-                            Id = 75,
-                            CategoryName = "Comedy",
+                            CategoryName = "Comedy (TV Shows)",
                             ParentCategoryId = 29
                         },
                         new
                         {
-                            Id = 76,
+                            Id = 75,
                             CategoryName = "Documentary",
                             ParentCategoryId = 29
                         },
                         new
                         {
-                            Id = 77,
-                            CategoryName = "Drama",
+                            Id = 76,
+                            CategoryName = "Drama (TV Shows)",
                             ParentCategoryId = 29
                         },
                         new
                         {
-                            Id = 78,
+                            Id = 77,
                             CategoryName = "Reality TV",
                             ParentCategoryId = 29
                         },
                         new
                         {
-                            Id = 79,
-                            CategoryName = "Animation",
+                            Id = 78,
+                            CategoryName = "Animation (TV Shows)",
                             ParentCategoryId = 29
                         },
                         new
                         {
-                            Id = 80,
+                            Id = 79,
                             CategoryName = "Sitcom",
                             ParentCategoryId = 29
                         },
                         new
                         {
-                            Id = 81,
+                            Id = 80,
                             CategoryName = "Game show",
                             ParentCategoryId = 29
                         },
                         new
                         {
-                            Id = 82,
+                            Id = 81,
                             CategoryName = "Sci-fi",
                             ParentCategoryId = 29
                         });
@@ -848,13 +845,15 @@ namespace QuestionaireApi.Migrations
 
                     b.Property<string>("QuestionText")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedById");
 
                     b.HasIndex("LastUpdatedById");
+
+                    b.HasIndex("QuestionText");
 
                     b.HasIndex("Id", "CreatedById");
 
@@ -919,7 +918,7 @@ namespace QuestionaireApi.Migrations
 
                     b.Property<string>("QuestionText")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
@@ -928,6 +927,8 @@ namespace QuestionaireApi.Migrations
                     b.HasIndex("CreatedById");
 
                     b.HasIndex("LastUpdatedById");
+
+                    b.HasIndex("QuestionText");
 
                     b.HasIndex("Id", "CreatedById", "ApprovedById");
 
@@ -989,7 +990,7 @@ namespace QuestionaireApi.Migrations
                         {
                             Id = "2db072f6-3706-4996-b222-343896c40606",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "226acad3-d51e-4b79-b22e-ffd0b89f0cf8",
+                            ConcurrencyStamp = "f2d1969b-0c1c-4f72-964d-a0bad2b5b986",
                             Email = "admin@admin.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,

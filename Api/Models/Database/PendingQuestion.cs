@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 namespace QuestionaireApi.Models.Database;
 
 [Index(nameof(Id), nameof(CreatedById))]
+[Index(nameof(QuestionText))]
 public class PendingQuestion
 {
     public int Id { get; set; }

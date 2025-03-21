@@ -1,8 +1,11 @@
 using BlazorBootstrap;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 using Shared.Models;
 using Web.Interfaces;
+using Web.Services;
 
 namespace Web.Pages.PendingQuestions.PendingQuestionModal;
 
@@ -11,9 +14,9 @@ public partial class UpdatePendingQuestion : ComponentBase
     private EditContext? editContext;
     private List<CategoryExtendedDto> selectedCategories = new List<CategoryExtendedDto>();
     private PendingQuestionDto updatedPendingQuestion = new PendingQuestionDto();
-
     private List<string> validationMessages = new List<string>();
     [Inject] private IPendingQuestionService? PendingQuestionService { get; set; }
+    [Inject] private ICategoryService? CategoryService { get; set; }
     [Parameter] public PendingQuestionDto? PendingQuestion { get; set; }
     [Parameter] public List<CategoryExtendedDto>? FlatCategories { get; set; }
     [Parameter] public EventCallback OnPendingQuestionChanged { get; set; }
@@ -47,8 +50,7 @@ public partial class UpdatePendingQuestion : ComponentBase
             Categories = PendingQuestion.Categories.Select(c => new CategoryExtendedDto(c.Id)
             {
                 CategoryName = c.CategoryName,
-                ParentCategoryId = c.ParentCategoryId,
-                ParentCategoryName = c.ParentCategoryName
+                ParentCategoryId = c.ParentCategoryId
             }).ToList()
         };
 
@@ -58,7 +60,7 @@ public partial class UpdatePendingQuestion : ComponentBase
         editContext = new EditContext(updatedPendingQuestion);
     }
 
-    public async Task HandleValidSubmit()
+    private async Task HandleValidSubmit()
     {
         if (PendingQuestionService == null) return;
 
@@ -91,26 +93,6 @@ public partial class UpdatePendingQuestion : ComponentBase
         await PendingQuestionService.UpdatePendingQuestion(PendingQuestion);
         await OnPendingQuestionChanged.InvokeAsync();
         await Hide();
-    }
-
-    private void AddCategoryDropdown()
-    {
-        selectedCategories.Add(new CategoryExtendedDto());
-    }
-
-    private void RemoveCategoryDropdown()
-    {
-        if (selectedCategories.Count > 1)
-        {
-            selectedCategories.RemoveAt(selectedCategories.Count - 1);
-        }
-    }
-
-    private void SelectCategory(CategoryExtendedDto currentCategory, CategoryExtendedDto newCategory)
-    {
-        int categoryIndex = selectedCategories.IndexOf(currentCategory);
-
-        selectedCategories[categoryIndex] = newCategory;
     }
 
     private async Task Hide()

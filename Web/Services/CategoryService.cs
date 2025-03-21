@@ -12,22 +12,11 @@ public class CategoryService(
     ILogger<CategoryService> logger,
     ToastService toastService) : ICategoryService
 {
-    private readonly TimeSpan cacheDuration = TimeSpan.FromMinutes(10);
-    private readonly SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
     private List<CategoryExtendedDto>? flatCategories;
-    private DateTime lastFetchTime;
     private List<CategoryExtendedDto>? nestedCategories;
 
     public async Task<CategoriesDto> GetCategories(bool forceRefresh = false)
     {
-        if (!forceRefresh && nestedCategories != null && flatCategories != null &&
-            DateTime.UtcNow - lastFetchTime < cacheDuration)
-        {
-            return new CategoriesDto { FlatCategories = flatCategories, NestedCategories = nestedCategories };
-        }
-
-        await semaphore.WaitAsync();
-
         try
         {
             HttpResponseMessage? response = await httpClient.GetAsync("api/Category");
@@ -36,7 +25,6 @@ public class CategoryService(
             {
                 string? responseData = await response.Content.ReadAsStringAsync();
                 CategoriesDto? categories = JsonConvert.DeserializeObject<CategoriesDto>(responseData);
-                lastFetchTime = DateTime.UtcNow;
 
                 if (categories != null)
                 {
@@ -54,20 +42,12 @@ public class CategoryService(
         {
             ApiResponseHandler.HandleException(ex, toastService, "fetching categories", logger);
         }
-        finally
-        {
-            semaphore.Release();
-        }
 
         return new CategoriesDto();
     }
 
     public async Task<List<CategoryExtendedDto>> GetNestedCategories()
     {
-        if (nestedCategories != null && DateTime.UtcNow - lastFetchTime < cacheDuration) return nestedCategories;
-
-        await semaphore.WaitAsync();
-
         try
         {
             HttpResponseMessage? response = await httpClient.GetAsync("api/Category/nested");
@@ -76,7 +56,6 @@ public class CategoryService(
             {
                 string? responseData = await response.Content.ReadAsStringAsync();
                 nestedCategories = JsonConvert.DeserializeObject<List<CategoryExtendedDto>>(responseData);
-                lastFetchTime = DateTime.UtcNow;
 
                 return nestedCategories ?? new List<CategoryExtendedDto>();
             }
@@ -88,29 +67,20 @@ public class CategoryService(
         {
             ApiResponseHandler.HandleException(ex, toastService, "fetching nested categories", logger);
         }
-        finally
-        {
-            semaphore.Release();
-        }
 
         return new List<CategoryExtendedDto>();
     }
 
-    public async Task<List<CategoryExtendedDto>> GetFlatCategories()
+    public async Task<List<CategoryExtendedDto>> GetFlatCategories(string searchQuery = "")
     {
-        if (flatCategories != null && DateTime.UtcNow - lastFetchTime < cacheDuration) return flatCategories;
-
-        await semaphore.WaitAsync();
-
         try
         {
-            HttpResponseMessage? response = await httpClient.GetAsync("api/Category/flat");
+            HttpResponseMessage? response = await httpClient.GetAsync($"api/Category/flat?searchQuery={searchQuery}");
 
             if (response.IsSuccessStatusCode)
             {
                 string? responseData = await response.Content.ReadAsStringAsync();
                 flatCategories = JsonConvert.DeserializeObject<List<CategoryExtendedDto>>(responseData);
-                lastFetchTime = DateTime.UtcNow;
 
                 return flatCategories ?? new List<CategoryExtendedDto>();
             }
@@ -121,10 +91,6 @@ public class CategoryService(
         catch (Exception ex)
         {
             ApiResponseHandler.HandleException(ex, toastService, "fetching flat categories", logger);
-        }
-        finally
-        {
-            semaphore.Release();
         }
 
         return new List<CategoryExtendedDto>();
@@ -143,8 +109,6 @@ public class CategoryService(
             if (response.StatusCode == HttpStatusCode.Created) responseResult = "Category created successfully";
 
             ToastHandler.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
-
-            ClearCache();
         }
         catch (Exception ex)
         {
@@ -163,8 +127,6 @@ public class CategoryService(
             string responseResult = await response.Content.ReadAsStringAsync();
 
             ToastHandler.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
-
-            ClearCache();
         }
         catch (Exception ex)
         {
@@ -180,18 +142,10 @@ public class CategoryService(
             string responseResult = await response.Content.ReadAsStringAsync();
 
             ToastHandler.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
-
-            ClearCache();
         }
         catch (Exception ex)
         {
             ApiResponseHandler.HandleException(ex, toastService, "deleting a category", logger);
         }
-    }
-
-    private void ClearCache()
-    {
-        flatCategories = null;
-        nestedCategories = null;
     }
 }

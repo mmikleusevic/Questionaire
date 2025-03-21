@@ -34,7 +34,7 @@ public class CategoryController(
 
     [HttpGet("nested")]
     [AllowAnonymous]
-    public async Task<IActionResult> GetNestedCategories()
+    public async Task<IActionResult> GetNestedCategories(string searchQuery = "")
     {
         try
         {
@@ -52,11 +52,11 @@ public class CategoryController(
 
     [HttpGet("flat")]
     [AllowAnonymous]
-    public async Task<IActionResult> GetFlatCategories()
+    public async Task<IActionResult> GetFlatCategories([FromQuery] string searchQuery = "")
     {
         try
         {
-            List<CategoryExtendedDto> categories = await categoryService.GetFlatCategories();
+            List<CategoryExtendedDto> categories = await categoryService.GetFlatCategories(searchQuery);
             if (categories.Count == 0) return NotFound("No categories found.");
             return Ok(categories);
         }

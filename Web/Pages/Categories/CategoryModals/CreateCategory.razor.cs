@@ -37,7 +37,6 @@ public partial class CreateCategory : ComponentBase
         else
         {
             category.ParentCategoryId = selectedCategory.Id;
-            category.ParentCategoryName = selectedCategory.ParentCategoryName;
         }
     }
 

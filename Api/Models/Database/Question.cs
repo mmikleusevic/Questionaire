@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 namespace QuestionaireApi.Models.Database;
 
 [Index(nameof(Id), nameof(CreatedById), nameof(ApprovedById))]
+[Index(nameof(QuestionText))]
 public class Question
 {
     public int Id { get; set; }

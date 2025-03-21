@@ -22,6 +22,7 @@ builder.Services.AddScoped<IPendingQuestionService, PendingQuestionService>();
 builder.Services.AddScoped<IAuthRedirectService, AuthRedirectService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
+builder.Services.AddScoped<JavaScriptService>();
 
 builder.Services.AddScoped(sp => new HttpClient
     { BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"]) });

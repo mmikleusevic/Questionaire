@@ -1,6 +1,8 @@
+using System.Runtime.InteropServices;
 using BlazorBootstrap;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.AspNetCore.Components.Web;
 using Shared.Models;
 using Web.Interfaces;
 
@@ -11,9 +13,13 @@ public partial class UpdateQuestion : ComponentBase
     private EditContext? editContext;
     private List<CategoryExtendedDto> selectedCategories = new List<CategoryExtendedDto>();
     private QuestionExtendedDto updatedQuestion = new QuestionExtendedDto();
+    private List<CategoryExtendedDto> searchResults = new List<CategoryExtendedDto>();
+    private string searchQuery = string.Empty;
+    private int selectedIndex = -1;
 
     private List<string> validationMessages = new List<string>();
     [Inject] private IQuestionService? QuestionService { get; set; }
+    [Inject] private ICategoryService? CategoryService { get; set; }
     [Parameter] public QuestionExtendedDto? Question { get; set; }
     [Parameter] public List<CategoryExtendedDto>? FlatCategories { get; set; }
     [Parameter] public EventCallback OnQuestionChanged { get; set; }
@@ -47,14 +53,15 @@ public partial class UpdateQuestion : ComponentBase
             Categories = Question.Categories.Select(c => new CategoryExtendedDto(c.Id)
             {
                 CategoryName = c.CategoryName,
-                ParentCategoryId = c.ParentCategoryId,
-                ParentCategoryName = c.ParentCategoryName
+                ParentCategoryId = c.ParentCategoryId
             }).ToList()
         };
 
         selectedCategories = updatedQuestion.Categories.ToList();
 
         validationMessages.Clear();
+        searchQuery = string.Empty;
+        selectedIndex = -1;
         editContext = new EditContext(updatedQuestion);
     }
 
@@ -93,24 +100,67 @@ public partial class UpdateQuestion : ComponentBase
         await Hide();
     }
 
-    private void AddCategoryDropdown()
+    private async Task SearchCategories(string? value)
     {
-        selectedCategories.Add(new CategoryExtendedDto());
+        searchQuery = value ?? string.Empty;
+        selectedIndex = -1;
+        
+        if (!string.IsNullOrWhiteSpace(searchQuery))
+        {
+            if (CategoryService == null) return;
+            
+            searchResults = await CategoryService.GetFlatCategories(searchQuery);
+
+            if (selectedCategories.Count == 0) return;
+            
+            searchResults = searchResults.Where(c => !selectedCategories.Select(sc => sc.Id).Contains(c.Id)).ToList();
+        }
+        else
+        {
+            searchResults.Clear();
+        }
+    }
+    
+    private void HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "ArrowDown")
+        {
+            selectedIndex = (selectedIndex + 1) % searchResults.Count;
+        }
+        else if (e.Key == "ArrowUp")
+        {
+            selectedIndex = (selectedIndex - 1 + searchResults.Count) % searchResults.Count;
+        }
+        else if (e.Key == "Enter" && selectedIndex >= 0)
+        {
+            AddCategoryToSelection(searchResults[selectedIndex]);
+        }
+    }
+    
+    private void SelectCategory(int index)
+    {
+        selectedIndex = index;
+        AddCategoryToSelection(searchResults[index]);
+    }
+    
+    private void AddCategoryToSelection(CategoryExtendedDto category)
+    {
+        if (!selectedCategories.Contains(category))
+        {
+            selectedCategories.Add(category);
+        }
+        
+        searchResults.Clear();
+        searchQuery = string.Empty;
+        selectedIndex = -1;
     }
 
-    private void RemoveCategoryDropdown()
+    private void RemoveCategory()
     {
-        if (selectedCategories.Count > 1)
+        if (selectedCategories.Count > 0)
         {
             selectedCategories.RemoveAt(selectedCategories.Count - 1);
         }
-    }
-
-    private void SelectCategory(CategoryExtendedDto currentCategory, CategoryExtendedDto newCategory)
-    {
-        int categoryIndex = selectedCategories.IndexOf(currentCategory);
-
-        selectedCategories[categoryIndex] = newCategory;
     }
 
     private async Task Hide()

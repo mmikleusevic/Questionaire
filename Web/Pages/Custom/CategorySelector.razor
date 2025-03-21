@@ -1,0 +1,43 @@
+@using Shared.Models
+
+<div class="col-md-12">
+    <label class="col-form-label">Categories:<span class="text-danger">*</span></label>
+    <div class="dropdown">
+        <input @bind="searchQuery"
+               Placeholder="Search categories"
+               @oninput="e => SearchCategories(e.Value?.ToString())"
+               @onkeydown="HandleKeyDown"
+               class="form-control"
+               MaxLength="100"/>
+                
+        @if (searchResults.Count > 0)
+        {
+            <ul class="dropdown-menu show">
+                @foreach (var (result, index) in searchResults.Select((r, i) => (r, i)))
+                {
+                    <li>
+                        <a class="dropdown-item @(index == selectedIndex ? "active" : "")"
+                           id="@($"category-{index}")"
+                           @onclick="() => SelectCategory(index)">
+                            @result.CategoryName
+                        </a>
+                    </li>
+                }
+            </ul>
+        }
+    </div>
+    <div class="categories-row">
+        @if (SelectedCategories != null)
+        {
+            foreach (CategoryExtendedDto category in SelectedCategories)
+            {
+                <span class="category-item">@category.CategoryName</span>
+            }
+        }
+    </div>
+    <div class="col-md-12">
+        <Button Color="ButtonColor.Warning" Disabled="@(SelectedCategories != null && SelectedCategories.Count == 0)"
+                @onclick="RemoveCategory">- Remove Category
+        </Button>
+    </div>
+</div>

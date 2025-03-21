@@ -18,6 +18,12 @@
     gap: 10px;
 }
 
+.toggle-label {
+    font-size: 16px;
+    font-weight: 500;
+    color: black;
+}
+
 .toggle-container span {
     font-weight: bold;
 }
@@ -65,12 +71,6 @@ input:checked + .slider {
 
 input:checked + .slider:before {
     transform: translateX(24px);
-}
-
-.toggle-label {
-    font-size: 16px;
-    font-weight: 500;
-    color: black;
 }
 
 .pending-questions-container {

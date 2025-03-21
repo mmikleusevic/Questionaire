@@ -34,7 +34,6 @@ public class PendingQuestionService(
                 .Include(a => a.PendingAnswers)
                 .Include(a => a.PendingQuestionCategories)
                 .ThenInclude(c => c.Category)
-                .ThenInclude(pc => pc.ParentCategory)
                 .OrderBy(q => q.Id);
 
             if ((roles.Contains("User") && !roles.Contains("Admin")) || pendingQuestionsRequestDto.OnlyMyQuestions)
@@ -44,15 +43,15 @@ public class PendingQuestionService(
             
             if (!string.IsNullOrEmpty(pendingQuestionsRequestDto.SearchQuery))
             {
-                query = query.Where(q => EF.Functions.FreeText(q.QuestionText, pendingQuestionsRequestDto.SearchQuery));
+                query = query.Where(q => EF.Functions.Like(q.QuestionText, $"%{pendingQuestionsRequestDto.SearchQuery}%"));
             }
 
+            int totalQuestions = await query.CountAsync();
+            
             List<PendingQuestion> questions = await query
                 .Skip((pendingQuestionsRequestDto.PageNumber - 1) * pendingQuestionsRequestDto.PageSize)
                 .Take(pendingQuestionsRequestDto.PageSize)
                 .ToListAsync();
-
-            int totalQuestions = await query.CountAsync();
 
             PaginatedResponse<PendingQuestionDto> response =
                 new PaginatedResponse<PendingQuestionDto>
@@ -68,10 +67,7 @@ public class PendingQuestionService(
                         }).ToList(),
                         Categories = q.PendingQuestionCategories.Select(qc => new CategoryExtendedDto(qc.Category.Id)
                         {
-                            CategoryName = qc.Category.CategoryName,
-                            ParentCategoryName = qc.Category.ParentCategory != null
-                                ? qc.Category.ParentCategory.CategoryName
-                                : string.Empty
+                            CategoryName = qc.Category.CategoryName
                         }).ToList()
                     }).ToList(),
                     TotalCount = totalQuestions,

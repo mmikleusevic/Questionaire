@@ -12,8 +12,8 @@ using QuestionaireApi;
 namespace QuestionaireApi.Migrations
 {
     [DbContext(typeof(QuestionaireDbContext))]
-    [Migration("20250318142633_AddFreeTextIndexForQuestionText")]
-    partial class AddFreeTextIndexForQuestionText
+    [Migration("20250320102537_AddedUniqueIndexForCategoryNamesAndQuestionTextIndexes")]
+    partial class AddedUniqueIndexForCategoryNamesAndQuestionTextIndexes
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -311,6 +311,9 @@ namespace QuestionaireApi.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CategoryName")
+                        .IsUnique();
 
                     b.HasIndex("ParentCategoryId");
 
@@ -692,7 +695,7 @@ namespace QuestionaireApi.Migrations
                         new
                         {
                             Id = 65,
-                            CategoryName = "Comedy",
+                            CategoryName = "Comedy (Movies)",
                             ParentCategoryId = 28
                         },
                         new
@@ -716,7 +719,7 @@ namespace QuestionaireApi.Migrations
                         new
                         {
                             Id = 69,
-                            CategoryName = "Animation",
+                            CategoryName = "Animation (Movies)",
                             ParentCategoryId = 28
                         },
                         new
@@ -734,7 +737,7 @@ namespace QuestionaireApi.Migrations
                         new
                         {
                             Id = 72,
-                            CategoryName = "Drama",
+                            CategoryName = "Drama (Movies)",
                             ParentCategoryId = 28
                         },
                         new
@@ -746,54 +749,48 @@ namespace QuestionaireApi.Migrations
                         new
                         {
                             Id = 74,
-                            CategoryName = "Comedy",
-                            ParentCategoryId = 28
-                        },
-                        new
-                        {
-                            Id = 75,
-                            CategoryName = "Comedy",
+                            CategoryName = "Comedy (TV Shows)",
                             ParentCategoryId = 29
                         },
                         new
                         {
-                            Id = 76,
+                            Id = 75,
                             CategoryName = "Documentary",
                             ParentCategoryId = 29
                         },
                         new
                         {
-                            Id = 77,
-                            CategoryName = "Drama",
+                            Id = 76,
+                            CategoryName = "Drama (TV Shows)",
                             ParentCategoryId = 29
                         },
                         new
                         {
-                            Id = 78,
+                            Id = 77,
                             CategoryName = "Reality TV",
                             ParentCategoryId = 29
                         },
                         new
                         {
-                            Id = 79,
-                            CategoryName = "Animation",
+                            Id = 78,
+                            CategoryName = "Animation (TV Shows)",
                             ParentCategoryId = 29
                         },
                         new
                         {
-                            Id = 80,
+                            Id = 79,
                             CategoryName = "Sitcom",
                             ParentCategoryId = 29
                         },
                         new
                         {
-                            Id = 81,
+                            Id = 80,
                             CategoryName = "Game show",
                             ParentCategoryId = 29
                         },
                         new
                         {
-                            Id = 82,
+                            Id = 81,
                             CategoryName = "Sci-fi",
                             ParentCategoryId = 29
                         });
@@ -851,13 +848,15 @@ namespace QuestionaireApi.Migrations
 
                     b.Property<string>("QuestionText")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedById");
 
                     b.HasIndex("LastUpdatedById");
+
+                    b.HasIndex("QuestionText");
 
                     b.HasIndex("Id", "CreatedById");
 
@@ -922,7 +921,7 @@ namespace QuestionaireApi.Migrations
 
                     b.Property<string>("QuestionText")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
@@ -931,6 +930,8 @@ namespace QuestionaireApi.Migrations
                     b.HasIndex("CreatedById");
 
                     b.HasIndex("LastUpdatedById");
+
+                    b.HasIndex("QuestionText");
 
                     b.HasIndex("Id", "CreatedById", "ApprovedById");
 
@@ -992,7 +993,7 @@ namespace QuestionaireApi.Migrations
                         {
                             Id = "2db072f6-3706-4996-b222-343896c40606",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "e77a2c7e-98f1-44a9-bbbd-2b92f7c2285c",
+                            ConcurrencyStamp = "f2d1969b-0c1c-4f72-964d-a0bad2b5b986",
                             Email = "admin@admin.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,

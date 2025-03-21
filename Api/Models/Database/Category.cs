@@ -5,11 +5,12 @@ using Microsoft.EntityFrameworkCore;
 namespace QuestionaireApi.Models.Database;
 
 [Index(nameof(ParentCategoryId))]
+[Index(nameof(CategoryName), IsUnique = true)]
 public class Category
 {
     public int Id { get; set; }
 
-    [Required] [StringLength(100)] public string CategoryName { get; set; } = null!;
+    [Required][StringLength(100)] public string CategoryName { get; set; } = null!;
 
     public int? ParentCategoryId { get; set; }
 

@@ -1,4 +1,5 @@
 @page "/Questions"
+@using Shared.Models
 @inject NavigationManager Navigation
 @attribute [Authorize(Roles = "Admin, SuperAdmin, User")]
 
@@ -43,10 +44,9 @@
                         <div class="question-text">@question.QuestionText</div>
                         <div class="categories-answers">
                             <div class="categories-row">
-                                @foreach (var category in question.Categories)
+                                @foreach (CategoryExtendedDto category in question.Categories)
                                 {
-                                    <span
-                                        class="category-item"> @(!string.IsNullOrEmpty(category.ParentCategoryName) ? category.ParentCategoryName + " > " + category.CategoryName : category.CategoryName)</span>
+                                    <span class="category-item">@category.CategoryName</span>
                                 }
                             </div>
                             <div class="answers-list">

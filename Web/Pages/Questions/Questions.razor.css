@@ -90,7 +90,7 @@ input:checked + .slider:before {
     padding: 10px;
     transition: transform 0.2s, box-shadow 0.2s;
     gap: 10px;
-    overflow-x: auto;
+    min-width: 800px;
 }
 
 .question:hover {
@@ -122,7 +122,6 @@ input:checked + .slider:before {
 .categories-answers {
     display: flex;
     gap: 10px;
-    height: 150px;
 }
 
 .categories-row {
