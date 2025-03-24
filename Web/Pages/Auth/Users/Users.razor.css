@@ -1,12 +1,12 @@
-.header {
-    gap: 10px;
-    padding-left: 10px;
+.header-custom {
+    display: flex;
 }
 
 .header-container {
     display: flex;
     flex-direction: column;
-    width: 100%;
+    justify-content: space-between;
+    overflow-x: auto;
 }
 
 .header-text {
@@ -18,20 +18,41 @@
     margin-bottom: 0;
 }
 
+.user-name-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 4;
+    font-weight: bold;
+    background-color: #f4f4f4;
+    border-left: 1px solid #ddd;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    padding: 10px 0;
+}
+
 .user-email-header {
     display: flex;
     justify-content: center;
     align-items: center;
     flex: 6;
     font-weight: bold;
+    background-color: #f4f4f4;
+    border-bottom: 1px solid #ddd;
+    border-top: 1px solid #ddd;
+    padding: 10px 0;
 }
 
-.roles-header {
+.user-roles-header {
     display: flex;
     justify-content: center;
     align-items: center;
     flex: 2;
     font-weight: bold;
+    background-color: #f4f4f4;
+    border-bottom: 1px solid #ddd;
+    border-top: 1px solid #ddd;
+    padding: 10px 0;
 }
 
 .actions-header {
@@ -40,42 +61,42 @@
     align-items: center;
     flex: 2;
     font-weight: bold;
+    background-color: #f4f4f4;
+    border-bottom: 1px solid #ddd;
+    border-top: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    padding: 10px 0;
 }
 
 .user-list {
-    margin: 0;
     padding: 0;
-    list-style: none;
     display: flex;
     flex-direction: column;
     flex-wrap: wrap;
-    overflow: auto;
-}
-
-.user-list li {
-    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
 }
 
 .user-item {
-    display: contents;
+    min-height: 60px;
+    display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px;
-    background-color: #fff;
     font-size: 14px;
+}
+
+.user-list .user-item:nth-child(even) {
+    background-color: #f9f9f9;
     border-bottom: 1px solid #ddd;
     border-top: 1px solid #ddd;
 }
 
-.user-content {
-    padding: 10px;
-    border: 1px solid #ddd;
+.user-name {
     display: flex;
-    gap: 10px;
-}
-
-.user-content:nth-child(even) {
-    background-color: #f9f9f9;
+    justify-content: center;
+    align-items: center;
+    flex: 4;
 }
 
 .user-email {
@@ -98,4 +119,24 @@
     justify-content: center;
     align-items: center;
     flex: 2;
+}
+
+.user-name-header,
+.user-name {
+    min-width: 250px;
+}
+
+.user-email-header,
+.user-email {
+    min-width: 250px;
+}
+
+.user-roles-header,
+.user-roles {
+    min-width: 150px;
+}
+
+.actions-header,
+.actions {
+    min-width: 250px;
 }

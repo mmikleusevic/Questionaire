@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 using QuestionaireApi.IdentityApi.Models;
+using Shared.Models;
 
 namespace QuestionaireApi.IdentityApi;
 
@@ -56,7 +57,7 @@ public static class IdentityApiEndpointRouteBuilderExtensions
         // NOTE: We cannot inject UserManager<TUser> directly because the TUser generic parameter is currently unsupported by RDG.
         // https://github.com/dotnet/aspnetcore/issues/47338
         routeGroup.MapPost("/register", async Task<Results<Ok, ValidationProblem>>
-            ([FromBody] RegisterRequest registration, HttpContext context, [FromServices] IServiceProvider sp) =>
+            ([FromBody] RegisterData registration, HttpContext context, [FromServices] IServiceProvider sp) =>
         {
             var userManager = sp.GetRequiredService<UserManager<TUser>>();
 
@@ -76,7 +77,7 @@ public static class IdentityApiEndpointRouteBuilderExtensions
             }
 
             var user = new TUser();
-            await userStore.SetUserNameAsync(user, email, CancellationToken.None);
+            await userStore.SetUserNameAsync(user, registration.UserName, CancellationToken.None);
             await emailStore.SetEmailAsync(user, email, CancellationToken.None);
             var result = await userManager.CreateAsync(user, registration.Password);
             await userManager.AddToRoleAsync(user, "User");
@@ -86,12 +87,11 @@ public static class IdentityApiEndpointRouteBuilderExtensions
                 return CreateValidationProblem(result);
             }
 
-            await SendConfirmationEmailAsync(user, userManager, context, email);
             return TypedResults.Ok();
         });
 
         routeGroup.MapPost("/login", async Task<Results<Ok<AccessTokenResponse>, EmptyHttpResult, ProblemHttpResult>>
-        ([FromBody] LoginRequest login, [FromQuery] bool? useCookies, [FromQuery] bool? useSessionCookies,
+        ([FromBody] LoginData login, [FromQuery] bool? useCookies, [FromQuery] bool? useSessionCookies,
             [FromServices] IServiceProvider sp) =>
         {
             var signInManager = sp.GetRequiredService<SignInManager<TUser>>();
@@ -101,27 +101,13 @@ public static class IdentityApiEndpointRouteBuilderExtensions
             signInManager.AuthenticationScheme =
                 useCookieScheme ? IdentityConstants.ApplicationScheme : IdentityConstants.BearerScheme;
 
-            var result = await signInManager.PasswordSignInAsync(login.Email, login.Password, isPersistent, true);
-
-            if (result.RequiresTwoFactor)
-            {
-                if (!string.IsNullOrEmpty(login.TwoFactorCode))
-                {
-                    result = await signInManager.TwoFactorAuthenticatorSignInAsync(login.TwoFactorCode, isPersistent,
-                        isPersistent);
-                }
-                else if (!string.IsNullOrEmpty(login.TwoFactorRecoveryCode))
-                {
-                    result = await signInManager.TwoFactorRecoveryCodeSignInAsync(login.TwoFactorRecoveryCode);
-                }
-            }
+            var result = await signInManager.PasswordSignInAsync(login.UserName, login.Password, isPersistent, true);
 
             if (!result.Succeeded)
             {
                 return TypedResults.Problem(result.ToString(), statusCode: StatusCodes.Status401Unauthorized);
             }
 
-            // The signInManager already produced the needed response in the form of a cookie or bearer token.
             return TypedResults.Empty;
         });
 

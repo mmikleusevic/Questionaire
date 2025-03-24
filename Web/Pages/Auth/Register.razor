@@ -7,6 +7,14 @@
         <ValidationSummary class="alert alert-danger"/>
         <hr>
         <div class="mb-3">
+            <label class="form-label">UserName: <span class="text-danger">*</span></label>
+            <div>
+                <TextInput @bind-Value="@registerData.UserName" Placeholder="Enter your username"/>
+                <ValidationMessage For="@(() => registerData.UserName)" class="alert alert-danger"/>
+            </div>
+        </div>
+
+        <div class="mb-3">
             <label class="form-label">Email: <span class="text-danger">*</span></label>
             <div>
                 <TextInput @bind-Value="@registerData.Email" Placeholder="Enter your email"/>

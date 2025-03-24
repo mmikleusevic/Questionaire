@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
-using Web.Models;
+using Shared.Models;
 using Web.Services;
 
 namespace Web.Pages.Auth;
@@ -13,7 +13,7 @@ public partial class Register : ComponentBase
 
     protected override async Task OnInitializedAsync()
     {
-        registerData.Email = string.Empty;
+        registerData.UserName = string.Empty;
         registerData.Password = string.Empty;
         registerData.ConfirmPassword = string.Empty;
 

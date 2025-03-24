@@ -25,6 +25,7 @@ public partial class UpdateUser : ComponentBase
 
         updatedUser = new UserDto
         {
+            UserName = User?.UserName ?? string.Empty,
             Email = User?.Email ?? string.Empty,
             Roles = User?.Roles.ToList() ?? new List<string>()
         };

@@ -5,8 +5,8 @@ using BlazorBootstrap;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 using Newtonsoft.Json.Linq;
+using Shared.Models;
 using Web.Interfaces;
-using Web.Models;
 
 namespace Web.Services;
 
@@ -43,7 +43,7 @@ public class CustomAuthStateService(
             string? name = jsonResponse["name"]?.ToString();
             JArray? rolesArray = jsonResponse["roles"] as JArray;
 
-            List<Claim> claims = new()
+            List<Claim> claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Email, email ?? string.Empty),
                 new Claim(ClaimTypes.Name, name ?? string.Empty)
@@ -57,7 +57,7 @@ public class CustomAuthStateService(
                 }
             }
 
-            ClaimsIdentity identity = new(claims, "Token");
+            ClaimsIdentity identity = new ClaimsIdentity(claims, "Token");
             user = new ClaimsPrincipal(identity);
         }
         catch (Exception ex)
@@ -131,7 +131,7 @@ public class CustomAuthStateService(
 
             LoginData loginData = new LoginData
             {
-                Email = registerData.Email,
+                UserName = registerData.UserName,
                 Password = registerData.Password
             };
 

@@ -21,6 +21,7 @@ public class UserService(UserManager<User> userManager) : IUserService
 
                 userDtos.Add(new UserDto
                 {
+                    UserName = user.UserName ?? string.Empty,
                     Email = user.Email ?? string.Empty,
                     Roles = roles
                 });
@@ -36,24 +37,39 @@ public class UserService(UserManager<User> userManager) : IUserService
 
     public async Task<bool> UpdateUser(UserDto updatedUser)
     {
-        User? user = await userManager.FindByEmailAsync(updatedUser.Email);
-        if (user == null) return false;
+        try
+        {
+            User? user = await userManager.FindByNameAsync(updatedUser.UserName);
+            if (user == null) return false;
 
-        IList<string> currentRoles = await userManager.GetRolesAsync(user);
+            IList<string> currentRoles = await userManager.GetRolesAsync(user);
 
-        await userManager.RemoveFromRolesAsync(user, currentRoles);
-        await userManager.AddToRolesAsync(user, updatedUser.Roles);
+            await userManager.RemoveFromRolesAsync(user, currentRoles);
+            await userManager.AddToRolesAsync(user, updatedUser.Roles);
 
-        return true;
+            return true;
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException(
+                $"An error occurred while updating user with username {updatedUser.UserName}.", ex);
+        }
     }
 
-    public async Task<bool> DeleteUser(string email)
+    public async Task<bool> DeleteUser(string username)
     {
-        User? user = await userManager.FindByEmailAsync(email);
-        if (user == null) return false;
+        try
+        {
+            User? user = await userManager.FindByNameAsync(username);
+            if (user == null) return false;
 
-        IdentityResult result = await userManager.DeleteAsync(user);
+            IdentityResult result = await userManager.DeleteAsync(user);
 
-        return result.Succeeded;
+            return result.Succeeded;
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException($"An error occurred while deleting user with username {username}.", ex);
+        }
     }
 }

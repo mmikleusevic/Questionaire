@@ -55,11 +55,11 @@ public class UserService(
         }
     }
 
-    public async Task DeleteUser(string email)
+    public async Task DeleteUser(string userName)
     {
         try
         {
-            HttpResponseMessage? response = await httpClient.DeleteAsync($"api/User/{email}");
+            HttpResponseMessage? response = await httpClient.DeleteAsync($"api/User/{userName}");
             string responseResult = await response.Content.ReadAsStringAsync();
 
             ToastHandler.ShowToast(toastService, response.StatusCode, responseResult, responseResult);

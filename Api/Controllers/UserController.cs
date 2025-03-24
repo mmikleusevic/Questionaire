@@ -38,29 +38,29 @@ public class UserController(
             if (updatedUser == null) return BadRequest("Updated user data cannot be null.");
 
             bool success = await userService.UpdateUser(updatedUser);
-            if (!success) return NotFound($"User with email {updatedUser.Email} not found.");
-            return Ok($"User with email {updatedUser.Email} updated successfully.");
+            if (!success) return NotFound($"User with username {updatedUser.UserName} not found.");
+            return Ok($"User with username {updatedUser.UserName} updated successfully.");
         }
         catch (Exception ex)
         {
-            string message = $"An error occurred while updating the user with email {updatedUser?.Email}.";
+            string message = $"An error occurred while updating the user with username {updatedUser?.UserName}.";
             logger.LogError(ex, message);
             return StatusCode(500, message);
         }
     }
 
     [HttpDelete("{email}")]
-    public async Task<IActionResult> DeleteUser(string email)
+    public async Task<IActionResult> DeleteUser(string userName)
     {
         try
         {
-            bool success = await userService.DeleteUser(email);
-            if (!success) return NotFound($"User with email {email} not found.");
-            return Ok($"User with email {email} deleted successfully.");
+            bool success = await userService.DeleteUser(userName);
+            if (!success) return NotFound($"User with username {userName} not found.");
+            return Ok($"User with username {userName} deleted successfully.");
         }
         catch (Exception ex)
         {
-            string message = $"An error occurred while deleting the user with email {email}.";
+            string message = $"An error occurred while deleting the user with username {userName}.";
             logger.LogError(ex, message);
             return StatusCode(500, message);
         }

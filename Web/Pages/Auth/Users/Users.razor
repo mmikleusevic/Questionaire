@@ -11,42 +11,43 @@
         <h3>Users</h3>
     </div>
 </div>
-<div class="header-container">
-    <div class="header">
-        <div class="user-email-header">Email</div>
-        <div class="roles-header">Roles</div>
-        <div class="actions-header">Actions</div>
-    </div>
 
-    @if (users == null)
-    {
-        <p><em>Loading...</em></p>
-    }
-    else if (users.Count == 0)
-    {
-        <p>No Users found.</p>
-    }
-    else
-    {
+
+@if (users == null)
+{
+    <p><em>Loading...</em></p>
+}
+else if (users.Count == 0)
+{
+    <p>No Users found.</p>
+}
+else
+{
+    <div class="header-container">
+        <div class="header-custom">
+            <div class="user-name-header">Username</div>
+            <div class="user-email-header">Email</div>
+            <div class="user-roles-header">Roles</div>
+            <div class="actions-header">Actions</div>
+        </div>
         <ul class="user-list">
             @foreach (UserDto user in users)
             {
                 <li class="user-item">
-                    <div class="user-content">
-                        <span class="user-email">@user.Email</span>
-                        <div class="user-roles">
-                            @foreach (string role in user.Roles)
-                            {
-                                <span class="role">@role</span>
-                            }
-                        </div>
-                        <div class="actions">
-                            <button class="btn btn-update" @onclick="@(() => ShowUpdateUser(user))">Update</button>
-                            <button class="btn btn-delete" @onclick="@(() => ShowDeleteUser(user))">Delete</button>
-                        </div>
+                    <span class="user-name">@user.UserName</span>
+                    <span class="user-email">@user.Email</span>
+                    <div class="user-roles">
+                        @foreach (string role in user.Roles)
+                        {
+                            <span class="role">@role</span>
+                        }
+                    </div>
+                    <div class="actions">
+                        <button class="btn btn-update" @onclick="@(() => ShowUpdateUser(user))">Update</button>
+                        <button class="btn btn-delete" @onclick="@(() => ShowDeleteUser(user))">Delete</button>
                     </div>
                 </li>
             }
         </ul>
-    }
-</div>
+    </div>
+}

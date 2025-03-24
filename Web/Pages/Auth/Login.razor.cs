@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
-using Web.Models;
+using Shared.Models;
 using Web.Services;
 
 namespace Web.Pages.Auth;
@@ -13,7 +13,7 @@ public partial class Login : ComponentBase
 
     protected override async Task OnInitializedAsync()
     {
-        loginData.Email = string.Empty;
+        loginData.UserName = string.Empty;
         loginData.Password = string.Empty;
 
         editContext = new EditContext(loginData);

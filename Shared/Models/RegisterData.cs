@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace Web.Models;
+namespace Shared.Models;
 
 public class RegisterData : LoginData
 {
@@ -11,4 +11,8 @@ public class RegisterData : LoginData
     [StringLength(24, MinimumLength = 6,
         ErrorMessage = "The confirm password must contain at least 6 and max 24 characters")]
     public string ConfirmPassword { get; set; } = string.Empty;
+
+    [EmailAddress]
+    [Required(ErrorMessage = "Email is required")]
+    public string Email { get; set; } = string.Empty;
 }

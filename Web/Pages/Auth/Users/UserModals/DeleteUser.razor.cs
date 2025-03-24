@@ -14,8 +14,8 @@ public partial class DeleteUser : ComponentBase
 
     private async Task Delete()
     {
-        if (UserService == null) return;
+        if (UserService == null || User == null) return;
 
-        await UserService.DeleteUser(User.Email);
+        await UserService.DeleteUser(User.UserName);
     }
 }

@@ -7,10 +7,10 @@
         <ValidationSummary class="alert alert-danger"/>
         <hr>
         <div class="mb-3">
-            <label class="form-label">Email: <span class="text-danger">*</span></label>
+            <label class="form-label">UserName: <span class="text-danger">*</span></label>
             <div>
-                <TextInput @bind-Value="@loginData.Email" Placeholder="Enter your email"/>
-                <ValidationMessage For="@(() => loginData.Email)" class="alert alert-danger"/>
+                <TextInput @bind-Value="@loginData.UserName" Placeholder="Enter your username"/>
+                <ValidationMessage For="@(() => loginData.UserName)" class="alert alert-danger"/>
             </div>
         </div>
 
