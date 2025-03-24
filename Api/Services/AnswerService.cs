@@ -6,12 +6,12 @@ namespace QuestionaireApi.Services;
 
 public class AnswerService(QuestionaireDbContext context) : IAnswerService
 {
-    public async Task CreateQuestionAnswers(int questionId, ICollection<PendingAnswer> pendingAnswers)
+    public async Task CreateQuestionAnswers(int questionId, List<AnswerExtendedDto> answers)
     {
         try
         {
             await context.Answers.AddRangeAsync(
-                pendingAnswers.Select(a => new Answer
+                answers.Select(a => new Answer
                 {
                     AnswerText = a.AnswerText,
                     IsCorrect = a.IsCorrect,

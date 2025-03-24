@@ -1,86 +1,22 @@
 @page "/Questions"
-@using Shared.Models
-@inject NavigationManager Navigation
+@using Web.Pages.Custom
+@namespace Web.Pages.Questions
 @attribute [Authorize(Roles = "Admin, SuperAdmin, User")]
 
-<Modal @ref="modal" UseStaticBackdrop="true" CloseOnEscape="true" IsVerticallyCentered="true"
-       Size="ModalSize.ExtraLarge"/>
-
-<style scoped>
-    .questions-wrapper {
-        padding-bottom: 60px;
-    }
-</style>
 <PageTitle>Questions</PageTitle>
-<div class="questions-wrapper">
-    <div class="header">
-        <div class="header-text">
-            <h3>Questions</h3>
-        </div>
-        <div class="toggle-container">
-            <span class="toggle-label">Show My Questions</span>
-            <label class="switch">
-                <input type="checkbox" @onchange="ToggleOnlyMyQuestions">
-                <span class="slider"></span>
-            </label>
-        </div>
-    </div>
-    <TextInput Value="@questionsRequest.SearchQuery" ValueExpression="() => questionsRequest.SearchQuery" ValueChanged="(value) => SearchQueryChanged(value)" Placeholder="Enter text to search" />
-    @if (questions == null)
-    {
-        <p><em>Loading...</em></p>
-    }
-    else if (questions.Count == 0)
-    {
-        <p>No questions found.</p>
-    }
-    else
-    {
-        <div id="topElement" class="questions-container">
-            @foreach (var question in questions)
-            {
-                <div class="question">
-                    <div class="question-row">
-                        <div class="question-text">@question.QuestionText</div>
-                        <div class="categories-answers">
-                            <div class="categories-row">
-                                @foreach (CategoryExtendedDto category in question.Categories)
-                                {
-                                    <span class="category-item">@category.CategoryName</span>
-                                }
-                            </div>
-                            <div class="answers-list">
-                                @foreach (var answer in question.Answers)
-                                {
-                                    <span class="@GetAnswerRowClass(answer.IsCorrect)">
-                                        @answer.AnswerText
-                                    </span>
-                                }
-                            </div>
-                        </div>
-                    </div>
-                    <AuthorizeView Roles="Admin, SuperAdmin">
-                        <div class="actions">
-                            <button class="btn btn-update" @onclick="@(() => ShowUpdateQuestion(question))">Update
-                            </button>
-                            <button class="btn btn-delete" @onclick="@(() => ShowDeleteQuestion(question))">Delete
-                            </button>
-                        </div>
-                    </AuthorizeView>
-                </div>
-            }
-        </div>
 
-        <div class="pagination-footer">
-            <Pagination ActivePageNumber="questionsRequest.PageNumber"
-                        TotalPages="totalPages"
-                        DisplayPages="5"
-                        FirstLinkIcon="IconName.ChevronDoubleLeft"
-                        PreviousLinkIcon="IconName.ChevronLeft"
-                        NextLinkIcon="IconName.ChevronRight"
-                        LastLinkIcon="IconName.ChevronDoubleRight"
-                        PageChanged="OnPageChanged"
-                        Alignment="Alignment.Center"/>
-        </div>
-    }
-</div>
+<BaseQuestions @ref="baseQuestionsRef" QuestionsRequest="@questionsRequest" Title="@("Questions")"
+               EmptyText="@("questions found")" ToggleRoles="@("Admin, User, SuperAdmin")">
+    <QuestionActions Context="question">
+        <AuthorizeView Roles=@("Admin, SuperAdmin")>
+            <div class="actions">
+                <button class="btn btn-update" @onclick="@(() => baseQuestionsRef?.ShowUpdateQuestion(question)!)">
+                    Update
+                </button>
+                <button class="btn btn-delete" @onclick="@(() => baseQuestionsRef?.ShowDeleteQuestion(question)!)">
+                    Delete
+                </button>
+            </div>
+        </AuthorizeView>
+    </QuestionActions>
+</BaseQuestions>

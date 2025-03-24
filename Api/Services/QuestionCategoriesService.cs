@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using QuestionaireApi.Interfaces;
 using QuestionaireApi.Models.Database;
 using Shared.Models;
@@ -7,16 +6,15 @@ namespace QuestionaireApi.Services;
 
 public class QuestionCategoriesService(QuestionaireDbContext context) : IQuestionCategoriesService
 {
-    public async Task CreateQuestionCategories(int questionId,
-        ICollection<PendingQuestionCategory> pendingQuestionCategories)
+    public async Task CreateQuestionCategories(int questionId, List<CategoryExtendedDto> categories)
     {
         try
         {
             await context.QuestionCategories.AddRangeAsync(
-                pendingQuestionCategories.Select(a => new QuestionCategory
+                categories.Select(a => new QuestionCategory
                 {
                     QuestionId = questionId,
-                    CategoryId = a.CategoryId
+                    CategoryId = a.Id
                 }).ToList()
             );
         }
@@ -39,7 +37,7 @@ public class QuestionCategoriesService(QuestionaireDbContext context) : IQuestio
             {
                 questionCategories.Remove(questionCategory);
             }
-            
+
             foreach (CategoryExtendedDto updatedCategory in categories)
             {
                 QuestionCategory? existingQuestionCategory = questionCategories

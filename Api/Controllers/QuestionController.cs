@@ -59,6 +59,43 @@ public class QuestionController(
         }
     }
 
+    [HttpPut("approve/{id}")]
+    [Authorize(Roles = "Admin, SuperAdmin")]
+    public async Task<IActionResult> ApproveQuestion(int id)
+    {
+        try
+        {
+            bool success = await questionService.ApproveQuestion(id, User);
+            if (!success) return NotFound($"Question with ID {id} not found.");
+            return Ok("Question approved successfully.");
+        }
+        catch (Exception ex)
+        {
+            string message = $"An error occurred while approving the question with ID {id}.";
+            logger.LogError(ex, message);
+            return StatusCode(500, message);
+        }
+    }
+
+    [HttpPost("create")]
+    [AllowAnonymous]
+    public async Task<IActionResult> CreateQuestion([FromBody] QuestionExtendedDto? newQuestion)
+    {
+        try
+        {
+            if (newQuestion == null) return BadRequest("Question data cannot be null.");
+
+            await questionService.CreateQuestion(newQuestion, User);
+            return Created();
+        }
+        catch (Exception ex)
+        {
+            string message = "An error occurred while saving the question.";
+            logger.LogError(ex, message);
+            return StatusCode(500, message);
+        }
+    }
+
     [HttpPut("{id:int}")]
     [Authorize(Roles = "Admin, SuperAdmin")]
     public async Task<IActionResult> UpdateQuestion(int id, [FromBody] QuestionExtendedDto? updatedQuestion)

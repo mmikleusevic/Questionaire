@@ -50,10 +50,7 @@ builder.Services.AddScoped<IAnswerService, AnswerService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IQuestionService, QuestionService>();
 builder.Services.AddScoped<IUserQuestionHistoryService, UserQuestionHistoryService>();
-builder.Services.AddScoped<IPendingQuestionService, PendingQuestionService>();
 builder.Services.AddScoped<IQuestionCategoriesService, QuestionCategoriesService>();
-builder.Services.AddScoped<IPendingAnswerService, PendingAnswerService>();
-builder.Services.AddScoped<IPendingQuestionCategoriesService, PendingQuestionCategoriesService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 

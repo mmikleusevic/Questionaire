@@ -1,3 +1,4 @@
+using System.Net;
 using System.Text;
 using BlazorBootstrap;
 using Newtonsoft.Json;
@@ -39,6 +40,41 @@ public class QuestionService(
         }
 
         return new PaginatedResponse<QuestionExtendedDto>();
+    }
+
+    public async Task CreateQuestion(QuestionExtendedDto newQuestion)
+    {
+        try
+        {
+            string? jsonContent = JsonConvert.SerializeObject(newQuestion);
+            StringContent? content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+            HttpResponseMessage? response = await httpClient.PostAsync("api/Question/create", content);
+            string responseResult = await response.Content.ReadAsStringAsync();
+
+            if (response.StatusCode == HttpStatusCode.Created) responseResult = "Question created successfully";
+
+            ToastHandler.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
+        }
+        catch (Exception ex)
+        {
+            ApiResponseHandler.HandleException(ex, toastService, "creating a question", logger);
+        }
+    }
+
+    public async Task ApproveQuestion(int id)
+    {
+        try
+        {
+            HttpResponseMessage? response = await httpClient.PutAsync($"api/Question/approve/{id}", null);
+            string responseResult = await response.Content.ReadAsStringAsync();
+
+            ToastHandler.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
+        }
+        catch (Exception ex)
+        {
+            ApiResponseHandler.HandleException(ex, toastService, "Approving a question", logger);
+        }
     }
 
     public async Task UpdateQuestion(QuestionExtendedDto updatedQuestion)

@@ -12,19 +12,11 @@ public partial class DeleteQuestion : ComponentBase
     [Parameter] public QuestionExtendedDto? Question { get; set; }
     [Parameter] public EventCallback OnQuestionChanged { get; set; }
 
-    private async Task HandleValidSubmit()
+
+    private async Task Delete()
     {
-        if (Question == null || QuestionService == null) return;
+        if (QuestionService == null) return;
 
         await QuestionService.DeleteQuestion(Question.Id);
-        await OnQuestionChanged.InvokeAsync(Question);
-        await Hide();
-    }
-
-    private async Task Hide()
-    {
-        if (Modal == null) return;
-
-        await Modal.HideAsync();
     }
 }

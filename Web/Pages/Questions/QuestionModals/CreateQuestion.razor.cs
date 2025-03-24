@@ -5,18 +5,17 @@ using Web.Interfaces;
 
 namespace Web.Pages.Questions.QuestionModals;
 
-public partial class UpdateQuestion : ComponentBase
+public partial class CreateQuestion : ComponentBase
 {
+    private readonly QuestionExtendedDto question = new QuestionExtendedDto();
+
     [Inject] private IQuestionService? QuestionService { get; set; }
-    [Parameter] public QuestionExtendedDto? Question { get; set; }
     [Parameter] public EventCallback OnQuestionChanged { get; set; }
     [Parameter] public Modal? Modal { get; set; }
 
     public async Task HandleValidSubmit()
     {
-        if (QuestionService == null) return;
-
-        await QuestionService.UpdateQuestion(Question);
+        await QuestionService.CreateQuestion(question);
         await OnQuestionChanged.InvokeAsync();
         await Hide();
     }

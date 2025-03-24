@@ -23,51 +23,53 @@ public class QuestionService(
         {
             User? userDb = await userManager.GetUserAsync(user);
 
-        if (userDb == null)
-            return new PaginatedResponse<QuestionExtendedDto> { Items = new List<QuestionExtendedDto>() };
+            if (userDb == null)
+                return new PaginatedResponse<QuestionExtendedDto> { Items = new List<QuestionExtendedDto>() };
 
-        IQueryable<Question> query = context.Questions
-            .Include(a => a.Answers)
-            .Include(a => a.QuestionCategories)
-            .ThenInclude(c => c.Category)
-            .OrderBy(q => q.Id);
+            IQueryable<Question> query = context.Questions
+                .Where(q => q.IsDeleted == false)
+                .Include(a => a.Answers)
+                .Include(a => a.QuestionCategories)
+                .ThenInclude(c => c.Category)
+                .Where(q => q.IsApproved == questionsRequestDto.FetchApprovedQuestions)
+                .OrderBy(q => q.Id);
 
-        if (questionsRequestDto.OnlyMyQuestions)
-        {
-            query = query.Where(q => q.CreatedById == userDb.Id);
-        }
-
-        if (!string.IsNullOrEmpty(questionsRequestDto.SearchQuery))
-        {
-            query = query.Where(q => EF.Functions.Like(q.QuestionText, $"%{questionsRequestDto.SearchQuery}%"));
-        }
-
-        int totalQuestions = await query.CountAsync();
-
-        List<Question> questions = await query
-            .Skip((questionsRequestDto.PageNumber - 1) * questionsRequestDto.PageSize)
-            .Take(questionsRequestDto.PageSize)
-            .ToListAsync();
-
-        PaginatedResponse<QuestionExtendedDto> response = new PaginatedResponse<QuestionExtendedDto>
-        {
-            Items = questions.Select(q => new QuestionExtendedDto(q.Id)
+            if (questionsRequestDto.OnlyMyQuestions)
             {
-                QuestionText = q.QuestionText,
-                Answers = q.Answers.Select(a => new AnswerExtendedDto(a.Id)
+                query = query.Where(q => q.CreatedById == userDb.Id);
+            }
+
+            if (!string.IsNullOrEmpty(questionsRequestDto.SearchQuery))
+            {
+                query = query.Where(q => EF.Functions.Like(q.QuestionText, $"%{questionsRequestDto.SearchQuery}%"));
+            }
+
+            int totalQuestions = await query.CountAsync();
+
+            List<Question> questions = await query
+                .Skip((questionsRequestDto.PageNumber - 1) * questionsRequestDto.PageSize)
+                .Take(questionsRequestDto.PageSize)
+                .ToListAsync();
+
+            PaginatedResponse<QuestionExtendedDto> response = new PaginatedResponse<QuestionExtendedDto>
+            {
+                Items = questions.Select(q => new QuestionExtendedDto(q.Id)
                 {
-                    AnswerText = a.AnswerText,
-                    IsCorrect = a.IsCorrect
+                    QuestionText = q.QuestionText,
+                    Answers = q.Answers.Select(a => new AnswerExtendedDto(a.Id)
+                    {
+                        AnswerText = a.AnswerText,
+                        IsCorrect = a.IsCorrect
+                    }).ToList(),
+                    Categories = q.QuestionCategories.Select(qc => new CategoryExtendedDto(qc.Category.Id)
+                    {
+                        CategoryName = qc.Category.CategoryName
+                    }).ToList()
                 }).ToList(),
-                Categories = q.QuestionCategories.Select(qc => new CategoryExtendedDto(qc.Category.Id)
-                {
-                    CategoryName = qc.Category.CategoryName
-                }).ToList()
-            }).ToList(),
-            TotalCount = totalQuestions,
-            PageSize = questionsRequestDto.PageSize,
-            TotalPages = (int)Math.Ceiling((double)totalQuestions / questionsRequestDto.PageSize)
-        };
+                TotalCount = totalQuestions,
+                PageSize = questionsRequestDto.PageSize,
+                TotalPages = (int)Math.Ceiling((double)totalQuestions / questionsRequestDto.PageSize)
+            };
 
             return response;
         }
@@ -82,6 +84,7 @@ public class QuestionService(
         try
         {
             IQueryable<Question> baseQuery = context.Questions
+                .Where(q => q.IsApproved == true && q.IsDeleted == false)
                 .Include(q => q.Answers)
                 .Where(q => q.Answers.Count >= (requestDto.IsSingleAnswerMode ? 1 : 3))
                 .Where(q => q.Answers.Any(a => a.IsCorrect))
@@ -110,6 +113,87 @@ public class QuestionService(
         catch (Exception ex)
         {
             throw new InvalidOperationException("An error occurred while retrieving the random questions.", ex);
+        }
+    }
+
+    public async Task<bool> ApproveQuestion(int id, ClaimsPrincipal user)
+    {
+        try
+        {
+            string? userId = userManager.GetUserId(user);
+
+            if (string.IsNullOrEmpty(userId)) throw new UnauthorizedAccessException("The user is not authorized");
+
+            Question? question = await context.Questions
+                .Include(q => q.Answers)
+                .Include(q => q.QuestionCategories)
+                .FirstOrDefaultAsync(q => q.Id == id);
+
+            if (question == null) return false;
+
+            if (question.Answers.Count != 3 ||
+                !question.Answers.Any(a => a.IsCorrect) ||
+                question.QuestionCategories.Count == 0)
+            {
+                throw new InvalidOperationException(
+                    "Invalid question: must have exactly 3 answers, 2 incorrect answers, 1 correct answer and at least one category.");
+            }
+
+            question.ApprovedAt = DateTime.UtcNow;
+            question.IsApproved = true;
+            question.ApprovedById = userId;
+
+            context.Questions.Update(question);
+            await context.SaveChangesAsync();
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException("An error occurred while approving the question.", ex);
+        }
+    }
+
+    public async Task CreateQuestion(QuestionExtendedDto newQuestion, ClaimsPrincipal user)
+    {
+        await using IDbContextTransaction? transaction = await context.Database.BeginTransactionAsync();
+
+        try
+        {
+            string? userId = userManager.GetUserId(user);
+
+            if (string.IsNullOrEmpty(userId)) throw new UnauthorizedAccessException("The user is not authorized");
+
+            if (newQuestion.Answers.Count != 3 ||
+                !newQuestion.Answers.Any(a => a.IsCorrect) ||
+                newQuestion.Categories.Count == 0)
+            {
+                throw new InvalidOperationException(
+                    "Invalid question: must have exactly 3 answers, 2 incorrect answers, 1 correct answer and at least one category.");
+            }
+
+            Question dbQuestion = new Question
+            {
+                QuestionText = newQuestion.QuestionText,
+                CreatedById = userId,
+                CreatedAt = DateTime.UtcNow,
+                IsApproved = false
+            };
+
+            await context.Questions.AddAsync(dbQuestion);
+            await context.SaveChangesAsync();
+
+            await answerService.CreateQuestionAnswers(dbQuestion.Id, newQuestion.Answers);
+            await questionCategoriesService.CreateQuestionCategories(dbQuestion.Id,
+                newQuestion.Categories);
+
+            await context.SaveChangesAsync();
+            await transaction.CommitAsync();
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            throw new InvalidOperationException("An error occurred while creating the question.", ex);
         }
     }
 

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace QuestionaireApi.Models.Database;
 
-[Index(nameof(Id), nameof(CreatedById), nameof(ApprovedById))]
+[Index(nameof(Id), nameof(CreatedById))]
 [Index(nameof(QuestionText))]
 public class Question
 {
@@ -16,7 +16,7 @@ public class Question
 
     public string? LastUpdatedById { get; set; }
 
-    [Required] public string ApprovedById { get; set; } = null!;
+    public string? ApprovedById { get; set; }
 
     [Required] public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
@@ -24,13 +24,15 @@ public class Question
 
     public bool IsDeleted { get; set; }
 
-    [Required] public DateTime ApprovedAt { get; set; } = DateTime.UtcNow;
+    public bool IsApproved { get; set; }
+
+    public DateTime? ApprovedAt { get; set; }
 
     [ForeignKey(nameof(CreatedById))] public virtual User CreatedBy { get; set; } = null!;
 
     [ForeignKey(nameof(LastUpdatedById))] public virtual User? LastUpdatedBy { get; set; }
 
-    [ForeignKey(nameof(ApprovedById))] public virtual User ApprovedBy { get; set; } = null!;
+    [ForeignKey(nameof(ApprovedById))] public virtual User? ApprovedBy { get; set; }
 
     public virtual ICollection<QuestionCategory> QuestionCategories { get; set; } = new List<QuestionCategory>();
 

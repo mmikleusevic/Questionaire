@@ -10,7 +10,7 @@ public class Category
 {
     public int Id { get; set; }
 
-    [Required][StringLength(100)] public string CategoryName { get; set; } = null!;
+    [Required] [StringLength(100)] public string CategoryName { get; set; } = null!;
 
     public int? ParentCategoryId { get; set; }
 
@@ -19,7 +19,4 @@ public class Category
     public virtual ICollection<Category> ChildCategories { get; set; } = new List<Category>();
 
     public virtual ICollection<QuestionCategory> QuestionCategories { get; set; } = new List<QuestionCategory>();
-
-    public virtual ICollection<PendingQuestionCategory> PendingQuestionCategories { get; set; } =
-        new List<PendingQuestionCategory>();
 }

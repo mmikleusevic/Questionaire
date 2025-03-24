@@ -15,7 +15,7 @@ namespace SharedStandard.Models
         }
 
         [JsonProperty] public int Id { get; private set; }
-        [JsonProperty] public string AnswerText { get; set; }
+        [JsonProperty] public virtual string AnswerText { get; set; }
         [JsonProperty] public bool IsCorrect { get; set; }
     }
 }

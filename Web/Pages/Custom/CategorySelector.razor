@@ -1,25 +1,26 @@
 @using Shared.Models
-
 <div class="col-md-12">
     <label class="col-form-label">Categories:<span class="text-danger">*</span></label>
     <div class="dropdown">
-        <input @bind="searchQuery"
+        <input @ref="inputElement"
+               @bind="searchQuery"
                Placeholder="Search categories"
+               @onfocus="OnFocus"
+               @onblur="HideDropdown"
                @oninput="e => SearchCategories(e.Value?.ToString())"
                @onkeydown="HandleKeyDown"
                class="form-control"
-               MaxLength="100"/>
-                
-        @if (searchResults.Count > 0)
+               MaxLength="100">
+
+        @if (showDropdown && searchResults.Count > 0)
         {
-            <ul class="dropdown-menu show">
+            <ul class="dropdown-menu show" @onmousedown:preventDefault>
                 @foreach (var (result, index) in searchResults.Select((r, i) => (r, i)))
                 {
                     <li>
                         <a class="dropdown-item @(index == selectedIndex ? "active" : "")"
                            id="@($"category-{index}")"
-                           @onclick="() => SelectCategory(index)">
-                            @result.CategoryName
+                           @onmousedown="() => SelectCategory(index)">@result.CategoryName
                         </a>
                     </li>
                 }

@@ -1,4 +1,4 @@
-.category-name-row {
+.entity-name-row {
     display: flex;
     align-items: center;
     font-weight: 500;
@@ -6,7 +6,7 @@
     padding: 10px 0;
 }
 
-.category-name {
+.entity-name {
     font-weight: bold;
 }
 

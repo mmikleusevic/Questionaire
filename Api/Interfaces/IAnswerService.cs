@@ -5,6 +5,6 @@ namespace QuestionaireApi.Interfaces;
 
 public interface IAnswerService
 {
-    Task CreateQuestionAnswers(int questionId, ICollection<PendingAnswer> pendingAnswers);
+    Task CreateQuestionAnswers(int questionId, List<AnswerExtendedDto> answers);
     Task UpdateQuestionAnswers(int questionId, ICollection<Answer> answers, List<AnswerExtendedDto> updatedAnswers);
 }

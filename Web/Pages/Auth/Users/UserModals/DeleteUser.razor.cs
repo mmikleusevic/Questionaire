@@ -12,19 +12,10 @@ public partial class DeleteUser : ComponentBase
     [Parameter] public UserDto? User { get; set; }
     [Parameter] public EventCallback OnUserChanged { get; set; }
 
-    private async Task HandleValidSubmit()
+    private async Task Delete()
     {
-        if (User == null || UserService == null || User.Email == null) return;
+        if (UserService == null) return;
 
         await UserService.DeleteUser(User.Email);
-        await OnUserChanged.InvokeAsync(User);
-        await Hide();
-    }
-
-    private async Task Hide()
-    {
-        if (Modal == null) return;
-
-        await Modal.HideAsync();
     }
 }

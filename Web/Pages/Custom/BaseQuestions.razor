@@ -1,0 +1,83 @@
+<Modal @ref="modal" UseStaticBackdrop="true" CloseOnEscape="true" IsVerticallyCentered="true"
+       Size="ModalSize.ExtraLarge"/>
+
+<style scoped>
+    .questions-wrapper {
+        padding-bottom: 60px;
+    }
+</style>
+
+<div class="questions-wrapper">
+    <div class="header">
+        <div class="header-text">
+            <h3>@Title</h3>
+        </div>
+        <AuthorizeView Roles="@ToggleRoles">
+            <div class="toggle-container">
+                <span class="toggle-label">Show My Questions</span>
+                <label class="switch">
+                    <input type="checkbox" @onchange="ToggleOnlyMyQuestions">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </AuthorizeView>
+    </div>
+
+    @AdditionalTopControls
+
+    <TextInput Value="@QuestionsRequest.SearchQuery" ValueExpression="() => QuestionsRequest.SearchQuery"
+               ValueChanged="value => SearchQueryChanged(value)" Placeholder="Enter text to search"/>
+    @if (questions == null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else if (questions.Count == 0)
+    {
+        <p>No @EmptyText found.</p>
+    }
+    else
+    {
+        <div id="topElement" class="questions-container">
+            @foreach (var question in questions)
+            {
+                <div class="question">
+                    <div class="question-row">
+                        <div class="question-text">@question.QuestionText</div>
+                        <div class="categories-answers">
+                            <div class="categories-row">
+                                @foreach (var category in question.Categories)
+                                {
+                                    <span class="category-item">@category.CategoryName</span>
+                                }
+                            </div>
+                            <div class="answers-list">
+                                @foreach (var answer in question.Answers)
+                                {
+                                    <span class="@GetAnswerRowClass(answer.IsCorrect)">
+                                        @answer.AnswerText
+                                    </span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    @if (QuestionActions != null)
+                    {
+                        @QuestionActions(question)
+                    }
+                </div>
+            }
+        </div>
+
+        <div class="pagination-footer">
+            <Pagination ActivePageNumber="QuestionsRequest.PageNumber"
+                        TotalPages="totalPages"
+                        DisplayPages="5"
+                        FirstLinkIcon="IconName.ChevronDoubleLeft"
+                        PreviousLinkIcon="IconName.ChevronLeft"
+                        NextLinkIcon="IconName.ChevronRight"
+                        LastLinkIcon="IconName.ChevronDoubleRight"
+                        PageChanged="OnPageChanged"
+                        Alignment="Alignment.Center"/>
+        </div>
+    }
+</div>

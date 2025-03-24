@@ -1,12 +1,7 @@
-<EditForm Model="@Category" OnValidSubmit="HandleValidSubmit">
-    <div class="form-group row mb-3 category-name-row">
-        <p> Are you sure you want to delete <span class="category-name">"@Category.CategoryName"</span> category</p>
-    </div>
-
-    <div class="row">
-        <div class="col-md-12 text-right modal-buttons">
-            <Button Type="ButtonType.Submit" Color="ButtonColor.Primary" Class="float-end me-2">Yes</Button>
-            <Button Type="ButtonType.Button" Color="ButtonColor.Danger" Class="float-end" @onclick="Hide">No</Button>
-        </div>
-    </div>
-</EditForm>
+@using Web.Pages.Custom
+<ConfirmActionModal Modal="@Modal"
+                    Entity="@Category"
+                    Name="@Category?.CategoryName"
+                    ActionText="delete"
+                    Action="Delete"
+                    OnEntityChanged="OnCategoryChanged"/>

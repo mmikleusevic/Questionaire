@@ -1,98 +1,27 @@
 @page "/PendingQuestions"
-@inject NavigationManager Navigation
+@using Web.Pages.Custom
 @attribute [Authorize(Roles = "Admin, SuperAdmin, User")]
 
-<Modal @ref="modal" UseStaticBackdrop="true" CloseOnEscape="true" IsVerticallyCentered="true"
-       Size="ModalSize.ExtraLarge"/>
+<PageTitle>Questions</PageTitle>
 
-<style scoped>
-    .questions-wrapper {
-        padding-bottom: 60px;
-    }
-</style>
-<PageTitle>Pending Questions</PageTitle>
-<div class="questions-wrapper">
-    <div class="header">
-        <div class="header-text">
-            <h3>Pending Questions</h3>
-        </div>
-        <AuthorizeView Roles="Admin, SuperAdmin">
-            <div class="toggle-container">
-                <span class="toggle-label">Show My Questions</span>
-                <label class="switch">
-                    <input type="checkbox" @onchange="ToggleOnlyMyPendingQuestions">
-                    <span class="slider"></span>
-                </label>
+<BaseQuestions @ref="baseQuestionsRef" QuestionsRequest="questionsRequest" Title="Pending Questions"
+               EmptyText="pending questions" ToggleRoles="@("Admin, SuperAdmin")">
+    <AdditionalTopControls>
+        <div class="row">
+            <div>
+                <button class="btn btn-create" @onclick="ShowCreateQuestion">Create</button>
             </div>
-        </AuthorizeView>
-    </div>
-    <div class="row">
-        <div>
-            <button class="btn btn-create" @onclick="ShowCreatePendingQuestion">Create</button>
         </div>
-    </div>
-    <TextInput Value="@pendingQuestionsRequest.SearchQuery" ValueExpression="() => pendingQuestionsRequest.SearchQuery" ValueChanged="(value) => SearchQueryChanged(value)" Placeholder="Enter text to search" />
-    @if (pendingQuestions == null)
-    {
-        <p><em>Loading...</em></p>
-    }
-    else if (pendingQuestions.Count == 0)
-    {
-        <p>No pending questions found.</p>
-    }
-    else
-    {
-        <div id="topElement" class="pending-questions-container">
-            @foreach (var pendingQuestion in pendingQuestions)
-            {
-                <div class="pending-question">
-                    <div class="pending-question-row">
-                        <div class="pending-question-text">@pendingQuestion.QuestionText</div>
-                        <div class="categories-pending-answers">
-                            <div class="categories-row">
-                                @foreach (var category in pendingQuestion.Categories)
-                                {
-                                    <span class="category-item">@category.CategoryName</span>
-                                }
-                            </div>
-                            <div class="pending-answers-list">
-                                @foreach (var pendingAnswer in pendingQuestion.PendingAnswers)
-                                {
-                                    <span class="@GetAnswerRowClass(pendingAnswer.IsCorrect)">
-                                    @pendingAnswer.AnswerText
-                                </span>
-                                }
-                            </div>
-                        </div>
-                    </div>
-                    <div class="actions">
-                        <AuthorizeView Roles="Admin, SuperAdmin">
-                            <button class="btn btn-approve"
-                                    @onclick="@(() => ShowApprovePendingQuestion(pendingQuestion))">
-                                Approve
-                            </button>
-                        </AuthorizeView>
-                        <button class="btn btn-update" @onclick="@(() => ShowUpdatePendingQuestion(pendingQuestion))">
-                            Update
-                        </button>
-                        <button class="btn btn-delete" @onclick="@(() => ShowDeletePendingQuestion(pendingQuestion))">
-                            Delete
-                        </button>
-                    </div>
-                </div>
-            }
+    </AdditionalTopControls>
+    <QuestionActions Context="question">
+        <div class="actions">
+            <AuthorizeView Roles="Admin, SuperAdmin">
+                <button class="btn btn-approve" @onclick="@(() => ShowApproveQuestion(question))">Approve</button>
+            </AuthorizeView>
+            <button class="btn btn-update" @onclick="@(() => baseQuestionsRef?.ShowUpdateQuestion(question)!)">Update
+            </button>
+            <button class="btn btn-delete" @onclick="@(() => baseQuestionsRef?.ShowDeleteQuestion(question)!)">Delete
+            </button>
         </div>
-
-        <div class="pagination-footer">
-            <Pagination ActivePageNumber="pendingQuestionsRequest.PageNumber"
-                        TotalPages="totalPages"
-                        DisplayPages="5"
-                        FirstLinkIcon="IconName.ChevronDoubleLeft"
-                        PreviousLinkIcon="IconName.ChevronLeft"
-                        NextLinkIcon="IconName.ChevronRight"
-                        LastLinkIcon="IconName.ChevronDoubleRight"
-                        PageChanged="OnPageChanged"
-                        Alignment="Alignment.Center"/>
-        </div>
-    }
-</div>
+    </QuestionActions>
+</BaseQuestions>

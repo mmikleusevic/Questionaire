@@ -1,7 +1,6 @@
-<EditForm Model="@PendingQuestion" OnValidSubmit="HandleValidSubmit">
-    <div class="form-group row mb-3 pending-question-name-row">
-        <p> Are you sure you want to delete <span class="pending-question-name">"@PendingQuestion?.QuestionText" </span>pending
-            question</p>
+<EditForm Model="@Entity" OnValidSubmit="HandleValidSubmit">
+    <div class="form-group row mb-3 entity-name-row">
+        <p>Are you sure you want to @ActionText <span class="entity-name">"@Name"</span>?</p>
     </div>
 
     <div class="row">

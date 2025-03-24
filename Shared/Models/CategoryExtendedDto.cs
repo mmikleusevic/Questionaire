@@ -18,7 +18,7 @@ public class CategoryExtendedDto : CategoryDto
     [JsonProperty]
     [Required(ErrorMessage = "Category Name is required")]
     [StringLength(100, ErrorMessage = "Category Name must be between 1 and 100 characters", MinimumLength = 1)]
-    public new string CategoryName { get; set; }
+    public override string CategoryName { get; set; }
 
     [ValidateComplexType]
     [JsonProperty]

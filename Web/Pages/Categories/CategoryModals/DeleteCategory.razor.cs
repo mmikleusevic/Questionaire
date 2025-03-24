@@ -12,19 +12,10 @@ public partial class DeleteCategory : ComponentBase
     [Parameter] public CategoryExtendedDto? Category { get; set; }
     [Parameter] public EventCallback OnCategoryChanged { get; set; }
 
-    private async Task HandleValidSubmit()
+    private async Task Delete()
     {
-        if (Category == null || CategoryService == null) return;
+        if (CategoryService == null) return;
 
         await CategoryService.DeleteCategory(Category.Id);
-        await OnCategoryChanged.InvokeAsync(Category);
-        await Hide();
-    }
-
-    private async Task Hide()
-    {
-        if (Modal == null) return;
-
-        await Modal.HideAsync();
     }
 }

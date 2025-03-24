@@ -1,6 +1,12 @@
 export function scrollToActiveCategory(index) {
-	const activeItem = document.getElementById(`category-${index}`);
-	if (activeItem) {
-		activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-	}
+    const activeItem = document.getElementById(`category-${index}`);
+    if (activeItem) {
+        activeItem.scrollIntoView({behavior: 'smooth', block: 'nearest'});
+    }
+}
+
+export function blurElement(element) {
+    if (element) {
+        element.blur();
+    }
 }

@@ -12,9 +12,6 @@ public class QuestionaireDbContext(DbContextOptions options) : IdentityDbContext
     public DbSet<Answer> Answers => Set<Answer>();
     public DbSet<QuestionCategory> QuestionCategories => Set<QuestionCategory>();
     public DbSet<UserQuestionHistory> UserQuestionHistory => Set<UserQuestionHistory>();
-    public DbSet<PendingQuestion> PendingQuestions => Set<PendingQuestion>();
-    public DbSet<PendingAnswer> PendingAnswers => Set<PendingAnswer>();
-    public DbSet<PendingQuestionCategory> PendingQuestionCategories => Set<PendingQuestionCategory>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -46,27 +43,6 @@ public class QuestionaireDbContext(DbContextOptions options) : IdentityDbContext
             .WithMany(q => q.Answers)
             .HasForeignKey(a => a.QuestionId)
             .OnDelete(DeleteBehavior.Cascade);
-
-        modelBuilder.Entity<PendingAnswer>()
-            .HasOne(a => a.PendingQuestion)
-            .WithMany(q => q.PendingAnswers)
-            .HasForeignKey(a => a.PendingQuestionId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        modelBuilder.Entity<PendingQuestionCategory>()
-            .HasKey(qc => new { qc.PendingQuestionId, qc.CategoryId });
-
-        modelBuilder.Entity<PendingQuestionCategory>()
-            .HasOne(qc => qc.PendingQuestion)
-            .WithMany(q => q.PendingQuestionCategories)
-            .HasForeignKey(qc => qc.PendingQuestionId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        modelBuilder.Entity<PendingQuestionCategory>()
-            .HasOne(qc => qc.Category)
-            .WithMany(c => c.PendingQuestionCategories)
-            .HasForeignKey(qc => qc.CategoryId)
-            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<Question>().HasQueryFilter(q => !q.IsDeleted);
         modelBuilder.Entity<Answer>().HasQueryFilter(a => !a.Question.IsDeleted);
@@ -125,22 +101,6 @@ public class QuestionaireDbContext(DbContextOptions options) : IdentityDbContext
             .HasForeignKey(q => q.ApprovedById)
             .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<PendingQuestion>()
-            .HasOne(q => q.CreatedBy)
-            .WithMany()
-            .HasForeignKey(q => q.CreatedById)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        modelBuilder.Entity<PendingQuestion>()
-            .HasOne(q => q.LastUpdatedBy)
-            .WithMany()
-            .HasForeignKey(q => q.LastUpdatedById)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        modelBuilder.Entity<Question>()
-            .Property(q => q.ApprovedById)
-            .HasDefaultValue(userId);
-
         modelBuilder.Entity<Question>()
             .Property(q => q.CreatedById)
             .HasDefaultValue(userId);
@@ -148,20 +108,12 @@ public class QuestionaireDbContext(DbContextOptions options) : IdentityDbContext
         DateTime utcNow = new DateTime(2025, 1, 1);
 
         modelBuilder.Entity<Question>()
-            .Property(q => q.ApprovedAt)
+            .Property(q => q.CreatedAt)
             .HasDefaultValue(utcNow);
 
         modelBuilder.Entity<Question>()
-            .Property(q => q.CreatedAt)
-            .HasDefaultValue(utcNow);
-
-        modelBuilder.Entity<PendingQuestion>()
-            .Property(q => q.CreatedById)
-            .HasDefaultValue(userId);
-
-        modelBuilder.Entity<PendingQuestion>()
-            .Property(q => q.CreatedAt)
-            .HasDefaultValue(utcNow);
+            .Property(q => q.IsApproved)
+            .HasDefaultValue(true);
 
         modelBuilder.Entity<Category>().HasData(
             new Category { Id = 1, CategoryName = "General Knowledge" },
