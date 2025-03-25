@@ -18,3 +18,17 @@
     right: 0.75rem;
     top: 0.5rem;
 }
+
+@media (max-width: 640px) {
+    ::deep aside {
+        width: 100% !important;
+    }
+
+    ::deep aside.collapsed {
+        width: 100% !important;
+    }
+}
+
+::deep .bb-sidebar2-top-row {
+    background-color: #3465ca !important;
+}
