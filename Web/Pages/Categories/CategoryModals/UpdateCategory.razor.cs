@@ -1,6 +1,5 @@
 using BlazorBootstrap;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Forms;
 using Shared.Models;
 using Web.Interfaces;
 
@@ -8,10 +7,7 @@ namespace Web.Pages.Categories.CategoryModals;
 
 public partial class UpdateCategory : ComponentBase
 {
-    private readonly CategoryExtendedDto updatedCategory = new CategoryExtendedDto();
-    private EditContext? editContext;
-
-    private CategoryExtendedDto? selectedParentCategory;
+    private CategoryExtendedDto? updatedCategory;
     [Inject] private ICategoryService? CategoryService { get; set; }
     [Parameter] public Modal? Modal { get; set; }
     [Parameter] public CategoryExtendedDto? Category { get; set; }
@@ -22,47 +18,24 @@ public partial class UpdateCategory : ComponentBase
     {
         if (Category == null) return;
 
-        updatedCategory.ParentCategoryId = Category.ParentCategoryId;
-        updatedCategory.CategoryName = Category.CategoryName;
-
-        SelectDefaultParentCategory();
-
-        editContext = new EditContext(updatedCategory);
+        updatedCategory = new CategoryExtendedDto(Category.Id)
+        {
+            ParentCategoryId = Category.ParentCategoryId,
+            CategoryName = Category.CategoryName
+        };
 
         await base.OnParametersSetAsync();
     }
 
-    private void SelectDefaultParentCategory()
+    private async Task UpdateExistingCategory(CategoryExtendedDto category)
     {
-        if (Category == null) return;
+        if (CategoryService == null || Category == null) return;
 
-        selectedParentCategory = FlatCategories?.FirstOrDefault(c => c.Id == Category.ParentCategoryId);
-        SelectParentCategory(selectedParentCategory);
-    }
-
-    private void SelectParentCategory(CategoryExtendedDto? selectedCategory)
-    {
-        selectedParentCategory = selectedCategory;
-
-        if (selectedCategory == null)
-        {
-            updatedCategory.ParentCategoryId = null;
-        }
-        else
-        {
-            updatedCategory.ParentCategoryId = selectedCategory.Id;
-        }
-    }
-
-    private async Task HandleValidSubmit()
-    {
-        if (Category == null || CategoryService == null) return;
-
-        Category.ParentCategoryId = updatedCategory.ParentCategoryId;
-        Category.CategoryName = updatedCategory.CategoryName;
+        Category.ParentCategoryId = category.ParentCategoryId;
+        Category.CategoryName = category.CategoryName;
 
         await CategoryService.UpdateCategory(Category);
-        await OnCategoryChanged.InvokeAsync(Category);
+        await OnCategoryChanged.InvokeAsync();
         await Hide();
     }
 

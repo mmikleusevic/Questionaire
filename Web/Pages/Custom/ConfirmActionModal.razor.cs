@@ -11,6 +11,7 @@ public partial class ConfirmActionModal : ComponentBase
     [Parameter] public string ActionText { get; set; }
     [Parameter] public Func<Task>? Action { get; set; }
     [Parameter] public EventCallback OnEntityChanged { get; set; }
+    [Parameter] public string SubmitButtonText { get; set; } = "Submit";
 
     private async Task HandleValidSubmit()
     {

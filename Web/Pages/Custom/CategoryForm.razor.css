@@ -52,32 +52,6 @@
     gap: 10px;
 }
 
-.btn-primary {
-    background-color: #007bff;
-    border-color: #007bff;
-    padding: 0.5rem 1rem;
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
-
-.btn-primary:hover {
-    background-color: #0069d9;
-    border-color: #0062cc;
-}
-
-.btn-secondary {
-    background-color: #6c757d;
-    border-color: #6c757d;
-    padding: 0.5rem 1rem;
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
-
-.btn-secondary:hover {
-    background-color: #5a6268;
-    border-color: #545b62;
-}
-
 @keyframes fadeIn {
     0% {
         opacity: 0;
@@ -125,9 +99,7 @@
     color: red;
 }
 
-.category-name,
-.category-name-unique,
-.parent-category-dropdown {
+.category-name {
     display: flex;
     align-items: center;
 }
@@ -139,6 +111,32 @@
 .modal-buttons {
     display: flex;
     justify-content: end;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #0069d9;
+    border-color: #0062cc;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
 }
 
 ::deep ul {

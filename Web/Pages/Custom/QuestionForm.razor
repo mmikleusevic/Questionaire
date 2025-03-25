@@ -58,16 +58,16 @@
             </div>
         </div>
 
-        <CategorySelector SelectedCategories="selectedCategories"/>
+        <CategorySelector LabelText="Categories" AllowMultiple="true" SelectedCategories="selectedCategories"/>
     </div>
 
     <div class="row">
         <div class="col-md-12 text-right modal-buttons">
             <Button Type="ButtonType.Button" Color="ButtonColor.Primary" @onclick="HandleValidSubmit"
-                    Class="float-end me-2">Submit
+                    Class="float-end me-2">@SubmitButtonText
             </Button>
             <Button Type="ButtonType.Button" Color="ButtonColor.Danger" Class="float-end"
-                    @onclick="() => OnCancel.InvokeAsync()">Close
+                    @onclick="() => OnCancel.InvokeAsync()">Cancel
             </Button>
         </div>
     </div>

@@ -1,6 +1,6 @@
 @using Shared.Models
 <div class="col-md-12">
-    <label class="col-form-label">Categories:<span class="text-danger">*</span></label>
+    <label class="col-form-label">@LabelText:<span class="text-danger">*</span></label>
     <div class="dropdown">
         <input @ref="inputElement"
                @bind="searchQuery"
@@ -32,13 +32,18 @@
         {
             foreach (CategoryExtendedDto category in SelectedCategories)
             {
-                <span class="category-item">@category.CategoryName</span>
+                <span class="category-item">
+                    @category.CategoryName
+                    <span class="remove-category" @onclick="() => RemoveCategory(category)">X</span>
+                </span>
             }
         }
-    </div>
-    <div class="col-md-12">
-        <Button Color="ButtonColor.Warning" Disabled="@(SelectedCategories != null && SelectedCategories.Count == 0)"
-                @onclick="RemoveCategory">- Remove Category
-        </Button>
+        else if (SelectedCategory != null && SelectedCategory?.Id != 0)
+        {
+            <span class="category-item">
+                @SelectedCategory?.CategoryName
+                <span class="remove-category" @onclick="() => RemoveCategory(null)">X</span>
+            </span>
+        }
     </div>
 </div>

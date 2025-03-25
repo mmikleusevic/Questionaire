@@ -15,6 +15,7 @@ public partial class QuestionForm : ComponentBase
     [Parameter] public EventCallback OnSubmit { get; set; }
     [Parameter] public EventCallback OnCancel { get; set; }
     [Parameter] public string TitleText { get; set; }
+    [Parameter] public string SubmitButtonText { get; set; } = "Submit";
 
     protected override async Task OnParametersSetAsync()
     {

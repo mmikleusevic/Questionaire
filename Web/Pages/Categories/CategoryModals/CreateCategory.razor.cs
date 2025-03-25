@@ -1,6 +1,5 @@
 using BlazorBootstrap;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Forms;
 using Shared.Models;
 using Web.Interfaces;
 
@@ -9,38 +8,12 @@ namespace Web.Pages.Categories.CategoryModals;
 public partial class CreateCategory : ComponentBase
 {
     private readonly CategoryExtendedDto category = new CategoryExtendedDto();
-    private EditContext? editContext;
-    private CategoryExtendedDto? selectedParentCategory;
     [Inject] private ICategoryService? CategoryService { get; set; }
     [Parameter] public List<CategoryExtendedDto>? FlatCategories { get; set; }
     [Parameter] public Modal? Modal { get; set; }
     [Parameter] public EventCallback OnCategoryChanged { get; set; }
 
-    protected override async Task OnParametersSetAsync()
-    {
-        category.CategoryName = string.Empty;
-        selectedParentCategory = null;
-
-        editContext = new EditContext(category);
-
-        await base.OnParametersSetAsync();
-    }
-
-    private void SelectParentCategory(CategoryExtendedDto? selectedCategory)
-    {
-        selectedParentCategory = selectedCategory;
-
-        if (selectedCategory == null)
-        {
-            category.ParentCategoryId = null;
-        }
-        else
-        {
-            category.ParentCategoryId = selectedCategory.Id;
-        }
-    }
-
-    public async Task HandleValidSubmit()
+    private async Task CreateNewCategory(CategoryExtendedDto category)
     {
         if (CategoryService == null) return;
 

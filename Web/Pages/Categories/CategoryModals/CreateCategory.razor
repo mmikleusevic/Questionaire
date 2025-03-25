@@ -1,45 +1,6 @@
-<EditForm OnValidSubmit="HandleValidSubmit" EditContext="editContext">
-    <DataAnnotationsValidator/>
-    <ValidationSummary class="alert alert-danger"/>
-
-    <div class="row category-name-unique">
-        <label class="col-form-label">Category names must be unique</label>
-    </div>
-
-    <div class="form-group row mb-3 category-name">
-        <label class="col-md-2 col-form-label">Category Name: <span class="text-danger">*</span></label>
-        <div class="col-md-10">
-            <TextInput @bind-Value="@category.CategoryName" Placeholder="Enter category name"/>
-            <ValidationMessage For="@(() => category.CategoryName)" class="alert alert-danger"/>
-        </div>
-    </div>
-
-    <div class="form-group row mb-3 parent-category-dropdown">
-        <label class="col-md-2 col-form-label">Parent Category:</label>
-        <div class="col-md-10">
-            <Dropdown Color="DropdownColor.Secondary" Direction="DropdownDirection.Dropdown">
-                <DropdownToggleButton>
-                    @(selectedParentCategory?.CategoryName ?? "None")
-                </DropdownToggleButton>
-                <DropdownMenu>
-                    <DropdownItem @onclick="() => SelectParentCategory(null)">
-                        None
-                    </DropdownItem>
-                    @foreach (var freeCategory in FlatCategories)
-                    {
-                        <DropdownItem @onclick="() => SelectParentCategory(freeCategory)">
-                            @freeCategory.CategoryName
-                        </DropdownItem>
-                    }
-                </DropdownMenu>
-            </Dropdown>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-md-12 text-right modal-buttons">
-            <Button Type="ButtonType.Submit" Color="ButtonColor.Primary" Class="float-end me-2">Submit</Button>
-            <Button Type="ButtonType.Button" Color="ButtonColor.Danger" Class="float-end" @onclick="Hide">Close</Button>
-        </div>
-    </div>
-</EditForm>
+@using Web.Pages.Custom
+<CategoryForm Category="category"
+              FlatCategories="FlatCategories"
+              SubmitButtonText="Create"
+              OnSubmit="CreateNewCategory"
+              OnClose="Hide"/>

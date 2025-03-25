@@ -11,9 +11,9 @@
 
     <main>
         <div class="bb-top-row px-4 d-flex justify-content-between sidebar-toggle">
-            <Icon Name="IconName.List" role="button" @onclick="ToggleSidebar" />
+            <Icon Name="IconName.List" role="button" @onclick="ToggleSidebar"/>
         </div>
-        
+
         <div class="bb-top-row px-4 d-flex justify-content-end">
             <AuthorizeView>
                 <Authorized>
@@ -82,5 +82,9 @@
         await CustomAuthStateService.Logout();
     }
 
-    private void ToggleSidebar() => sidebar.ToggleSidebar();
+    private void ToggleSidebar()
+    {
+        sidebar.ToggleSidebar();
+    }
+
 }

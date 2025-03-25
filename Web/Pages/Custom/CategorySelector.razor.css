@@ -33,10 +33,34 @@
     font-weight: bold;
     border-radius: 10px;
     text-align: center;
-    display: inline-block;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
     padding: 10px;
 }
 
 .dropdown-menu {
     cursor: grab;
+}
+
+.remove-category {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    color: white;
+    background-color: #dd2323;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 14px;
+    font-weight: bold;
+}
+
+.remove-category:hover {
+    background-color: #bd2130;
 }

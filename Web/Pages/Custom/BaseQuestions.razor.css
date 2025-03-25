@@ -1,3 +1,7 @@
+:root .questions-wrapper {
+    padding-bottom: 60px;
+}
+
 .header {
     gap: 10px;
     padding-left: 10px;

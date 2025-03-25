@@ -14,7 +14,12 @@ public partial class CategorySelector : ComponentBase
     private int selectedIndex = -1;
     private bool showDropdown = false;
 
+    [Parameter] public string LabelText { get; set; } = string.Empty;
+    [Parameter] public bool AllowMultiple { get; set; } = true;
+    [Parameter] public int CurrentCategoryId { get; set; }
     [Parameter] public List<CategoryExtendedDto>? SelectedCategories { get; set; }
+    [Parameter] public CategoryExtendedDto? SelectedCategory { get; set; }
+    [Parameter] public EventCallback<CategoryExtendedDto> OnCategoryChanged { get; set; }
     [Inject] private JavaScriptService? JsService { get; set; }
     [Inject] private ICategoryService? CategoryService { get; set; }
 
@@ -27,9 +32,17 @@ public partial class CategorySelector : ComponentBase
 
         searchResults = await CategoryService.GetFlatCategories(searchQuery);
 
-        if (SelectedCategories == null) return;
+        if (AllowMultiple)
+        {
+            if (SelectedCategories == null) return;
 
-        searchResults = searchResults.Where(c => !SelectedCategories.Select(sc => sc.Id).Contains(c.Id)).ToList();
+            searchResults = searchResults.Where(c => !SelectedCategories.Select(sc => sc.Id).Contains(c.Id)).ToList();
+        }
+        else
+        {
+            searchResults = searchResults.Where(c => c.Id != SelectedCategory?.Id && c.Id != CurrentCategoryId)
+                .ToList();
+        }
     }
 
     private async Task OnFocus()
@@ -104,9 +117,17 @@ public partial class CategorySelector : ComponentBase
 
     private void AddCategoryToSelection(CategoryExtendedDto category)
     {
-        if (SelectedCategories != null && !SelectedCategories.Contains(category))
+        if (AllowMultiple)
         {
-            SelectedCategories.Add(category);
+            if (SelectedCategories != null && !SelectedCategories.Contains(category))
+            {
+                SelectedCategories.Add(category);
+            }
+        }
+        else
+        {
+            SelectedCategory = category;
+            OnCategoryChanged.InvokeAsync(SelectedCategory);
         }
 
         searchResults.Clear();
@@ -114,11 +135,19 @@ public partial class CategorySelector : ComponentBase
         selectedIndex = -1;
     }
 
-    private void RemoveCategory()
+    private void RemoveCategory(CategoryExtendedDto category)
     {
-        if (SelectedCategories != null && SelectedCategories.Count != 0)
+        if (AllowMultiple)
         {
-            SelectedCategories.RemoveAt(SelectedCategories.Count - 1);
+            if (SelectedCategories != null && SelectedCategories.Count != 0)
+            {
+                SelectedCategories.Remove(category);
+            }
+        }
+        else
+        {
+            SelectedCategory = new CategoryExtendedDto();
+            OnCategoryChanged.InvokeAsync(SelectedCategory);
         }
     }
 }
