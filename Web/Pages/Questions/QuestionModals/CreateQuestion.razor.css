@@ -98,8 +98,3 @@
     display: flex;
     justify-content: end;
 }
-
-::deep ul {
-    overflow: auto;
-    max-height: 250px;
-}

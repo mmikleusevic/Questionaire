@@ -4,27 +4,30 @@
 
 <div class="bb-page">
 
-    <Sidebar2 @ref="@sidebar"
-              IconName="IconName.PatchQuestionFill"
-              Title="Questionaire"
-              DataProvider="Sidebar2DataProvider"/>
+    <AuthorizeView>
+        <Sidebar2 @ref="@sidebar"
+                  IconName="IconName.PatchQuestionFill"
+                  Title="Questionaire"
+                  DataProvider="Sidebar2DataProvider"/>
+    </AuthorizeView>
 
     <main>
-        <div class="bb-top-row px-4 d-flex justify-content-between sidebar-toggle">
-            <Icon Name="IconName.List" role="button" @onclick="ToggleSidebar"/>
-        </div>
-
-        <div class="bb-top-row px-4 d-flex justify-content-end">
+        <div class="bb-top-row px-4 d-flex justify-content-center">
             <AuthorizeView>
-                <Authorized>
-                    <p class="my-3 me-3">Hello, @context.User.Identity?.Name</p>
-                    <button class="btn btn-primary" @onclick="Logout">Logout</button>
-                </Authorized>
-                <NotAuthorized>
-                    <a class="btn btn-primary" href="/Login">Login</a>
-                    <a class="btn btn-outline-primary" href="/Register">Register</a>
-                </NotAuthorized>
+                <Icon Name="IconName.List" role="button" @onclick="ToggleSidebar"/>
             </AuthorizeView>
+            <div class="header-right-part">
+                <AuthorizeView>
+                    <Authorized>
+                        <p class="my-3 me-3">Hello, @context.User.Identity?.Name</p>
+                        <button class="btn btn-primary" @onclick="Logout">Logout</button>
+                    </Authorized>
+                    <NotAuthorized>
+                        <a class="btn btn-primary" href="/Login">Login</a>
+                        <a class="btn btn-outline-primary" href="/Register">Register</a>
+                    </NotAuthorized>
+                </AuthorizeView>
+            </div>
         </div>
 
         <article class="content px-4">
@@ -38,7 +41,7 @@
 @code {
     [Inject] private CustomAuthStateService CustomAuthStateService { get; set; }
     [CascadingParameter] Task<AuthenticationState> authenticationStateTask { get; set; }
-
+    
     private Sidebar2? sidebar;
     private List<NavItem>? navItems;
 
@@ -82,10 +85,10 @@
     {
         await CustomAuthStateService.Logout();
     }
-
+    
     private void ToggleSidebar()
     {
+        if (sidebar == null) return;
         sidebar.ToggleSidebar();
     }
-
 }

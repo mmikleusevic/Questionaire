@@ -24,7 +24,7 @@ public class CustomHttpMessageService(
 
             HttpResponseMessage response = await base.SendAsync(request, cancellationToken);
 
-            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            if (response.StatusCode == HttpStatusCode.Unauthorized && !IsIdentityRequest(request))
             {
                 bool refreshed = await authStateService.RefreshTokenAsync();
                 if (refreshed)
@@ -45,11 +45,22 @@ public class CustomHttpMessageService(
         catch (Exception ex)
         {
             await authStateService.Logout();
+            
+            ILogger<CustomHttpMessageService> logger = serviceProvider.GetRequiredService<ILogger<CustomHttpMessageService>>();
 
+            logger?.LogError(ex, "An error occurred while processing the request");
+            
             return new HttpResponseMessage(HttpStatusCode.InternalServerError)
             {
                 Content = new StringContent($"An error occurred while processing the request: {ex.Message}")
             };
         }
+    }
+    
+    
+    private bool IsIdentityRequest(HttpRequestMessage request)
+    {
+        return request.RequestUri?.AbsoluteUri.Contains("/login") == true 
+            || request.RequestUri?.AbsoluteUri.Contains("/register") == true;
     }
 }

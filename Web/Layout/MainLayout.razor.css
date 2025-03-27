@@ -29,6 +29,24 @@
     }
 }
 
-::deep .bb-sidebar2-top-row {
-    background-color: #3465ca !important;
+::deep aside .bb-sidebar2-top-row {
+    background-color: rgba(34, 62, 130, 1) !important;
+}
+
+::deep aside .nav-link-text{
+    font-weight: bold !important;
+}
+
+.header-right-part {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+}
+
+.header-right-part button {
+    width: fit-content;
+    height: fit-content;
+    display: flex;
+    align-items: center;
 }

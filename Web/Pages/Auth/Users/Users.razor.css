@@ -82,18 +82,21 @@
     align-items: center;
     font-size: 14px;
     border-bottom: 1px solid #ddd;
-    border-left: 1px solid #ddd;
-    border-right: 1px solid #ddd;
     border-top: 1px solid #ddd;
 }
 
 .user-item:first-child {
-    border-bottom: none;
-    border-top: none;
+    border-top: 2px solid #ddd;
+    border-bottom: 1px solid #ddd;
 }
 
 .user-item:last-child {
-    border-top: none;
+    border-top: 1px solid #ddd;
+    border-bottom: 2px solid #ddd;
+}
+
+.user-item span {
+    font-weight: bolder;
 }
 
 .user-list .user-item:nth-child(even) {

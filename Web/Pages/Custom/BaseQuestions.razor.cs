@@ -43,7 +43,7 @@ public partial class BaseQuestions : ComponentBase
     {
         QuestionsRequest.PageNumber = newPage;
         await GetQuestions();
-        Navigation.NavigateTo(Navigation.Uri.Split('#')[0] + "#topElement", false);
+        Navigation.NavigateTo(Navigation.Uri.Split('#')[0] + "#topElement");
     }
 
     public async Task ShowUpdateQuestion(QuestionExtendedDto? question)

@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Json;
 using System.Security.Claims;
 using BlazorBootstrap;
@@ -89,11 +90,8 @@ public class CustomAuthStateService(
 
             AuthenticationState authState = await GetAuthenticationStateAsync();
             NotifyAuthenticationStateChanged(Task.FromResult(authState));
-
+            
             await authRedirectService.CheckAndRedirect(authState.User);
-
-            ToastHandler.ShowToast(toastService, response.StatusCode, "User successfully logged in",
-                "User successfully logged in");
         }
         catch (Exception ex)
         {
@@ -112,7 +110,7 @@ public class CustomAuthStateService(
 
             AuthenticationState authState = await GetAuthenticationStateAsync();
             NotifyAuthenticationStateChanged(Task.FromResult(authState));
-
+            
             await authRedirectService.CheckAndRedirect(anonymousUser);
         }
         catch (Exception ex)

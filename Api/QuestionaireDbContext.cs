@@ -54,8 +54,8 @@ public class QuestionaireDbContext(DbContextOptions options) : IdentityDbContext
         modelBuilder.Entity<User>().HasData(new User
         {
             Id = userId,
-            UserName = "admin@admin.com",
-            NormalizedUserName = "ADMIN@ADMIN.COM",
+            UserName = "admin",
+            NormalizedUserName = "ADMIN",
             Email = "admin@admin.com",
             NormalizedEmail = "ADMIN@ADMIN.COM",
             TwoFactorEnabled = false,

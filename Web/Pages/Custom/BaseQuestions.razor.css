@@ -77,6 +77,10 @@ input:checked + .slider:before {
     transform: translateX(24px);
 }
 
+p {
+    margin-top: 1rem;
+}
+
 .questions-container {
     display: flex;
     flex-direction: column;
