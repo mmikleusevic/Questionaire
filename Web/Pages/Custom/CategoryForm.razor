@@ -1,4 +1,4 @@
-<EditForm OnValidSubmit="HandleValidSubmit" EditContext="editContext">
+<EditForm EditContext="editContext">
     <DataAnnotationsValidator/>
     <ValidationSummary class="alert alert-danger"/>
 
@@ -9,22 +9,23 @@
     <div class="form-group row mb-3 category-name">
         <label class="col-md-2 col-form-label">Category Name: <span class="text-danger">*</span></label>
         <div class="col-md-10">
-            <TextInput @bind-Value="@Category.CategoryName" Placeholder="Enter category name"/>
-            <ValidationMessage For="@(() => Category.CategoryName)" class="alert alert-danger"/>
+            <TextInput @bind-Value="@updatedCategory.CategoryName" Placeholder="Enter category name"/>
+            <ValidationMessage For="@(() => updatedCategory.CategoryName)" class="alert alert-danger"/>
         </div>
     </div>
 
-    <CategorySelector CurrentCategoryId="@Category.Id"
+    <CategorySelector CurrentCategoryId="@updatedCategory.Id"
                       LabelText="Parent Category"
                       AllowMultiple="false"
-                      OnCategoryChanged="c => selectedParentCategory = c"
+                      OnCategoryChanged="OnCategoryChanged"
                       SelectedCategory="selectedParentCategory"/>
 
     <div class="row">
         <div class="col-md-12 text-right modal-buttons">
-            <Button Type="ButtonType.Submit" Color="ButtonColor.Primary"
-                    Class="float-end me-2">@SubmitButtonText</Button>
-            <Button Type="ButtonType.Button" Color="ButtonColor.Danger" Class="float-end" @onclick="Hide">Cancel</Button>
+            <Button Type="ButtonType.Button" Color="ButtonColor.Primary" Class="float-end me-2"
+                    @onclick="HandleValidSubmit">@SubmitButtonText</Button>
+            <Button Type="ButtonType.Button" Color="ButtonColor.Danger" Class="float-end" @onclick="Hide">Cancel
+            </Button>
         </div>
     </div>
 </EditForm>

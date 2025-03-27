@@ -17,10 +17,8 @@ public partial class QuestionForm : ComponentBase
     [Parameter] public string TitleText { get; set; }
     [Parameter] public string SubmitButtonText { get; set; } = "Submit";
 
-    protected override async Task OnParametersSetAsync()
+    protected override void OnParametersSet()
     {
-        await base.OnParametersSetAsync();
-
         List<AnswerExtendedDto> existingAnswers = Question.Answers
             .Select(a => new AnswerExtendedDto(a.Id)
             {

@@ -1,12 +1,11 @@
 @page "/Questions"
 @using Web.Pages.Custom
-@namespace Web.Pages.Questions
 @attribute [Authorize(Roles = "Admin, SuperAdmin, User")]
 
 <PageTitle>Questions</PageTitle>
 
 <BaseQuestions @ref="baseQuestionsRef" QuestionsRequest="@questionsRequest" Title="@("Questions")"
-               EmptyText="@("questions found")" ToggleRoles="@("Admin, User, SuperAdmin")">
+               EmptyText="questions" ToggleRoles="@("Admin, User, SuperAdmin")">
     <QuestionActions Context="question">
         <AuthorizeView Roles=@("Admin, SuperAdmin")>
             <div class="actions">

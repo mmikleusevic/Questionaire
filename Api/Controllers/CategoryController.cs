@@ -13,7 +13,7 @@ public class CategoryController(
     ILogger<CategoryController> logger) : ControllerBase
 {
     [HttpGet]
-    [AllowAnonymous]
+    [Authorize(Roles = "Admin, SuperAdmin, User")]
     public async Task<IActionResult> GetCategories()
     {
         try
@@ -51,7 +51,7 @@ public class CategoryController(
     }
 
     [HttpGet("flat")]
-    [AllowAnonymous]
+    [Authorize(Roles = "Admin, SuperAdmin, User")]
     public async Task<IActionResult> GetFlatCategories([FromQuery] string searchQuery = "")
     {
         try

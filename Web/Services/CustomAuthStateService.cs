@@ -1,4 +1,3 @@
-using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Security.Claims;
 using BlazorBootstrap;
@@ -27,38 +26,17 @@ public class CustomAuthStateService(
         try
         {
             string? accessToken = await localStorageService.GetItemAsync<string>("accessToken");
-            if (string.IsNullOrEmpty(accessToken))
-                return new AuthenticationState(user);
 
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            if (string.IsNullOrEmpty(accessToken)) return new AuthenticationState(user);
 
             HttpResponseMessage response = await httpClient.GetAsync("manage/info");
-            if (!response.IsSuccessStatusCode)
-                return new AuthenticationState(user);
+
+            if (!response.IsSuccessStatusCode) return new AuthenticationState(user);
 
             string responseData = await response.Content.ReadAsStringAsync();
             JObject jsonResponse = JObject.Parse(responseData);
 
-            string? email = jsonResponse["email"]?.ToString();
-            string? name = jsonResponse["name"]?.ToString();
-            JArray? rolesArray = jsonResponse["roles"] as JArray;
-
-            List<Claim> claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Email, email ?? string.Empty),
-                new Claim(ClaimTypes.Name, name ?? string.Empty)
-            };
-
-            if (rolesArray != null)
-            {
-                foreach (JToken role in rolesArray)
-                {
-                    claims.Add(new Claim(ClaimTypes.Role, role.ToString()));
-                }
-            }
-
-            ClaimsIdentity identity = new ClaimsIdentity(claims, "Token");
-            user = new ClaimsPrincipal(identity);
+            user = CreateUserFromJson(jsonResponse);
         }
         catch (Exception ex)
         {
@@ -66,6 +44,30 @@ public class CustomAuthStateService(
         }
 
         return new AuthenticationState(user);
+    }
+
+    private ClaimsPrincipal CreateUserFromJson(JObject jsonResponse)
+    {
+        string? email = jsonResponse["email"]?.ToString();
+        string? name = jsonResponse["name"]?.ToString();
+        JArray? rolesArray = jsonResponse["roles"] as JArray;
+
+        List<Claim> claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.Email, email ?? string.Empty),
+            new Claim(ClaimTypes.Name, name ?? string.Empty)
+        };
+
+        if (rolesArray != null)
+        {
+            foreach (JToken role in rolesArray)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role.ToString()));
+            }
+        }
+
+        ClaimsIdentity identity = new ClaimsIdentity(claims, "Token");
+        return new ClaimsPrincipal(identity);
     }
 
     public async Task Login(LoginData loginData)
@@ -81,8 +83,6 @@ public class CustomAuthStateService(
 
             string? accessToken = jsonResponse["accessToken"]?.ToString();
             string? refreshToken = jsonResponse["refreshToken"]?.ToString();
-
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
             await localStorageService.SetItemAsync("accessToken", accessToken);
             await localStorageService.SetItemAsync("refreshToken", refreshToken);
@@ -113,7 +113,7 @@ public class CustomAuthStateService(
             AuthenticationState authState = await GetAuthenticationStateAsync();
             NotifyAuthenticationStateChanged(Task.FromResult(authState));
 
-            await authRedirectService.CheckAndRedirect(null);
+            await authRedirectService.CheckAndRedirect(anonymousUser);
         }
         catch (Exception ex)
         {
@@ -140,6 +140,39 @@ public class CustomAuthStateService(
         catch (Exception ex)
         {
             ApiResponseHandler.HandleException(ex, toastService, "registering user", logger);
+        }
+    }
+
+    public async Task<bool> RefreshTokenAsync()
+    {
+        try
+        {
+            string? refreshToken = await localStorageService.GetItemAsync<string>("refreshToken");
+
+            if (string.IsNullOrEmpty(refreshToken)) return false;
+
+            HttpResponseMessage response =
+                await httpClient.PostAsJsonAsync("refresh", new { RefreshToken = refreshToken });
+
+            if (!response.IsSuccessStatusCode) return false;
+
+            string responseData = await response.Content.ReadAsStringAsync();
+            JObject jsonResponse = JObject.Parse(responseData);
+
+            string? newAccessToken = jsonResponse["accessToken"]?.ToString();
+            string? newRefreshToken = jsonResponse["refreshToken"]?.ToString();
+
+            if (string.IsNullOrEmpty(newAccessToken) || string.IsNullOrEmpty(newRefreshToken)) return false;
+
+            await localStorageService.SetItemAsync("accessToken", newAccessToken);
+            await localStorageService.SetItemAsync("refreshToken", newRefreshToken);
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            ApiResponseHandler.HandleException(ex, toastService, "refreshing token", logger);
+            return false;
         }
     }
 }

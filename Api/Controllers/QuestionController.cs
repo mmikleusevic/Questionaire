@@ -14,7 +14,7 @@ public class QuestionController(
     ILogger<QuestionController> logger) : ControllerBase
 {
     [HttpPost("paged")]
-    [AllowAnonymous]
+    [Authorize(Roles = "Admin, SuperAdmin, User")]
     public async Task<ActionResult<PaginatedResponse<QuestionExtendedDto>>> GetQuestions(
         [FromBody] QuestionsRequestDto questionsRequestDto)
     {
@@ -78,7 +78,7 @@ public class QuestionController(
     }
 
     [HttpPost("create")]
-    [AllowAnonymous]
+    [Authorize(Roles = "Admin, SuperAdmin, User")]
     public async Task<IActionResult> CreateQuestion([FromBody] QuestionExtendedDto? newQuestion)
     {
         try

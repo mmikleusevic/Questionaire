@@ -42,6 +42,8 @@
 
 .dropdown-menu {
     cursor: grab;
+    height: 250px;
+    overflow-y: auto;
 }
 
 .remove-category {

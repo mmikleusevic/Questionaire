@@ -37,6 +37,7 @@
 
 @code {
     [Inject] private CustomAuthStateService CustomAuthStateService { get; set; }
+    [CascadingParameter] Task<AuthenticationState> authenticationStateTask { get; set; }
 
     private Sidebar2? sidebar;
     private List<NavItem>? navItems;
@@ -52,7 +53,7 @@
     {
         navItems = new List<NavItem>();
 
-        AuthenticationState authState = await CustomAuthStateService.GetAuthenticationStateAsync();
+        AuthenticationState authState = await authenticationStateTask;
         ClaimsPrincipal user = authState.User;
 
         if (user.Identity is { IsAuthenticated: true })

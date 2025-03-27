@@ -8,22 +8,34 @@ public partial class CategoryForm : ComponentBase
 {
     private EditContext? editContext;
     private CategoryExtendedDto? selectedParentCategory;
-    [Parameter] public CategoryExtendedDto Category { get; set; } = new();
+    private CategoryExtendedDto updatedCategory = new CategoryExtendedDto();
+    [Parameter] public CategoryExtendedDto Category { get; set; } = new CategoryExtendedDto();
     [Parameter] public List<CategoryExtendedDto>? FlatCategories { get; set; }
     [Parameter] public EventCallback<CategoryExtendedDto> OnSubmit { get; set; }
     [Parameter] public EventCallback OnClose { get; set; }
     [Parameter] public string SubmitButtonText { get; set; } = "Submit";
 
-    protected override void OnInitialized()
+    protected override void OnParametersSet()
     {
-        editContext = new EditContext(Category);
-        selectedParentCategory = FlatCategories?.FirstOrDefault(c => c.Id == Category.ParentCategoryId);
+        updatedCategory.ParentCategoryId = Category.ParentCategoryId;
+        updatedCategory.CategoryName = Category.CategoryName;
+
+        editContext = new EditContext(updatedCategory);
+        selectedParentCategory = FlatCategories?.FirstOrDefault(c => c.Id == updatedCategory.ParentCategoryId);
     }
 
     private async Task HandleValidSubmit()
     {
-        Category.ParentCategoryId = selectedParentCategory?.Id == 0 ? null : selectedParentCategory?.Id;
+        Category.ParentCategoryId = updatedCategory.ParentCategoryId;
+        Category.CategoryName = updatedCategory.CategoryName;
+
         await OnSubmit.InvokeAsync(Category);
+    }
+
+    private void OnCategoryChanged(CategoryExtendedDto? category)
+    {
+        selectedParentCategory = category;
+        updatedCategory.ParentCategoryId = selectedParentCategory?.Id == 0 ? null : selectedParentCategory?.Id;
     }
 
     private async Task Hide()

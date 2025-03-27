@@ -7,11 +7,16 @@ namespace Web.Pages.Questions.QuestionModals;
 
 public partial class CreateQuestion : ComponentBase
 {
-    private readonly QuestionExtendedDto question = new QuestionExtendedDto();
+    private QuestionExtendedDto question;
 
     [Inject] private IQuestionService? QuestionService { get; set; }
     [Parameter] public EventCallback OnQuestionChanged { get; set; }
     [Parameter] public Modal? Modal { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        question = new QuestionExtendedDto();
+    }
 
     public async Task HandleValidSubmit()
     {
