@@ -1,7 +1,9 @@
+using System.Net;
 using System.Text;
 using BlazorBootstrap;
 using Newtonsoft.Json;
 using Shared.Models;
+using Web.Helpers;
 using Web.Interfaces;
 
 namespace Web.Services;
@@ -13,60 +15,63 @@ public class UserService(
 {
     public async Task<List<UserDto>> GetUsers()
     {
+        string context = "fetching users";
         try
         {
-            HttpResponseMessage? response = await httpClient.GetAsync("api/User");
+            HttpResponseMessage response = await httpClient.GetAsync("api/User");
 
-            if (response.IsSuccessStatusCode)
+            if (!await ApiResponseHandler.HandleResponse(response, toastService, context, logger))
             {
-                string? responseData = await response.Content.ReadAsStringAsync();
-                List<UserDto>? users =
-                    JsonConvert.DeserializeObject<List<UserDto>>(responseData);
-
-                return users ?? new List<UserDto>();
+                return new List<UserDto>();
             }
 
-            string? responseResult = await response.Content.ReadAsStringAsync();
-            ToastHandler.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
+            string responseData = await response.Content.ReadAsStringAsync();
+            List<UserDto>? users = JsonConvert.DeserializeObject<List<UserDto>>(responseData);
+
+            return users ?? new List<UserDto>();
         }
         catch (Exception ex)
         {
-            ApiResponseHandler.HandleException(ex, toastService, "fetching users", logger);
+            ApiResponseHandler.HandleException(ex, toastService, context, logger);
+            return new List<UserDto>();
         }
-
-        return new List<UserDto>();
     }
 
     public async Task UpdateUser(UserDto updatedUser)
     {
+        string context = "updating a user";
         try
         {
-            string? jsonContent = JsonConvert.SerializeObject(updatedUser);
-            StringContent? content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+            string jsonContent = JsonConvert.SerializeObject(updatedUser);
+            using StringContent content = new(jsonContent, Encoding.UTF8, "application/json");
 
-            HttpResponseMessage? response = await httpClient.PutAsync("api/User", content);
-            string responseResult = await response.Content.ReadAsStringAsync();
+            HttpResponseMessage response = await httpClient.PutAsync("api/User", content);
 
-            ToastHandler.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
+            if (!await ApiResponseHandler.HandleResponse(response, toastService, context, logger)) return;
+
+            ToastHandler.ShowToast(toastService, HttpStatusCode.OK, "Success", "User updated successfully.");
         }
         catch (Exception ex)
         {
-            ApiResponseHandler.HandleException(ex, toastService, "updating a user", logger);
+            ApiResponseHandler.HandleException(ex, toastService, context, logger);
         }
     }
 
     public async Task DeleteUser(string userName)
     {
+        string context = "deleting a user";
         try
         {
-            HttpResponseMessage? response = await httpClient.DeleteAsync($"api/User/{userName}");
-            string responseResult = await response.Content.ReadAsStringAsync();
+            string encodedUserName = Uri.EscapeDataString(userName);
+            HttpResponseMessage response = await httpClient.DeleteAsync($"api/User/{encodedUserName}");
 
-            ToastHandler.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
+            if (!await ApiResponseHandler.HandleResponse(response, toastService, context, logger)) return;
+
+            ToastHandler.ShowToast(toastService, HttpStatusCode.OK, "Success", "User deleted successfully.");
         }
         catch (Exception ex)
         {
-            ApiResponseHandler.HandleException(ex, toastService, "deleting a user", logger);
+            ApiResponseHandler.HandleException(ex, toastService, context, logger);
         }
     }
 }

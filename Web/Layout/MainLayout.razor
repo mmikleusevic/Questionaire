@@ -41,7 +41,7 @@
 @code {
     [Inject] private CustomAuthStateService CustomAuthStateService { get; set; }
     [CascadingParameter] Task<AuthenticationState> authenticationStateTask { get; set; }
-    
+
     private Sidebar2? sidebar;
     private List<NavItem>? navItems;
 
@@ -63,18 +63,18 @@
         {
             if (user.IsInRole("User") || user.IsInRole("Admin") || user.IsInRole("SuperAdmin"))
             {
-                navItems.Add(new NavItem { Id = "2", Href = "/Questions", IconName = IconName.QuestionCircleFill, Text = "Questions", IconColor = IconColor.Success });
-                navItems.Add(new NavItem { Id = "3", Href = "/PendingQuestions", IconName = IconName.QuestionCircle, Text = "Pending Questions", IconColor = IconColor.Primary });
+                navItems.Add(new NavItem { Id = "2", Href = "/Questions", IconName = IconName.QuestionCircleFill, Text = "Questions", IconColor = IconColor.White });
+                navItems.Add(new NavItem { Id = "3", Href = "/PendingQuestions", IconName = IconName.QuestionCircle, Text = "Pending Questions", IconColor = IconColor.White });
             }
 
             if (user.IsInRole("Admin") || user.IsInRole("SuperAdmin"))
             {
-                navItems.Add(new NavItem { Id = "1", Href = "/Categories", IconName = IconName.FolderFill, Text = "Categories", IconColor = IconColor.Primary });
+                navItems.Add(new NavItem { Id = "1", Href = "/Categories", IconName = IconName.FolderFill, Text = "Categories", IconColor = IconColor.White });
             }
 
             if (user.IsInRole("SuperAdmin"))
             {
-                navItems.Add(new NavItem { Id = "4", Href = "/Users", IconName = IconName.House, Text = "Users", IconColor = IconColor.Danger });
+                navItems.Add(new NavItem { Id = "4", Href = "/Users", IconName = IconName.House, Text = "Users", IconColor = IconColor.White });
             }
         }
 
@@ -85,10 +85,11 @@
     {
         await CustomAuthStateService.Logout();
     }
-    
+
     private void ToggleSidebar()
     {
         if (sidebar == null) return;
         sidebar.ToggleSidebar();
     }
+
 }

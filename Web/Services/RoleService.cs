@@ -1,5 +1,6 @@
 using BlazorBootstrap;
 using Newtonsoft.Json;
+using Web.Helpers;
 using Web.Interfaces;
 
 namespace Web.Services;
@@ -11,27 +12,25 @@ public class RoleService(
 {
     public async Task<IList<string>> GetRoles()
     {
+        string context = "fetching roles";
         try
         {
-            HttpResponseMessage? response = await httpClient.GetAsync("api/Role");
+            HttpResponseMessage response = await httpClient.GetAsync("api/Role");
 
-            if (response.IsSuccessStatusCode)
+            if (!await ApiResponseHandler.HandleResponse(response, toastService, context, logger))
             {
-                string? responseData = await response.Content.ReadAsStringAsync();
-                IList<string>? roles =
-                    JsonConvert.DeserializeObject<IList<string>>(responseData);
-
-                return roles ?? new List<string>();
+                return new List<string>();
             }
 
-            string? responseResult = await response.Content.ReadAsStringAsync();
-            ToastHandler.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
+            string responseData = await response.Content.ReadAsStringAsync();
+            List<string>? rolesList = JsonConvert.DeserializeObject<List<string>>(responseData);
+
+            return rolesList ?? new List<string>();
         }
         catch (Exception ex)
         {
-            ApiResponseHandler.HandleException(ex, toastService, "fetching roles", logger);
+            ApiResponseHandler.HandleException(ex, toastService, context, logger);
+            return new List<string>();
         }
-
-        return new List<string>();
     }
 }

@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
+using Shared.Validation;
 using SharedStandard.Models;
 
 namespace Shared.Models;
@@ -19,6 +20,8 @@ public class CategoryExtendedDto : CategoryDto
     [Required(ErrorMessage = "Category Name is required")]
     [StringLength(100, ErrorMessage = "Category Name must be between 1 and 100 characters", MinimumLength = 1)]
     public override string CategoryName { get; set; }
+
+    [NotOwnParent] public override int? ParentCategoryId { get; set; }
 
     [ValidateComplexType]
     [JsonProperty]

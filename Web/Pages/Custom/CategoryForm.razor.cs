@@ -8,7 +8,7 @@ public partial class CategoryForm : ComponentBase
 {
     private EditContext? editContext;
     private CategoryExtendedDto? selectedParentCategory;
-    private CategoryExtendedDto updatedCategory = new CategoryExtendedDto();
+    private CategoryExtendedDto updatedCategory;
     [Parameter] public CategoryExtendedDto Category { get; set; } = new CategoryExtendedDto();
     [Parameter] public List<CategoryExtendedDto>? FlatCategories { get; set; }
     [Parameter] public EventCallback<CategoryExtendedDto> OnSubmit { get; set; }
@@ -17,8 +17,11 @@ public partial class CategoryForm : ComponentBase
 
     protected override void OnParametersSet()
     {
-        updatedCategory.ParentCategoryId = Category.ParentCategoryId;
-        updatedCategory.CategoryName = Category.CategoryName;
+        updatedCategory = new CategoryExtendedDto(Category.Id)
+        {
+            ParentCategoryId = Category.ParentCategoryId,
+            CategoryName = Category.CategoryName
+        };
 
         editContext = new EditContext(updatedCategory);
         selectedParentCategory = FlatCategories?.FirstOrDefault(c => c.Id == updatedCategory.ParentCategoryId);

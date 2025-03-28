@@ -20,6 +20,7 @@ h1:focus {
 
 .validation-message {
     color: red;
+    margin-left: 10px;
 }
 
 #blazor-error-ui {

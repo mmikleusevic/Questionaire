@@ -3,6 +3,7 @@ using System.Text;
 using BlazorBootstrap;
 using Newtonsoft.Json;
 using Shared.Models;
+using Web.Helpers;
 using Web.Interfaces;
 
 namespace Web.Services;
@@ -17,135 +18,138 @@ public class CategoryService(
 
     public async Task<CategoriesDto> GetCategories(bool forceRefresh = false)
     {
+        string context = "fetching categories";
         try
         {
-            HttpResponseMessage? response = await httpClient.GetAsync("api/Category");
+            HttpResponseMessage response = await httpClient.GetAsync("api/Category");
 
-            if (response.IsSuccessStatusCode)
+            if (!await ApiResponseHandler.HandleResponse(response, toastService, context, logger))
             {
-                string? responseData = await response.Content.ReadAsStringAsync();
-                CategoriesDto? categories = JsonConvert.DeserializeObject<CategoriesDto>(responseData);
-
-                if (categories != null)
-                {
-                    flatCategories = categories.FlatCategories;
-                    nestedCategories = categories.NestedCategories;
-                }
-
-                return categories ?? new CategoriesDto();
+                return new CategoriesDto();
             }
 
-            string? responseResult = await response.Content.ReadAsStringAsync();
-            ToastHandler.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
+            string responseData = await response.Content.ReadAsStringAsync();
+            CategoriesDto? categories = JsonConvert.DeserializeObject<CategoriesDto>(responseData);
+
+            if (categories != null)
+            {
+                flatCategories = categories.FlatCategories;
+                nestedCategories = categories.NestedCategories;
+            }
+
+            return categories ?? new CategoriesDto();
         }
         catch (Exception ex)
         {
-            ApiResponseHandler.HandleException(ex, toastService, "fetching categories", logger);
+            ApiResponseHandler.HandleException(ex, toastService, context, logger);
+            return new CategoriesDto();
         }
-
-        return new CategoriesDto();
     }
 
     public async Task<List<CategoryExtendedDto>> GetNestedCategories()
     {
+        string context = "fetching nested categories";
         try
         {
-            HttpResponseMessage? response = await httpClient.GetAsync("api/Category/nested");
+            HttpResponseMessage response = await httpClient.GetAsync("api/Category/nested");
 
-            if (response.IsSuccessStatusCode)
+            if (!await ApiResponseHandler.HandleResponse(response, toastService, context, logger))
             {
-                string? responseData = await response.Content.ReadAsStringAsync();
-                nestedCategories = JsonConvert.DeserializeObject<List<CategoryExtendedDto>>(responseData);
-
-                return nestedCategories ?? new List<CategoryExtendedDto>();
+                return new List<CategoryExtendedDto>();
             }
 
-            string? responseResult = await response.Content.ReadAsStringAsync();
-            ToastHandler.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
+            string responseData = await response.Content.ReadAsStringAsync();
+            nestedCategories = JsonConvert.DeserializeObject<List<CategoryExtendedDto>>(responseData);
+
+            return nestedCategories ?? new List<CategoryExtendedDto>();
         }
         catch (Exception ex)
         {
-            ApiResponseHandler.HandleException(ex, toastService, "fetching nested categories", logger);
+            ApiResponseHandler.HandleException(ex, toastService, context, logger);
+            return new List<CategoryExtendedDto>();
         }
-
-        return new List<CategoryExtendedDto>();
     }
 
     public async Task<List<CategoryExtendedDto>> GetFlatCategories(string searchQuery = "")
     {
+        string context = "fetching flat categories";
         try
         {
-            HttpResponseMessage? response = await httpClient.GetAsync($"api/Category/flat?searchQuery={searchQuery}");
+            string encodedSearchQuery = Uri.EscapeDataString(searchQuery);
+            HttpResponseMessage response =
+                await httpClient.GetAsync($"api/Category/flat?searchQuery={encodedSearchQuery}");
 
-            if (response.IsSuccessStatusCode)
+            if (!await ApiResponseHandler.HandleResponse(response, toastService, context, logger))
             {
-                string? responseData = await response.Content.ReadAsStringAsync();
-                flatCategories = JsonConvert.DeserializeObject<List<CategoryExtendedDto>>(responseData);
-
-                return flatCategories ?? new List<CategoryExtendedDto>();
+                return new List<CategoryExtendedDto>();
             }
 
-            string? responseResult = await response.Content.ReadAsStringAsync();
-            ToastHandler.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
+            string responseData = await response.Content.ReadAsStringAsync();
+            flatCategories = JsonConvert.DeserializeObject<List<CategoryExtendedDto>>(responseData);
+
+            return flatCategories ?? new List<CategoryExtendedDto>();
         }
         catch (Exception ex)
         {
-            ApiResponseHandler.HandleException(ex, toastService, "fetching flat categories", logger);
+            ApiResponseHandler.HandleException(ex, toastService, context, logger);
+            return new List<CategoryExtendedDto>();
         }
-
-        return new List<CategoryExtendedDto>();
     }
 
     public async Task CreateCategory(CategoryExtendedDto newCategory)
     {
+        string context = "creating a category";
         try
         {
-            string? jsonContent = JsonConvert.SerializeObject(newCategory);
-            StringContent? content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+            string jsonContent = JsonConvert.SerializeObject(newCategory);
+            using StringContent content = new(jsonContent, Encoding.UTF8, "application/json");
 
-            HttpResponseMessage? response = await httpClient.PostAsync("api/Category", content);
-            string responseResult = await response.Content.ReadAsStringAsync();
+            HttpResponseMessage response = await httpClient.PostAsync("api/Category", content);
 
-            if (response.StatusCode == HttpStatusCode.Created) responseResult = "Category created successfully";
+            if (!await ApiResponseHandler.HandleResponse(response, toastService, context, logger)) return;
 
-            ToastHandler.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
+            ToastHandler.ShowToast(toastService, HttpStatusCode.OK, "Success", "Category created successfully.");
         }
         catch (Exception ex)
         {
-            ApiResponseHandler.HandleException(ex, toastService, "creating a category", logger);
+            ApiResponseHandler.HandleException(ex, toastService, context, logger);
         }
     }
 
     public async Task UpdateCategory(CategoryExtendedDto updatedCategory)
     {
+        string context = "updating a category";
         try
         {
-            string? jsonContent = JsonConvert.SerializeObject(updatedCategory);
-            StringContent? content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+            string jsonContent = JsonConvert.SerializeObject(updatedCategory);
+            using StringContent content = new(jsonContent, Encoding.UTF8, "application/json");
 
-            HttpResponseMessage? response = await httpClient.PutAsync($"api/Category/{updatedCategory.Id}", content);
-            string responseResult = await response.Content.ReadAsStringAsync();
+            HttpResponseMessage response = await httpClient.PutAsync($"api/Category/{updatedCategory.Id}", content);
 
-            ToastHandler.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
+            if (!await ApiResponseHandler.HandleResponse(response, toastService, context, logger)) return;
+
+            ToastHandler.ShowToast(toastService, HttpStatusCode.OK, "Success", "Category updated successfully.");
         }
         catch (Exception ex)
         {
-            ApiResponseHandler.HandleException(ex, toastService, "updating a category", logger);
+            ApiResponseHandler.HandleException(ex, toastService, context, logger);
         }
     }
 
     public async Task DeleteCategory(int id)
     {
+        string context = "deleting a category";
         try
         {
-            HttpResponseMessage? response = await httpClient.DeleteAsync($"api/Category/{id}");
-            string responseResult = await response.Content.ReadAsStringAsync();
+            HttpResponseMessage response = await httpClient.DeleteAsync($"api/Category/{id}");
 
-            ToastHandler.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
+            if (!await ApiResponseHandler.HandleResponse(response, toastService, context, logger)) return;
+
+            ToastHandler.ShowToast(toastService, HttpStatusCode.OK, "Success", "Category deleted successfully.");
         }
         catch (Exception ex)
         {
-            ApiResponseHandler.HandleException(ex, toastService, "deleting a category", logger);
+            ApiResponseHandler.HandleException(ex, toastService, context, logger);
         }
     }
 }

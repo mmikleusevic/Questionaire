@@ -76,6 +76,12 @@ public static class IdentityApiEndpointRouteBuilderExtensions
                 return CreateValidationProblem(IdentityResult.Failed(userManager.ErrorDescriber.InvalidEmail(email)));
             }
 
+            TUser? existingUser = await userManager.FindByEmailAsync(email);
+            if (existingUser != null)
+            {
+                return CreateValidationProblem(IdentityResult.Failed(userManager.ErrorDescriber.DuplicateEmail(email)));
+            }
+
             var user = new TUser();
             await userStore.SetUserNameAsync(user, registration.UserName, CancellationToken.None);
             await emailStore.SetEmailAsync(user, email, CancellationToken.None);

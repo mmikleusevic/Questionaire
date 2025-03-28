@@ -29,11 +29,27 @@
     }
 }
 
-::deep aside .bb-sidebar2-top-row {
+::deep aside {
     background-color: rgba(34, 62, 130, 1) !important;
 }
 
-::deep aside .nav-link-text{
+::deep aside .bb-sidebar2-top-row {
+    background-color: rgba(34, 62, 130, 1) !important;
+    border-bottom: 1px solid white !important;
+}
+
+::deep aside .collapse nav {
+    background-color: rgba(34, 62, 130, 1) !important;
+    color: white !important;
+}
+
+::deep aside .collapse nav div .active {
+    background-color: #D48832 !important;
+    color: white !important;
+}
+
+::deep aside .nav-link-text {
+    color: white !important;
     font-weight: bold !important;
 }
 

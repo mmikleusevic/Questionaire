@@ -3,6 +3,7 @@ using System.Text;
 using BlazorBootstrap;
 using Newtonsoft.Json;
 using Shared.Models;
+using Web.Helpers;
 using Web.Interfaces;
 
 namespace Web.Services;
@@ -14,99 +15,103 @@ public class QuestionService(
 {
     public async Task<PaginatedResponse<QuestionExtendedDto>> GetQuestions(QuestionsRequestDto questionsRequest)
     {
+        string context = "fetching questions";
         try
         {
-            string? jsonContent = JsonConvert.SerializeObject(questionsRequest);
-            StringContent? content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+            string jsonContent = JsonConvert.SerializeObject(questionsRequest);
+            using StringContent content = new(jsonContent, Encoding.UTF8, "application/json");
 
-            HttpResponseMessage? response = await httpClient.PostAsync(
-                "api/Question/paged", content);
+            HttpResponseMessage response = await httpClient.PostAsync("api/Question/paged", content);
 
-            if (response.IsSuccessStatusCode)
+            if (!await ApiResponseHandler.HandleResponse(response, toastService, context, logger))
             {
-                string? responseData = await response.Content.ReadAsStringAsync();
-                PaginatedResponse<QuestionExtendedDto>? paginatedResponse =
-                    JsonConvert.DeserializeObject<PaginatedResponse<QuestionExtendedDto>>(responseData);
-
-                return paginatedResponse ?? new PaginatedResponse<QuestionExtendedDto>();
+                return new PaginatedResponse<QuestionExtendedDto>();
             }
 
-            string? responseResult = await response.Content.ReadAsStringAsync();
-            ToastHandler.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
+            string responseData = await response.Content.ReadAsStringAsync();
+            PaginatedResponse<QuestionExtendedDto>? paginatedResponse =
+                JsonConvert.DeserializeObject<PaginatedResponse<QuestionExtendedDto>>(responseData);
+
+            return paginatedResponse ?? new PaginatedResponse<QuestionExtendedDto>();
         }
         catch (Exception ex)
         {
-            ApiResponseHandler.HandleException(ex, toastService, "fetching questions", logger);
+            ApiResponseHandler.HandleException(ex, toastService, context, logger);
+            return new PaginatedResponse<QuestionExtendedDto>();
         }
-
-        return new PaginatedResponse<QuestionExtendedDto>();
     }
 
     public async Task CreateQuestion(QuestionExtendedDto newQuestion)
     {
+        string context = "creating a question";
         try
         {
-            string? jsonContent = JsonConvert.SerializeObject(newQuestion);
-            StringContent? content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+            string jsonContent = JsonConvert.SerializeObject(newQuestion);
+            using StringContent content = new(jsonContent, Encoding.UTF8, "application/json");
 
-            HttpResponseMessage? response = await httpClient.PostAsync("api/Question/create", content);
-            string responseResult = await response.Content.ReadAsStringAsync();
+            HttpResponseMessage response = await httpClient.PostAsync("api/Question/create", content);
 
-            if (response.StatusCode == HttpStatusCode.Created) responseResult = "Question created successfully";
+            if (!await ApiResponseHandler.HandleResponse(response, toastService, context, logger)) return;
 
-            ToastHandler.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
+            ToastHandler.ShowToast(toastService, HttpStatusCode.OK, "Success", "Question created successfully.");
         }
         catch (Exception ex)
         {
-            ApiResponseHandler.HandleException(ex, toastService, "creating a question", logger);
+            ApiResponseHandler.HandleException(ex, toastService, context, logger);
         }
     }
 
     public async Task ApproveQuestion(int id)
     {
+        string context = "approving a question";
         try
         {
-            HttpResponseMessage? response = await httpClient.PutAsync($"api/Question/approve/{id}", null);
-            string responseResult = await response.Content.ReadAsStringAsync();
+            HttpResponseMessage response = await httpClient.PutAsync($"api/Question/approve/{id}", null);
 
-            ToastHandler.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
+            if (!await ApiResponseHandler.HandleResponse(response, toastService, context, logger)) return;
+
+            ToastHandler.ShowToast(toastService, HttpStatusCode.OK, "Success", "Question approved successfully.");
         }
         catch (Exception ex)
         {
-            ApiResponseHandler.HandleException(ex, toastService, "Approving a question", logger);
+            ApiResponseHandler.HandleException(ex, toastService, context, logger);
         }
     }
 
     public async Task UpdateQuestion(QuestionExtendedDto updatedQuestion)
     {
+        string context = "updating a question";
         try
         {
-            string? jsonContent = JsonConvert.SerializeObject(updatedQuestion);
-            StringContent? content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+            string jsonContent = JsonConvert.SerializeObject(updatedQuestion);
+            using StringContent content = new(jsonContent, Encoding.UTF8, "application/json");
 
-            HttpResponseMessage? response = await httpClient.PutAsync($"api/Question/{updatedQuestion.Id}", content);
-            string responseResult = await response.Content.ReadAsStringAsync();
+            HttpResponseMessage response = await httpClient.PutAsync($"api/Question/{updatedQuestion.Id}", content);
 
-            ToastHandler.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
+            if (!await ApiResponseHandler.HandleResponse(response, toastService, context, logger)) return;
+
+            ToastHandler.ShowToast(toastService, HttpStatusCode.OK, "Success", "Question updated successfully.");
         }
         catch (Exception ex)
         {
-            ApiResponseHandler.HandleException(ex, toastService, "updating a question", logger);
+            ApiResponseHandler.HandleException(ex, toastService, context, logger);
         }
     }
 
     public async Task DeleteQuestion(int id)
     {
+        string context = "deleting a question";
         try
         {
-            HttpResponseMessage? response = await httpClient.DeleteAsync($"api/Question/{id}");
-            string responseResult = await response.Content.ReadAsStringAsync();
+            HttpResponseMessage response = await httpClient.DeleteAsync($"api/Question/{id}");
 
-            ToastHandler.ShowToast(toastService, response.StatusCode, responseResult, responseResult);
+            if (!await ApiResponseHandler.HandleResponse(response, toastService, context, logger)) return;
+
+            ToastHandler.ShowToast(toastService, HttpStatusCode.OK, "Success", "Question deleted successfully.");
         }
         catch (Exception ex)
         {
-            ApiResponseHandler.HandleException(ex, toastService, "deleting a question", logger);
+            ApiResponseHandler.HandleException(ex, toastService, context, logger);
         }
     }
 }

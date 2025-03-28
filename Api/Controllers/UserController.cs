@@ -49,7 +49,7 @@ public class UserController(
         }
     }
 
-    [HttpDelete("{email}")]
+    [HttpDelete("{userName}")]
     public async Task<IActionResult> DeleteUser(string userName)
     {
         try

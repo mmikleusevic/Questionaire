@@ -17,7 +17,7 @@ namespace SharedStandard.Models
 
         [JsonProperty] public int Id { get; private set; }
         [JsonProperty] public virtual string CategoryName { get; set; }
-        [JsonProperty] public int? ParentCategoryId { get; set; }
+        [JsonProperty] public virtual int? ParentCategoryId { get; set; }
         [JsonProperty] public List<CategoryDto> ChildCategories { get; set; } = new List<CategoryDto>();
         public bool isSelected { get; set; } = true;
     }
