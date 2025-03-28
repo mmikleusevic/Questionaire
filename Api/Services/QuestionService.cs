@@ -31,6 +31,7 @@ public class QuestionService(
                 .Include(a => a.Answers)
                 .Include(a => a.QuestionCategories)
                 .ThenInclude(c => c.Category)
+                .AsSplitQuery()
                 .Where(q => q.IsApproved == questionsRequestDto.FetchApprovedQuestions)
                 .OrderBy(q => q.Id);
 
