@@ -223,12 +223,12 @@ p {
     margin: 0 !important;
 }
 
-.pagination-footer ::deep nav ul .page-link{
+.pagination-footer ::deep nav ul .page-link {
     color: #D48832 !important;
     font-weight: bold;
 }
 
-.pagination-footer ::deep nav ul .active .page-link{
+.pagination-footer ::deep nav ul .active .page-link {
     background-color: rgba(34, 62, 130, 1) !important;
     color: white !important;
 }

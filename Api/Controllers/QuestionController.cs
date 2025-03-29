@@ -117,7 +117,7 @@ public class QuestionController(
     }
 
     [HttpDelete("{id:int}")]
-    [Authorize(Roles = "Admin, SuperAdmin")]
+    [Authorize(Roles = "Admin, SuperAdmin, User")]
     public async Task<IActionResult> DeleteQuestion(int id)
     {
         try

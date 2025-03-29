@@ -31,7 +31,6 @@ public class QuestionService(
                 .Include(a => a.Answers)
                 .Include(a => a.QuestionCategories)
                 .ThenInclude(c => c.Category)
-                .AsSplitQuery()
                 .Where(q => q.IsApproved == questionsRequestDto.FetchApprovedQuestions)
                 .OrderBy(q => q.Id);
 
@@ -253,17 +252,23 @@ public class QuestionService(
         {
             string? userId = userManager.GetUserId(user);
 
-            if (string.IsNullOrEmpty(userId)) throw new UnauthorizedAccessException("The user is not authorized");
+            if (string.IsNullOrEmpty(userId)) return false;
 
             Question? question = await context.Questions
                 .Include(a => a.Answers)
-                .FirstOrDefaultAsync(a => a.Id == id);
+                .FirstOrDefaultAsync(q => q.Id == id && q.IsDeleted == false);
 
             if (question == null) return false;
 
-            question.IsDeleted = true;
-            await context.SaveChangesAsync();
+            bool isAdmin = user.IsInRole("Admin");
+            bool isSuperAdmin = user.IsInRole("SuperAdmin");
+            bool isOwner = question.CreatedById == userId;
 
+            if (!isAdmin && !isSuperAdmin && !isOwner) return false;
+
+            question.IsDeleted = true;
+
+            await context.SaveChangesAsync();
             return true;
         }
         catch (Exception ex)

@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Shared.Models;
+using Web.Handlers;
 using Web.Interfaces;
-using Web.Services;
 
 namespace Web.Pages.Custom;
 
@@ -20,7 +20,7 @@ public partial class CategorySelector : ComponentBase
     [Parameter] public List<CategoryExtendedDto>? SelectedCategories { get; set; }
     [Parameter] public CategoryExtendedDto? SelectedCategory { get; set; }
     [Parameter] public EventCallback<CategoryExtendedDto> OnCategoryChanged { get; set; }
-    [Inject] private JavaScriptService? JsService { get; set; }
+    [Inject] private JavaScriptHandler? JsService { get; set; }
     [Inject] private ICategoryService? CategoryService { get; set; }
 
     private async Task SearchCategories(string? value)

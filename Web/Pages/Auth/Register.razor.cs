@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Shared.Models;
-using Web.Services;
+using Web.Providers;
 
 namespace Web.Pages.Auth;
 
@@ -9,7 +9,7 @@ public partial class Register : ComponentBase
 {
     private readonly RegisterData registerData = new RegisterData();
     private EditContext? editContext;
-    [Inject] private CustomAuthStateService CustomAuthStateService { get; set; }
+    [Inject] private CustomAuthStateProvider CustomAuthStateProvider { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -24,6 +24,6 @@ public partial class Register : ComponentBase
 
     public async Task HandleValidSubmit()
     {
-        await CustomAuthStateService.Register(registerData);
+        await CustomAuthStateProvider.Register(registerData);
     }
 }

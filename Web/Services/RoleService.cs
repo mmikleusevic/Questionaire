@@ -1,6 +1,6 @@
 using BlazorBootstrap;
 using Newtonsoft.Json;
-using Web.Helpers;
+using Web.Handlers;
 using Web.Interfaces;
 
 namespace Web.Services;

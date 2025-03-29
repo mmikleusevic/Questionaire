@@ -1,5 +1,5 @@
 ﻿@using System.Security.Claims
-@using Web.Services
+@using Web.Providers
 @inherits LayoutComponentBase
 
 <div class="bb-page">
@@ -39,7 +39,7 @@
 <Toasts class="p-3" AutoHide="true" Delay="3000" Placement="ToastsPlacement.BottomRight"/>
 
 @code {
-    [Inject] private CustomAuthStateService CustomAuthStateService { get; set; }
+    [Inject] private CustomAuthStateProvider CustomAuthStateProvider { get; set; }
     [CascadingParameter] Task<AuthenticationState> authenticationStateTask { get; set; }
 
     private Sidebar2? sidebar;
@@ -83,7 +83,7 @@
 
     private async Task Logout()
     {
-        await CustomAuthStateService.Logout();
+        await CustomAuthStateProvider.Logout();
     }
 
     private void ToggleSidebar()

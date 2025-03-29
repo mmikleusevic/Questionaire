@@ -1,13 +1,14 @@
 using System.Net;
 using System.Net.Http.Headers;
 using Blazored.LocalStorage;
+using Web.Providers;
 
-namespace Web.Services;
+namespace Web.Handlers;
 
-public class CustomHttpMessageService(
+public class CustomHttpMessageHandler(
     ILocalStorageService localStorageService,
     IServiceProvider serviceProvider,
-    ILogger<CustomHttpMessageService> logger)
+    ILogger<CustomHttpMessageHandler> logger)
     : DelegatingHandler
 {
     private const string AccessTokenKey = "accessToken";
@@ -21,7 +22,7 @@ public class CustomHttpMessageService(
         HttpResponseMessage? response = null;
 
         using IServiceScope scope = serviceProvider.CreateScope();
-        CustomAuthStateService authStateService = scope.ServiceProvider.GetRequiredService<CustomAuthStateService>();
+        CustomAuthStateProvider authStateProvider = scope.ServiceProvider.GetRequiredService<CustomAuthStateProvider>();
 
         try
         {
@@ -38,7 +39,7 @@ public class CustomHttpMessageService(
                 logger.LogInformation("Received 401 Unauthorized for {RequestUri}. Attempting token refresh.",
                     request.RequestUri);
 
-                bool refreshed = await authStateService.RefreshTokenAsync();
+                bool refreshed = await authStateProvider.RefreshTokenAsync();
 
                 if (refreshed)
                 {
@@ -61,7 +62,7 @@ public class CustomHttpMessageService(
                 else
                 {
                     logger.LogWarning("Token refresh failed. Logging out user.");
-                    await authStateService.Logout();
+                    await authStateProvider.Logout();
                 }
             }
 
@@ -76,9 +77,9 @@ public class CustomHttpMessageService(
             try
             {
                 using IServiceScope emergencyScope = serviceProvider.CreateScope();
-                CustomAuthStateService emergencyAuthService =
-                    emergencyScope.ServiceProvider.GetRequiredService<CustomAuthStateService>();
-                await emergencyAuthService.Logout();
+                CustomAuthStateProvider emergencyAuthProvider =
+                    emergencyScope.ServiceProvider.GetRequiredService<CustomAuthStateProvider>();
+                await emergencyAuthProvider.Logout();
             }
             catch (Exception logoutEx)
             {

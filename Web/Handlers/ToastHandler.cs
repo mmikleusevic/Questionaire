@@ -1,7 +1,7 @@
 using System.Net;
 using BlazorBootstrap;
 
-namespace Web.Helpers;
+namespace Web.Handlers;
 
 public static class ToastHandler
 {

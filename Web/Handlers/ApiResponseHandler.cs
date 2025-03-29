@@ -3,7 +3,7 @@ using BlazorBootstrap;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Web.Helpers;
+namespace Web.Handlers;
 
 public static class ApiResponseHandler
 {

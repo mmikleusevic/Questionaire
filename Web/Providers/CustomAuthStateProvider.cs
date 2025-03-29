@@ -8,14 +8,14 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Shared.Models;
-using Web.Helpers;
+using Web.Handlers;
 using Web.Interfaces;
 
-namespace Web.Services;
+namespace Web.Providers;
 
-public class CustomAuthStateService(
+public class CustomAuthStateProvider(
     HttpClient httpClient,
-    ILogger<CustomAuthStateService> logger,
+    ILogger<CustomAuthStateProvider> logger,
     ToastService toastService,
     ILocalStorageService localStorageService,
     IAuthRedirectService authRedirectService)
@@ -143,7 +143,7 @@ public class CustomAuthStateService(
 
             await localStorageService.SetItemAsync(AccessTokenKey, accessToken);
             await localStorageService.SetItemAsync(RefreshTokenKey, refreshToken);
-            
+
             NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
 
             AuthenticationState newAuthState = await GetAuthenticationStateAsync();

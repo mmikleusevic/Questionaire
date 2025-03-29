@@ -1,8 +1,8 @@
 using Microsoft.JSInterop;
 
-namespace Web.Services;
+namespace Web.Handlers;
 
-public class JavaScriptService(IJSRuntime jsRuntime) : IAsyncDisposable
+public class JavaScriptHandler(IJSRuntime jsRuntime) : IAsyncDisposable
 {
     private readonly Lazy<Task<IJSObjectReference>> moduleTask = new Lazy<Task<IJSObjectReference>>(() =>
         jsRuntime.InvokeAsync<IJSObjectReference>(

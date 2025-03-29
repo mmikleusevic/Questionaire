@@ -1,4 +1,5 @@
 using DotNetEnv;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -16,7 +17,7 @@ using Serilog.Sinks.SystemConsole.Themes;
 
 Env.Load();
 
-string logPath = "logs/api-log-.txt"; 
+string logPath = "logs/api-log-.txt";
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
     .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
@@ -32,7 +33,8 @@ Log.Logger = new LoggerConfiguration()
         logPath,
         rollingInterval: RollingInterval.Day,
         restrictedToMinimumLevel: LogEventLevel.Warning,
-        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{SourceContext}] {Message:lj}{NewLine}{Exception}",
+        outputTemplate:
+        "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{SourceContext}] {Message:lj}{NewLine}{Exception}",
         fileSizeLimitBytes: 1_000_000,
         rollOnFileSizeLimit: true,
         retainedFileCountLimit: 7)
@@ -43,7 +45,7 @@ try
     Log.Information("Starting API application");
 
     var builder = WebApplication.CreateBuilder(args);
-    
+
     builder.Logging.ClearProviders();
     builder.Host.UseSerilog();
 
@@ -53,11 +55,11 @@ try
             options.SerializerSettings.ContractResolver = new DefaultContractResolver();
             options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
         });
-    
+
     builder.Services.AddOpenApi();
 
     string? connectionString = Environment.GetEnvironmentVariable("DEFAULT_CONNECTION");
-    
+
     if (string.IsNullOrWhiteSpace(connectionString))
     {
         Log.Fatal("Database connection string 'DEFAULT_CONNECTION' is missing or empty.");
@@ -67,7 +69,8 @@ try
     builder.Services.AddDbContext<QuestionaireDbContext>(options =>
     {
         options.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
-        options.UseSqlServer(connectionString);
+        options.UseSqlServer(connectionString,
+            sqlOptions => { sqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery); });
     });
 
     builder.Services.AddAuthorization();
@@ -78,7 +81,7 @@ try
             options.DefaultChallengeScheme = IdentityConstants.BearerScheme;
         })
         .AddBearerToken(IdentityConstants.BearerScheme);
-    
+
     builder.Services.AddIdentityCore<User>(options =>
         {
             options.Password.RequireDigit = false;
@@ -91,7 +94,7 @@ try
         .AddRoles<IdentityRole>()
         .AddEntityFrameworkStores<QuestionaireDbContext>()
         .AddApiEndpoints();
-    
+
     builder.Services.AddScoped<IAnswerService, AnswerService>();
     builder.Services.AddScoped<ICategoryService, CategoryService>();
     builder.Services.AddScoped<IQuestionService, QuestionService>();
@@ -99,11 +102,13 @@ try
     builder.Services.AddScoped<IQuestionCategoriesService, QuestionCategoriesService>();
     builder.Services.AddScoped<IUserService, UserService>();
     builder.Services.AddScoped<IRoleService, RoleService>();
-    
+    builder.Services.AddScoped<ILogService, LogService>();
+
     string? applicationUrl = Environment.GetEnvironmentVariable("API_URL");
     string? webUrl = Environment.GetEnvironmentVariable("WEB_URL");
-    
-    if (string.IsNullOrEmpty(webUrl)) Log.Warning("WEB_URL environment variable not set. CORS might not allow Blazor client.");
+
+    if (string.IsNullOrEmpty(webUrl))
+        Log.Warning("WEB_URL environment variable not set. CORS might not allow Blazor client.");
 
     var allowedOrigins = new List<string>();
     if (!string.IsNullOrEmpty(applicationUrl)) allowedOrigins.Add(applicationUrl.TrimEnd('/'));
@@ -126,25 +131,29 @@ try
     {
         Log.Warning("No valid origins specified for CORS policy 'Cors'. Requests might be blocked.");
     }
-    
+
     WebApplication app = builder.Build();
-    
-    app.UseExceptionHandler(errorApp => 
+
+    app.UseExceptionHandler(errorApp =>
     {
         errorApp.Run(async context =>
         {
-            var exceptionHandlerPathFeature = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerPathFeature>();
-            Log.Error(exceptionHandlerPathFeature?.Error, "Unhandled exception occurred at path {Path}", exceptionHandlerPathFeature?.Path);
+            var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
+            Log.Error(exceptionHandlerPathFeature?.Error, "Unhandled exception occurred at path {Path}",
+                exceptionHandlerPathFeature?.Path);
 
             context.Response.StatusCode = 500;
             context.Response.ContentType = "application/json";
             object errorResponse = app.Environment.IsDevelopment()
-                ? new { message = "An application error has occurred.", detail = exceptionHandlerPathFeature?.Error.Message }
+                ? new
+                {
+                    message = "An application error has occurred.", detail = exceptionHandlerPathFeature?.Error.Message
+                }
                 : new { message = "An application error has occurred. Please try again later." };
             await context.Response.WriteAsJsonAsync(errorResponse);
         });
     });
-    
+
     if (app.Environment.IsDevelopment())
     {
         app.MapScalarApiReference();
@@ -155,7 +164,7 @@ try
     {
         app.UseHsts();
     }
-    
+
     try
     {
         Log.Information("Applying database migrations...");
@@ -164,17 +173,18 @@ try
             var dbContext = scope.ServiceProvider.GetRequiredService<QuestionaireDbContext>();
             dbContext.Database.Migrate();
         }
+
         Log.Information("Database migrations applied successfully.");
     }
     catch (Exception ex)
     {
-         Log.Fatal(ex, "An error occurred while applying database migrations.");
+        Log.Fatal(ex, "An error occurred while applying database migrations.");
     }
-    
+
     app.CustomMapIdentityApi<User>();
-    
+
     app.UseHttpsRedirection();
-    
+
     if (allowedOrigins.Any())
     {
         app.UseCors("Cors");
