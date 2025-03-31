@@ -11,7 +11,7 @@ namespace ServiceHandlers
 {
     public class QuestionServiceHandler
     {
-        public IEnumerator GetRandomUniqueQuestions(UniqueQuestionRequestDto request,
+        public IEnumerator GetRandomUniqueQuestions(UniqueQuestionsRequestDto request,
             Action<List<QuestionDto>, string> onComplete)
         {
             string endpoint = "api/Question/random";

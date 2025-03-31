@@ -9,8 +9,6 @@ namespace Web.Pages.PendingQuestions;
 
 public partial class PendingQuestions : ComponentBase
 {
-    [CascadingParameter] Task<AuthenticationState> authenticationStateTask { get; set; }
-    
     private readonly QuestionsRequestDto questionsRequest = new QuestionsRequestDto
     {
         PageSize = 50,
@@ -19,12 +17,13 @@ public partial class PendingQuestions : ComponentBase
     };
 
     private BaseQuestions? baseQuestionsRef;
+    [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         AuthenticationState authState = await authenticationStateTask;
         ClaimsPrincipal currentUser = authState.User;
-        
+
         if (currentUser.Identity?.IsAuthenticated == true)
         {
             if (currentUser.IsInRole("Admin") || currentUser.IsInRole("SuperAdmin"))
@@ -40,7 +39,7 @@ public partial class PendingQuestions : ComponentBase
         {
             questionsRequest.OnlyMyQuestions = false;
         }
-        
+
         await base.OnInitializedAsync();
     }
 

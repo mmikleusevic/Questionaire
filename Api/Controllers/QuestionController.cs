@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using QuestionaireApi.Interfaces;
 using Shared.Models;
-using UniqueQuestionsRequestDto = SharedStandard.Models.UniqueQuestionRequestDto;
+using SharedStandard.Models;
 
 namespace QuestionaireApi.Controllers;
 

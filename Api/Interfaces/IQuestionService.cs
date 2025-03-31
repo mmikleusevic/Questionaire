@@ -1,6 +1,6 @@
 using System.Security.Claims;
 using Shared.Models;
-using UniqueQuestionsRequestDto = SharedStandard.Models.UniqueQuestionRequestDto;
+using SharedStandard.Models;
 
 namespace QuestionaireApi.Interfaces;
 

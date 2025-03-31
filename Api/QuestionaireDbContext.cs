@@ -7,11 +7,11 @@ namespace QuestionaireApi;
 
 public class QuestionaireDbContext(DbContextOptions options) : IdentityDbContext(options)
 {
-    public DbSet<Category> Categories => Set<Category>();
-    public DbSet<Question> Questions => Set<Question>();
-    public DbSet<Answer> Answers => Set<Answer>();
-    public DbSet<QuestionCategory> QuestionCategories => Set<QuestionCategory>();
-    public DbSet<UserQuestionHistory> UserQuestionHistory => Set<UserQuestionHistory>();
+    public virtual DbSet<Category> Categories => Set<Category>();
+    public virtual DbSet<Question> Questions => Set<Question>();
+    public virtual DbSet<Answer> Answers => Set<Answer>();
+    public virtual DbSet<QuestionCategory> QuestionCategories => Set<QuestionCategory>();
+    public virtual DbSet<UserQuestionHistory> UserQuestionHistory => Set<UserQuestionHistory>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

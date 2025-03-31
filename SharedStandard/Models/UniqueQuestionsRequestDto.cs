@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 namespace SharedStandard.Models
 {
     [JsonObject]
-    public class UniqueQuestionRequestDto
+    public class UniqueQuestionsRequestDto
     {
         [JsonProperty] public string UserId { get; set; }
 

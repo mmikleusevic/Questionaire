@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using QuestionaireApi.Interfaces;
 using QuestionaireApi.Models.Database;
 using Shared.Models;
-using UniqueQuestionsRequestDto = SharedStandard.Models.UniqueQuestionRequestDto;
+using SharedStandard.Models;
 
 namespace QuestionaireApi.Services;
 
@@ -122,7 +122,7 @@ public class QuestionService(
         {
             string? userId = userManager.GetUserId(user);
 
-            if (string.IsNullOrEmpty(userId)) throw new UnauthorizedAccessException("The user is not authorized");
+            if (string.IsNullOrEmpty(userId)) throw new UnauthorizedAccessException("The user is not authorized.");
 
             Question? question = await context.Questions
                 .Include(q => q.Answers)
