@@ -3,6 +3,7 @@ using System.Text;
 using BlazorBootstrap;
 using Newtonsoft.Json;
 using Shared.Models;
+using SharedStandard.Models;
 using Web.Handlers;
 using Web.Interfaces;
 
@@ -38,6 +39,35 @@ public class QuestionService(
         {
             ApiResponseHandler.HandleException(ex, toastService, context, logger);
             return new PaginatedResponse<QuestionExtendedDto>();
+        }
+    }
+
+    public async Task<List<QuestionExtendedDto>> GetRandomUniqueQuestions(
+        UniqueQuestionsRequestDto uniqueQuestionsRequestDto)
+    {
+        string context = "fetching unique questions";
+        try
+        {
+            string jsonContent = JsonConvert.SerializeObject(uniqueQuestionsRequestDto);
+            using StringContent content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+            HttpResponseMessage response = await httpClient.PostAsync("api/Question/random", content);
+
+            if (!await ApiResponseHandler.HandleResponse(response, toastService, context, logger))
+            {
+                return new List<QuestionExtendedDto>();
+            }
+
+            string responseData = await response.Content.ReadAsStringAsync();
+            List<QuestionExtendedDto>? paginatedResponse =
+                JsonConvert.DeserializeObject<List<QuestionExtendedDto>>(responseData);
+
+            return paginatedResponse ?? new List<QuestionExtendedDto>();
+        }
+        catch (Exception ex)
+        {
+            ApiResponseHandler.HandleException(ex, toastService, context, logger);
+            return new List<QuestionExtendedDto>();
         }
     }
 

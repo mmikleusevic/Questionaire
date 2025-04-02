@@ -18,6 +18,7 @@ namespace SharedStandard.Models
         }
 
         [JsonProperty] public int Id { get; private set; }
+        [JsonProperty] public Difficulty Difficulty { get; set; }
         [JsonProperty] public virtual string QuestionText { get; set; }
         [JsonProperty] public List<AnswerDto> Answers { get; set; } = new List<AnswerDto>();
         [JsonProperty] public List<CategoryDto> Categories { get; set; } = new List<CategoryDto>();

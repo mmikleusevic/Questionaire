@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Shared.Models;
+using SharedStandard.Models;
 
 namespace Web.Pages.Custom;
 
@@ -47,6 +48,8 @@ public partial class QuestionForm : ComponentBase
             }).ToList()
         };
 
+        updatedQuestion.Difficulty = Question.Difficulty;
+
         selectedCategories = updatedQuestion.Categories.ToList();
 
         validationMessages.Clear();
@@ -77,7 +80,19 @@ public partial class QuestionForm : ComponentBase
         Question.Categories = selectedCategories.Where(a => a.Id != 0).ToList();
         Question.Answers = updatedQuestion.Answers;
         Question.QuestionText = updatedQuestion.QuestionText;
+        Question.Difficulty = updatedQuestion.Difficulty;
 
         await OnSubmit.InvokeAsync();
+    }
+
+    private string GetDifficultyColor(Difficulty difficulty)
+    {
+        return difficulty switch
+        {
+            Difficulty.Easy => "dodgerblue",
+            Difficulty.Medium => "orange",
+            Difficulty.Hard => "darkred",
+            _ => "#6c757d"
+        };
     }
 }

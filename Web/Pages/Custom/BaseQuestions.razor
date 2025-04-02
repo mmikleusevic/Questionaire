@@ -54,10 +54,18 @@
                             </div>
                         </div>
                     </div>
-                    @if (QuestionActions != null)
-                    {
-                        @QuestionActions(question)
-                    }
+                    <div class="difficulty-actions">
+                        <div class="difficulty">
+                            <span
+                                class="difficulty-item @question.Difficulty.ToString().ToLower()">@question.Difficulty</span>
+                        </div>
+                        <div class="actions">
+                            @if (QuestionActions != null)
+                            {
+                                @QuestionActions(question)
+                            }
+                        </div>
+                    </div>
                 </div>
             }
         </div>

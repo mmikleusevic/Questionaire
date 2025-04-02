@@ -143,6 +143,7 @@ p {
     background-color: rgba(1, 1, 1, 0.05);
 }
 
+.difficulty-item,
 .category-item {
     margin: 5px;
     background-color: gray;
@@ -187,7 +188,33 @@ p {
     margin-bottom: 5px;
 }
 
+.difficulty {
+    min-width: 90px;
+}
+
+.difficulty-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.easy {
+    background-color: dodgerblue;
+}
+
+.medium {
+    background-color: darkorange;
+}
+
+.hard {
+    background-color: darkred;
+}
+
+.difficulty,
 .actions {
+    height: 100%;
     flex: 1;
     display: flex;
     gap: 5px;

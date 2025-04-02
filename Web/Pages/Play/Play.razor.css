@@ -1,0 +1,30 @@
+.play-wrapper {
+    height: calc(100vh - 5.6rem) !important;
+    display: flex;
+    flex-direction: column;
+}
+
+@media (max-width: 640px) {
+    .play-wrapper {
+        height: calc(100vh - 9.1rem) !important;
+    }
+}
+
+.categories-difficulties-part {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.play-part {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}

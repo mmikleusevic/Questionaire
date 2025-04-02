@@ -8,14 +8,12 @@
                EmptyText="questions" ToggleRoles="@("Admin, User, SuperAdmin")">
     <QuestionActions Context="question">
         <AuthorizeView Roles=@("Admin, SuperAdmin")>
-            <div class="actions">
-                <button class="btn btn-update" @onclick="@(() => baseQuestionsRef?.ShowUpdateQuestion(question)!)">
-                    Update
-                </button>
-                <button class="btn btn-delete" @onclick="@(() => baseQuestionsRef?.ShowDeleteQuestion(question)!)">
-                    Delete
-                </button>
-            </div>
+            <button class="btn btn-update" @onclick="@(() => baseQuestionsRef?.ShowUpdateQuestion(question)!)">
+                Update
+            </button>
+            <button class="btn btn-delete" @onclick="@(() => baseQuestionsRef?.ShowDeleteQuestion(question)!)">
+                Delete
+            </button>
         </AuthorizeView>
     </QuestionActions>
 </BaseQuestions>

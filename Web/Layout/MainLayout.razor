@@ -4,13 +4,10 @@
 
 <div class="bb-page">
 
-    <AuthorizeView>
-        <Sidebar2 @ref="@sidebar"
-                  IconName="IconName.PatchQuestionFill"
-                  Title="Questionaire"
-                  DataProvider="Sidebar2DataProvider"/>
-    </AuthorizeView>
-
+    <Sidebar2 @ref="@sidebar"
+              IconName="IconName.PatchQuestionFill"
+              Title="Questionaire"
+              DataProvider="Sidebar2DataProvider"/>
     <main>
         <div class="bb-top-row px-4 d-flex justify-content-center">
             <AuthorizeView>
@@ -77,6 +74,8 @@
                 navItems.Add(new NavItem { Id = "4", Href = "/Users", IconName = IconName.House, Text = "Users", IconColor = IconColor.White });
             }
         }
+
+        navItems.Add(new NavItem { Id = "5", Href = "/Play", IconName = IconName.Play, Text = "Play", IconColor = IconColor.White });
 
         return navItems;
     }

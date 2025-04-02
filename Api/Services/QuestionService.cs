@@ -56,6 +56,7 @@ public class QuestionService(
                 Items = questions.Select(q => new QuestionExtendedDto(q.Id)
                 {
                     QuestionText = q.QuestionText,
+                    Difficulty = q.Difficulty,
                     Answers = q.Answers.Select(a => new AnswerExtendedDto(a.Id)
                     {
                         AnswerText = a.AnswerText,
@@ -85,6 +86,7 @@ public class QuestionService(
         {
             IQueryable<Question> baseQuery = context.Questions
                 .Where(q => q.IsApproved == true && q.IsDeleted == false)
+                .Where(q => requestDto.Difficulties.Contains(q.Difficulty))
                 .Include(q => q.Answers)
                 .Where(q => q.Answers.Count >= (requestDto.IsSingleAnswerMode ? 1 : 3))
                 .Where(q => q.Answers.Any(a => a.IsCorrect))
@@ -177,7 +179,8 @@ public class QuestionService(
                 QuestionText = newQuestion.QuestionText,
                 CreatedById = userId,
                 CreatedAt = DateTime.UtcNow,
-                IsApproved = false
+                IsApproved = false,
+                Difficulty = newQuestion.Difficulty
             };
 
             await context.Questions.AddAsync(dbQuestion);
@@ -229,6 +232,7 @@ public class QuestionService(
             question.QuestionText = updatedQuestion.QuestionText;
             question.LastUpdatedById = userId;
             question.LastUpdatedAt = DateTime.UtcNow;
+            question.Difficulty = updatedQuestion.Difficulty;
 
             await answerService.UpdateQuestionAnswers(question.Id, question.Answers, updatedQuestion.Answers);
             await questionCategoriesService.UpdateQuestionCategories(question.Id, question.QuestionCategories,
@@ -266,6 +270,8 @@ public class QuestionService(
 
             if (!isAdmin && !isSuperAdmin && !isOwner) return false;
 
+            question.DeletedAt = DateTime.UtcNow;
+            question.DeletedById = userId;
             question.IsDeleted = true;
 
             await context.SaveChangesAsync();
@@ -305,6 +311,7 @@ public class QuestionService(
                 .Select(q => new QuestionExtendedDto(q.Id)
                 {
                     QuestionText = q.QuestionText,
+                    Difficulty = q.Difficulty,
                     Answers = q.Answers
                         .OrderBy(a => a.IsCorrect ? 0 : 1)
                         .Take(isSingleAnswerMode ? 1 : 3)
