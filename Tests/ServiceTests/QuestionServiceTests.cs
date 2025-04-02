@@ -83,6 +83,7 @@ public class QuestionServiceTests
         var q1 = new Question
         {
             Id = 1, QuestionText = "Q1 Approved?", IsApproved = true, IsDeleted = false, CreatedById = "user1",
+            Difficulty = Difficulty.Easy,
             Answers = new List<Answer>
                 { new Answer { Id = 1, IsCorrect = true }, new Answer { Id = 2 }, new Answer { Id = 3 } },
             QuestionCategories = new List<QuestionCategory>
@@ -91,6 +92,7 @@ public class QuestionServiceTests
         var q2 = new Question
         {
             Id = 2, QuestionText = "Q2 Pending", IsApproved = false, IsDeleted = false, CreatedById = "user2",
+            Difficulty = Difficulty.Easy,
             Answers = new List<Answer>
                 { new Answer { Id = 4, IsCorrect = true }, new Answer { Id = 5 }, new Answer { Id = 6 } },
             QuestionCategories = new List<QuestionCategory>
@@ -101,6 +103,7 @@ public class QuestionServiceTests
         var q3 = new Question
         {
             Id = 3, QuestionText = "Q3 Approved Owner", IsApproved = true, IsDeleted = false,
+            Difficulty = Difficulty.Easy,
             CreatedById = "user-owner",
             Answers = new List<Answer>
                 { new Answer { Id = 7, IsCorrect = true }, new Answer { Id = 8 }, new Answer { Id = 9 } },
@@ -110,6 +113,7 @@ public class QuestionServiceTests
         var q4 = new Question
         {
             Id = 4, QuestionText = "Q4 Approved Different", IsApproved = true, IsDeleted = false, CreatedById = "user1",
+            Difficulty = Difficulty.Easy,
             Answers = new List<Answer>
                 { new Answer { Id = 10, IsCorrect = true }, new Answer { Id = 11 }, new Answer { Id = 12 } },
             QuestionCategories = new List<QuestionCategory>
@@ -120,6 +124,7 @@ public class QuestionServiceTests
         var q5NeedsApproval = new Question
         {
             Id = 5, QuestionText = "Q5 Needs Approval", IsApproved = false, IsDeleted = false, CreatedById = "user1",
+            Difficulty = Difficulty.Easy,
             Answers = new List<Answer>
                 { new Answer { Id = 13, IsCorrect = true }, new Answer { Id = 14 }, new Answer { Id = 15 } },
             QuestionCategories = new List<QuestionCategory>
@@ -128,6 +133,7 @@ public class QuestionServiceTests
         var q6InvalidAnswers = new Question
         {
             Id = 6, QuestionText = "Q6 Invalid Answers", IsApproved = false, IsDeleted = false, CreatedById = "user1",
+            Difficulty = Difficulty.Easy,
             Answers = new List<Answer>
                 { new Answer { Id = 16, IsCorrect = true }, new Answer { Id = 17 } },
             QuestionCategories = new List<QuestionCategory>
@@ -136,6 +142,7 @@ public class QuestionServiceTests
         var q7NoCategory = new Question
         {
             Id = 7, QuestionText = "Q7 No Category", IsApproved = false, IsDeleted = false, CreatedById = "user1",
+            Difficulty = Difficulty.Easy,
             Answers = new List<Answer>
                 { new Answer { Id = 18, IsCorrect = true }, new Answer { Id = 19 }, new Answer { Id = 20 } },
             QuestionCategories = new List<QuestionCategory>()
@@ -143,6 +150,7 @@ public class QuestionServiceTests
         var q8Deleted = new Question
         {
             Id = 8, QuestionText = "Q8 Deleted", IsApproved = true, IsDeleted = true, CreatedById = "user1",
+            Difficulty = Difficulty.Easy,
             Answers = new List<Answer>
                 { new Answer { Id = 21, IsCorrect = true }, new Answer { Id = 22 }, new Answer { Id = 23 } },
             QuestionCategories = new List<QuestionCategory>
@@ -300,7 +308,8 @@ public class QuestionServiceTests
         var userId = "testUserForRandom";
         var request = new UniqueQuestionsRequestDto
         {
-            UserId = userId, NumberOfQuestions = 2, CategoryIds = [10], IsSingleAnswerMode = false
+            UserId = userId, NumberOfQuestions = 2, CategoryIds = [10], IsSingleAnswerMode = false,
+            Difficulties = [Difficulty.Easy]
         };
 
         var availableQuestions = questionsData
@@ -328,7 +337,8 @@ public class QuestionServiceTests
         var userId = "testUserForRandomReset";
         var request = new UniqueQuestionsRequestDto
         {
-            UserId = userId, NumberOfQuestions = 3, CategoryIds = [10], IsSingleAnswerMode = false
+            UserId = userId, NumberOfQuestions = 3, CategoryIds = [10], IsSingleAnswerMode = false,
+            Difficulties = [Difficulty.Easy]
         };
 
         // Act
@@ -441,7 +451,7 @@ public class QuestionServiceTests
                 questionsData.Add(q);
             })
             .ReturnsAsync((EntityEntry<Question>)null);
-        
+
         // Act
         await questionService.CreateQuestion(newQuestionDto, user);
 

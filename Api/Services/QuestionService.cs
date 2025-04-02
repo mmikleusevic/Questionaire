@@ -84,17 +84,19 @@ public class QuestionService(
     {
         try
         {
-            IQueryable<Question> baseQuery = context.Questions
+            IQueryable<Question> coreQuery = context.Questions
                 .Where(q => q.IsApproved == true && q.IsDeleted == false)
                 .Where(q => requestDto.Difficulties.Contains(q.Difficulty))
                 .Include(q => q.Answers)
                 .Where(q => q.Answers.Count >= (requestDto.IsSingleAnswerMode ? 1 : 3))
                 .Where(q => q.Answers.Any(a => a.IsCorrect))
-                .Where(q => q.QuestionCategories.Any(qc => requestDto.CategoryIds.Contains(qc.CategoryId)))
+                .Where(q => q.QuestionCategories.Any(qc => requestDto.CategoryIds.Contains(qc.CategoryId)));
+
+            IQueryable<Question> initialQuery = coreQuery
                 .Where(q => !context.UserQuestionHistory.Any(h => h.UserId == requestDto.UserId
                                                                   && h.QuestionId == q.Id));
 
-            List<Question> questions = await FetchRandomQuestions(baseQuery, requestDto.NumberOfQuestions, null);
+            List<Question> questions = await FetchRandomQuestions(initialQuery, requestDto.NumberOfQuestions, null);
 
             if (questions.Count < requestDto.NumberOfQuestions)
             {
@@ -102,14 +104,18 @@ public class QuestionService(
 
                 int remainingQuestionsCount = requestDto.NumberOfQuestions - questions.Count;
                 HashSet<int> idsToExclude = questions.Select(q => q.Id).ToHashSet();
+                
                 List<Question> additionalQuestions =
-                    await FetchRandomQuestions(baseQuery, remainingQuestionsCount, idsToExclude);
+                    await FetchRandomQuestions(coreQuery, remainingQuestionsCount, idsToExclude);
 
                 questions.AddRange(additionalQuestions);
             }
-
-            await userQuestionHistoryService.CreateUserQuestionHistory(requestDto.UserId, questions);
-
+            
+            if (questions.Any())
+            {
+                await userQuestionHistoryService.CreateUserQuestionHistory(requestDto.UserId, questions);
+            }
+            
             return MapQuestionsToDtos(questions, requestDto.IsSingleAnswerMode);
         }
         catch (Exception ex)
@@ -288,7 +294,10 @@ public class QuestionService(
     {
         try
         {
-            if (excludeIds != null) query = query.Where(q => !excludeIds.Contains(q.Id));
+            if (excludeIds != null && excludeIds.Any())
+            {
+                query = query.Where(q => !excludeIds.Contains(q.Id));
+            }
 
             return await query
                 .OrderBy(q => Guid.NewGuid())
