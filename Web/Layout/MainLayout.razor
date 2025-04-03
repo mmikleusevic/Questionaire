@@ -9,19 +9,19 @@
               Title="Questionaire"
               DataProvider="Sidebar2DataProvider"/>
     <main>
-        <div class="bb-top-row px-4 d-flex justify-content-center">
+        <div class="bb-top-row px-4 d-flex justify-content-center header">
             <AuthorizeView>
-                <Icon Name="IconName.List" role="button" @onclick="ToggleSidebar"/>
+                <Icon Class="navbar-toggle" Name="IconName.List" role="button" @onclick="ToggleSidebar"/>
             </AuthorizeView>
             <div class="header-right-part">
                 <AuthorizeView>
                     <Authorized>
-                        <p class="my-3 me-3">Hello, @context.User.Identity?.Name</p>
+                        <p class="my-3 me-3 name">Hello, @context.User.Identity?.Name</p>
                         <button class="btn btn-primary" @onclick="Logout">Logout</button>
                     </Authorized>
                     <NotAuthorized>
                         <a class="btn btn-primary" href="/Login">Login</a>
-                        <a class="btn btn-outline-primary" href="/Register">Register</a>
+                        <a class="btn btn-primary" href="/Register">Register</a>
                     </NotAuthorized>
                 </AuthorizeView>
             </div>

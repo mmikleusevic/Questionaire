@@ -62,7 +62,15 @@ public class QuestionService(
             List<QuestionExtendedDto>? paginatedResponse =
                 JsonConvert.DeserializeObject<List<QuestionExtendedDto>>(responseData);
 
-            return paginatedResponse ?? new List<QuestionExtendedDto>();
+            if (paginatedResponse != null)
+            {
+                if (paginatedResponse.Any()) return paginatedResponse;
+
+                ToastHandler.ShowToast(toastService, HttpStatusCode.NoContent, "No questions found",
+                    "No question found with selected categories and difficulty");
+            }
+
+            return new List<QuestionExtendedDto>();
         }
         catch (Exception ex)
         {

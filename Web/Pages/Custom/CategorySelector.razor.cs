@@ -20,7 +20,7 @@ public partial class CategorySelector : ComponentBase
     [Parameter] public List<CategoryExtendedDto>? SelectedCategories { get; set; }
     [Parameter] public CategoryExtendedDto? SelectedCategory { get; set; }
     [Parameter] public EventCallback<CategoryExtendedDto> OnCategoryChanged { get; set; }
-    [Inject] private JavaScriptHandler? JsService { get; set; }
+    [Inject] private JavaScriptHandler? JSHandler { get; set; }
     [Inject] private ICategoryService? CategoryService { get; set; }
 
     private async Task SearchCategories(string? value)
@@ -75,9 +75,9 @@ public partial class CategorySelector : ComponentBase
                     selectedIndex = possibleIndex;
                 }
 
-                if (JsService == null) return;
+                if (JSHandler == null) return;
 
-                await JsService.InvokeVoidAsync("scrollToActiveCategory", selectedIndex);
+                await JSHandler.InvokeVoidAsync("scrollToActiveCategory", selectedIndex);
                 break;
             }
             case "ArrowUp":
@@ -90,17 +90,17 @@ public partial class CategorySelector : ComponentBase
                     selectedIndex = possibleIndex;
                 }
 
-                if (JsService == null) return;
+                if (JSHandler == null) return;
 
-                await JsService.InvokeVoidAsync("scrollToActiveCategory", selectedIndex);
+                await JSHandler.InvokeVoidAsync("scrollToActiveCategory", selectedIndex);
                 break;
             }
             case "Enter" when selectedIndex >= 0:
                 AddCategoryToSelection(searchResults[selectedIndex]);
 
-                if (JsService == null) return;
+                if (JSHandler == null) return;
 
-                await JsService.InvokeVoidAsync("blurElement", inputElement);
+                await JSHandler.InvokeVoidAsync("blurElement", inputElement);
                 break;
         }
     }
@@ -110,9 +110,9 @@ public partial class CategorySelector : ComponentBase
         selectedIndex = index;
         AddCategoryToSelection(searchResults[index]);
 
-        if (JsService == null) return;
+        if (JSHandler == null) return;
 
-        await JsService.InvokeVoidAsync("blurElement", inputElement);
+        await JSHandler.InvokeVoidAsync("blurElement", inputElement);
     }
 
     private void AddCategoryToSelection(CategoryExtendedDto category)

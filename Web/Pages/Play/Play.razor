@@ -1,14 +1,120 @@
 @page "/Play"
+@using Shared.Models
+@using SharedStandard.Models
 
 <Modal @ref="modal" UseStaticBackdrop="true" CloseOnEscape="true" IsVerticallyCentered="true"
        Size="ModalSize.ExtraLarge"/>
-       
+
 <div class="play-wrapper">
-       <div class="categories-difficulties-part">
-              <div></div>
-              <div></div>
-       </div>
-       <div class="play-part">
-              <Button Color="ButtonColor.Primary" >Play</Button>
-       </div>
+       @if (isInitializing)
+       {
+              <div class="d-flex justify-content-center align-items-center h-100">
+                     <Spinner Color="SpinnerColor.Info"/>
+                     <span class="ms-2">Loading Data...</span>
+              </div>
+       }
+       else
+       {
+              <div class="categories-difficulties-part">
+                     <div class="categories">
+                            <div class="section-title">Select Categories</div>
+                            <div class="categories-select">
+                                   <div class="category-controls">
+                                          <Button Color="ButtonColor.Primary" Size="ButtonSize.Small"
+                                                  @onclick="() => ToggleAllCategories(true)">Select All
+                                          </Button>
+                                          <Button Color="ButtonColor.Primary" Size="ButtonSize.Small"
+                                                  @onclick="() => ToggleAllCategories(false)">Deselect All
+                                          </Button>
+                                   </div>
+                                   <div class="category-scroll-container">
+                                          @if (nestedCategories == null || !nestedCategories.Any())
+                                          {
+                                                 <p class="text-muted p-3">No categories found.</p>
+                                          }
+                                          else
+                                          {
+                                                 @RenderCategoryList(nestedCategories)
+                                          }
+                                   </div>
+                            </div>
+                     </div>
+                     <div class="difficulties">
+                            <div class="section-title">Select Difficulties</div>
+                            <div class="difficulties-select">
+                                   <Dropdown Disabled="@(AvailableDifficultiesToAdd.Count == 0)"
+                                             Direction="DropdownDirection.Dropdown" Color="DropdownColor.Primary">
+                                          <DropdownToggleButton>
+                                                 Select Difficulty
+                                          </DropdownToggleButton>
+                                          <DropdownMenu>
+                                                 @foreach (Difficulty difficulty in AvailableDifficultiesToAdd)
+                                                 {
+                                                        <DropdownItem
+                                                               style="@($"background-color: {GetDifficultyColor(difficulty)}; color: white;")"
+                                                               @onclick="@(() => AddDifficulty(difficulty))">
+                                                               @difficulty.ToString()
+                                                        </DropdownItem>
+                                                 }
+                                          </DropdownMenu>
+                                   </Dropdown>
+                                   <div class="selected-difficulties">
+                                          @if (selectedDifficulties.Any())
+                                          {
+                                                 foreach (Difficulty difficulty in selectedDifficulties)
+                                                 {
+                                                        <span style="@($"background-color: {GetDifficultyColor(difficulty)}; color: white;")"
+                                                              class="difficulty-item">@difficulty.ToString()
+                                                               <span
+                                                                      class="remove-difficulty"
+                                                                      @onclick="() => RemoveDifficulty(difficulty)">X</span></span>
+                                                 }
+                                          }
+                                          else
+                                          {
+                                                 <span>No difficulties selected</span>
+                                          }
+                                   </div>
+                            </div>
+                     </div>
+              </div>
+
+              <div class="play-part">
+                     <Button Color="ButtonColor.Primary" @onclick="() => HandlePlayClick(true)" Disabled="@(!CanPlay)">
+                            Play Single Answer
+                     </Button>
+                     <Button Color="ButtonColor.Primary" @onclick="() => HandlePlayClick(false)" Disabled="@(!CanPlay)">
+                            Play Multiple Choice
+                     </Button>
+              </div>
+       }
 </div>
+
+@code {
+
+       private RenderFragment RenderCategoryList(List<CategoryExtendedDto>? categories, int level = 0) =>
+              @<div class="category-level">
+                     @if (categories != null)
+                     {
+                            @foreach (var category in categories)
+                            {
+                                   <div class="category-list-item d-flex justify-content-start align-items-center w-100"
+                                        style="@($"padding-left: {level * 15}px; color:white;")" @key="category.Id">
+
+                                          <Switch @bind-Value="category.isSelected"
+                                                  Label=""
+                                                  class="category-toggle"/>
+
+                                          <span class="category-name">@category.CategoryName</span>
+
+                                   </div>
+
+                                   @if (category.ChildCategories.Any())
+                                   {
+                                          @RenderCategoryList(category.ChildCategories, level + 1)
+                                   }
+                            }
+                     }
+              </div>;
+
+}
