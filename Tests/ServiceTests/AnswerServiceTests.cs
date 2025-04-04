@@ -28,7 +28,7 @@ public class AnswerServiceTests
 
         mockDbSet.Setup(m => m.AddRangeAsync(It.IsAny<IEnumerable<Answer>>(), It.IsAny<CancellationToken>()))
             .Callback<IEnumerable<Answer>,
-                CancellationToken>((entities, ct) => answersData.AddRange(entities)) // Ensure Callback exists
+                CancellationToken>((entities, ct) => answersData.AddRange(entities))
             .Returns(Task.CompletedTask);
 
         mockContext.Setup(c => c.Answers).Returns(mockDbSet.Object);
