@@ -1,0 +1,19 @@
+<div class="read-question">
+    <div class="question-part">
+        <Button class="back-button" @onclick="HideModal">Back</Button>
+        <div class="question">@currentQuestion.QuestionText</div>
+    </div>
+    <div class="navigation-part">
+        <Button class="previous-button" Disabled="IsPreviousButtonDisabled" @onclick="PreviousQuestion">@("<")</Button>
+        <Button class="next-button" Disabled="IsNextButtonDisabled" @onclick="NextQuestion">@(">")</Button>
+    </div>
+    <div class="answers-part">
+        @for (int i = 0; i < 3; i++)
+        {
+            var index = i;
+            var answer = answers[index];
+
+            <div class="@($"answer-item {GetAnswerClass(answer)}")">@(answer?.AnswerText)</div>
+        }
+    </div>
+</div>

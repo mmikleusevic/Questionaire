@@ -104,18 +104,18 @@ public class QuestionService(
 
                 int remainingQuestionsCount = requestDto.NumberOfQuestions - questions.Count;
                 HashSet<int> idsToExclude = questions.Select(q => q.Id).ToHashSet();
-                
+
                 List<Question> additionalQuestions =
                     await FetchRandomQuestions(coreQuery, remainingQuestionsCount, idsToExclude);
 
                 questions.AddRange(additionalQuestions);
             }
-            
+
             if (questions.Any())
             {
                 await userQuestionHistoryService.CreateUserQuestionHistory(requestDto.UserId, questions);
             }
-            
+
             return MapQuestionsToDtos(questions, requestDto.IsSingleAnswerMode);
         }
         catch (Exception ex)
@@ -300,7 +300,7 @@ public class QuestionService(
             }
 
             return await query
-                .OrderBy(q => Guid.NewGuid())
+                .OrderBy(q => EF.Functions.Random())
                 .Take(count)
                 .ToListAsync();
         }

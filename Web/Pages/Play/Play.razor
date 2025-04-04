@@ -2,8 +2,8 @@
 @using Shared.Models
 @using SharedStandard.Models
 
-<Modal @ref="modal" UseStaticBackdrop="true" CloseOnEscape="true" IsVerticallyCentered="true"
-       Size="ModalSize.ExtraLarge"/>
+<Modal @ref="modal" UseStaticBackdrop="true" CloseOnEscape="true" Class="play-questions-modal"
+       Fullscreen="ModalFullscreen.Always"/>
 
 <div class="play-wrapper">
        @if (isInitializing)

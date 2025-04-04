@@ -6,6 +6,7 @@ using Shared.Models;
 using SharedStandard.Models;
 using Web.Handlers;
 using Web.Interfaces;
+using Web.Pages.Play.PlayModals;
 
 namespace Web.Pages.Play;
 
@@ -20,7 +21,7 @@ public partial class Play : ComponentBase
     private List<CategoryExtendedDto>? selectedCategories;
     private readonly HashSet<Difficulty> selectedDifficulties = new HashSet<Difficulty> { Difficulty.Easy };
 
-    private List<QuestionExtendedDto> fetchedQuestions = new List<QuestionExtendedDto>();
+    private List<QuestionExtendedDto> questions = new List<QuestionExtendedDto>();
     private bool isLoading;
     private string? deviceIdentifier;
     private bool isInitializing = true;
@@ -135,23 +136,45 @@ public partial class Play : ComponentBase
 
         int[] categoryIds = GetSelectedCategoryIds();
 
+        int numberOfQuestionsToFetch = 40;
+        int numberOfUnreadQuestions = questions.Count(q => !q.isRead);
+        numberOfQuestionsToFetch -= numberOfUnreadQuestions;
+        
+        questions.RemoveAll(q => q.isRead);
+
         UniqueQuestionsRequestDto request = new UniqueQuestionsRequestDto
         {
             UserId = deviceIdentifier,
-            NumberOfQuestions = 40,
+            NumberOfQuestions = numberOfQuestionsToFetch,
             Difficulties = selectedDifficulties.ToArray(),
             CategoryIds = categoryIds,
             IsSingleAnswerMode = isSingleAnswerMode
         };
 
-        fetchedQuestions = await QuestionService.GetRandomUniqueQuestions(request);
-
-        if (fetchedQuestions.Any())
+        List<QuestionExtendedDto> fetchedQuestions = await QuestionService.GetRandomUniqueQuestions(request);
+        
+        questions.AddRange(fetchedQuestions);
+        
+        if (questions.Any())
         {
-            await modal!.ShowAsync();
+            await ShowReadQuestion(isSingleAnswerMode);
         }
 
         isLoading = false;
+    }
+    
+    private async Task ShowReadQuestion(bool isSingleAnswerMode)
+    {
+        if (modal == null) return;
+
+        Dictionary<string, object> parameters = new Dictionary<string, object>
+        {
+            { "Modal", modal },
+            { "Questions", questions },
+            { "IsSingleAnswerMode", isSingleAnswerMode }
+        };
+
+        await modal.ShowAsync<ReadQuestions>("Questions", parameters: parameters);
     }
 
     private string GetDifficultyColor(Difficulty difficulty)

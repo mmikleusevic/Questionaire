@@ -199,3 +199,14 @@ button.btn-create {
     border-radius: 5px 5px 0 0;
     border: 1px solid #ddd;
 }
+
+.modal.play-questions-modal .modal-header {
+    display: none !important;
+}
+
+.modal.play-questions-modal .modal-body {
+    padding: 0 !important;
+    overflow-y: auto;
+    height: 100%;
+    display: flex;
+}
