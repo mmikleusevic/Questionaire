@@ -68,6 +68,20 @@ public class CategoryServiceTests
 
     // --- GetCategories Tests ---
 
+    [Fact(Skip = "Cannot reliably test with InMemory due to internal EF.Functions.Like call in GetFlatCategories.")]
+    public async Task GetCategories_ReturnsDtoWithData_WhenCalledSuccessfully()
+    {
+        // Arrange
+
+        // Act
+        var result = await categoryService.GetCategories();
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.NotNull(result.NestedCategories);
+        Assert.NotNull(result.FlatCategories);
+    }
+
     [Fact(Skip = "Cannot unit test EF.Functions.Like called internally.")]
     public async Task GetCategories_ReturnsDtoWithNestedAndFlatCategories()
     {
@@ -167,6 +181,55 @@ public class CategoryServiceTests
     }
 
     // --- GetFlatCategories Tests ---
+
+    [Fact(Skip = "Cannot unit test EF.Functions.Like called internally.")]
+    public async Task GetFlatCategories_ReturnsAllCategories_WhenNoSearchQuery()
+    {
+        // Arrange
+        int expectedCount = categoriesData.Count;
+
+        // Act
+        var result = await categoryService.GetFlatCategories("");
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(expectedCount, result.Count);
+        Assert.Contains(result, c => c.Id == 1);
+        Assert.Contains(result, c => c.Id == 6);
+        Assert.All(result, c => Assert.NotNull(c.CategoryName));
+    }
+
+    [Fact]
+    public async Task GetFlatCategories_ReturnsEmptyList_WhenNoCategoriesExist()
+    {
+        // Arrange
+        categoriesData.Clear();
+        mockContext.Setup(c => c.Categories).Returns(categoriesData.AsQueryable().BuildMockDbSet().Object);
+
+        // Act
+        var result = await categoryService.GetFlatCategories("");
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Empty(result);
+    }
+
+    [Fact(Skip = "EF.Functions.Like cannot be translated by InMemory provider.")]
+    public async Task GetFlatCategories_ReturnsFilteredCategories_WhenSearchQueryProvided()
+    {
+        // Arrange
+        string searchQuery = "Root";
+        int expectedCount = 2;
+
+        // Act
+        var result = await categoryService.GetFlatCategories(searchQuery);
+
+        // Assert (These won't be reached if exception is thrown)
+        Assert.NotNull(result);
+        Assert.Equal(expectedCount, result.Count);
+        Assert.Contains(result, c => c.CategoryName == "Root 1");
+        Assert.Contains(result, c => c.CategoryName == "Root 2");
+    }
 
     [Fact]
     public async Task GetFlatCategories_ThrowsWrappedException_WhenDbQueryFails()

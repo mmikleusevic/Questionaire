@@ -81,4 +81,30 @@ public class RoleServiceTests
         Assert.Equal(dbException, ex.InnerException);
         mockRoleManager.Verify(m => m.Roles, Times.AtLeastOnce);
     }
+
+    [Fact]
+    public async Task GetRoles_FiltersOutNullRoleNames()
+    {
+        // Arrange
+        rolesData.AddRange(new[]
+        {
+            new IdentityRole { Name = "Admin" },
+            new IdentityRole { Name = null },
+            new IdentityRole { Name = "User" }
+        });
+
+        var expectedRoleNames = new List<string> { "Admin", "User" };
+
+        // Act
+        IList<string> result = await roleService.GetRoles();
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(expectedRoleNames.Count, result.Count);
+        Assert.Contains("Admin", result);
+        Assert.Contains("User", result);
+        Assert.DoesNotContain(null, result);
+
+        mockRoleManager.Verify(m => m.Roles, Times.Once);
+    }
 }

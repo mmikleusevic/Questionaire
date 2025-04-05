@@ -200,6 +200,34 @@ public class UserServiceTests
             Times.Never);
     }
 
+    [Fact]
+    public async Task UpdateUser_ThrowsWrappedException_WhenAddToRolesAsyncFails()
+    {
+        // Arrange
+        var userName = "failAddRoleUser";
+        var user = new User { UserName = userName };
+        var updatedUserDto = new UserDto { UserName = userName, Roles = new List<string> { "NewRole" } };
+        var currentRoles = new List<string> { "OldRole" };
+        var exception = new Exception("Simulated role addition error");
+
+        mockUserManager.Setup(m => m.FindByNameAsync(userName)).ReturnsAsync(user);
+        mockUserManager.Setup(m => m.GetRolesAsync(user)).ReturnsAsync(currentRoles);
+        mockUserManager.Setup(m => m.RemoveFromRolesAsync(user, currentRoles))
+            .ReturnsAsync(IdentityResult.Success);
+        mockUserManager.Setup(m => m.AddToRolesAsync(user, updatedUserDto.Roles))
+            .ThrowsAsync(exception);
+
+        // Act & Assert
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => userService.UpdateUser(updatedUserDto));
+        Assert.Equal($"An error occurred while updating user with username {userName}.", ex.Message);
+        Assert.Equal(exception, ex.InnerException);
+
+        mockUserManager.Verify(m => m.FindByNameAsync(userName), Times.Once);
+        mockUserManager.Verify(m => m.GetRolesAsync(user), Times.Once);
+        mockUserManager.Verify(m => m.RemoveFromRolesAsync(user, currentRoles), Times.Once);
+        mockUserManager.Verify(m => m.AddToRolesAsync(user, updatedUserDto.Roles), Times.Once);
+    }
+
     // --- DeleteUser Tests ---
 
     [Fact]

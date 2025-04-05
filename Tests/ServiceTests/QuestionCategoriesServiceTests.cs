@@ -41,6 +41,26 @@ public class QuestionCategoriesServiceTests
     // --- CreateQuestionCategories Tests ---
 
     [Fact]
+    public async Task CreateQuestionCategories_ShouldDoNothing_WhenInputDtoListIsEmpty()
+    {
+        // Arrange
+        var questionId = 301;
+        var emptyCategoriesDto = new List<CategoryExtendedDto>();
+        int initialCount = questionCategoriesData.Count;
+
+        // Act
+        await service.CreateQuestionCategories(questionId, emptyCategoriesDto);
+
+        // Assert
+        mockDbSet.Verify(db => db.AddRangeAsync(
+                It.IsAny<IEnumerable<QuestionCategory>>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        Assert.Equal(initialCount, questionCategoriesData.Count);
+    }
+
+    [Fact]
     public async Task CreateQuestionCategories_ShouldAddMappedCategories_ToContextDbSet()
     {
         // Arrange
@@ -94,6 +114,46 @@ public class QuestionCategoriesServiceTests
     }
 
     // --- UpdateQuestionCategories Tests ---
+
+    [Fact]
+    public async Task UpdateQuestionCategories_ShouldAddAllDtos_WhenExistingIsEmpty()
+    {
+        // Arrange
+        var questionId = 302;
+        var existingQuestionCategories = new List<QuestionCategory>();
+        var updatedCategoriesDto = new List<CategoryExtendedDto>
+        {
+            new CategoryExtendedDto(50) { CategoryName = "New 50" },
+            new CategoryExtendedDto(60) { CategoryName = "New 60" }
+        };
+
+        // Act
+        await service.UpdateQuestionCategories(questionId, existingQuestionCategories, updatedCategoriesDto);
+
+        // Assert
+        Assert.Equal(2, existingQuestionCategories.Count);
+        Assert.Contains(existingQuestionCategories, qc => qc.CategoryId == 50 && qc.QuestionId == questionId);
+        Assert.Contains(existingQuestionCategories, qc => qc.CategoryId == 60 && qc.QuestionId == questionId);
+    }
+
+    [Fact]
+    public async Task UpdateQuestionCategories_ShouldRemoveAllExisting_WhenUpdatedDtosIsEmpty()
+    {
+        // Arrange
+        var questionId = 303;
+        var existingQuestionCategories = new List<QuestionCategory>
+        {
+            new QuestionCategory { QuestionId = questionId, CategoryId = 70 },
+            new QuestionCategory { QuestionId = questionId, CategoryId = 80 }
+        };
+        var emptyUpdatedCategoriesDto = new List<CategoryExtendedDto>();
+
+        // Act
+        await service.UpdateQuestionCategories(questionId, existingQuestionCategories, emptyUpdatedCategoriesDto);
+
+        // Assert
+        Assert.Empty(existingQuestionCategories);
+    }
 
     [Fact]
     public async Task UpdateQuestionCategories_ShouldRemoveItems_NotInUpdatedList()

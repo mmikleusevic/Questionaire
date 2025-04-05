@@ -10,6 +10,8 @@ public class AnswerService(QuestionaireDbContext context) : IAnswerService
     {
         try
         {
+            if (answers.Count == 0) return;
+
             await context.Answers.AddRangeAsync(
                 answers.Select(a => new Answer
                 {

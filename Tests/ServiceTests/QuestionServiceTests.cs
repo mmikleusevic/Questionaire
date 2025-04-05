@@ -170,6 +170,23 @@ public class QuestionServiceTests
 
     // --- GetQuestions Tests ---
 
+    [Fact(Skip = "EF.Functions.Like cannot be translated by InMemory provider.")]
+    public async Task GetQuestions_FiltersBySearchQuery_UsingLike()
+    {
+        // Arrange
+        var user = CreateClaimsPrincipal("user1");
+        var dbUser = new User { Id = "user1" };
+        var request = new QuestionsRequestDto
+            { FetchApprovedQuestions = true, PageNumber = 1, PageSize = 10, SearchQuery = "Approved" };
+        mockUserManager.Setup(um => um.GetUserAsync(user)).ReturnsAsync(dbUser);
+
+        // Act
+        var result = await questionService.GetQuestions(request, user);
+
+        // Assert
+        Assert.NotNull(result);
+    }
+
     [Fact]
     public async Task GetQuestions_ReturnsApprovedQuestions_WhenRequested()
     {
@@ -300,8 +317,7 @@ public class QuestionServiceTests
 
     // --- GetRandomUniqueQuestions Tests ---
 
-    [Fact(Skip = "Using EF Functions for OrderBy when fetching questions, test won't pass")]
-    
+    [Fact(Skip = "EF.Functions.Like cannot be translated by InMemory provider.")]
     public async Task GetRandomUniqueQuestions_FetchesQuestionsAndCreatesHistory_WhenEnoughFoundInitially()
     {
         // Arrange
@@ -330,7 +346,7 @@ public class QuestionServiceTests
             Times.Never);
     }
 
-    [Fact(Skip = "Using EF Functions for OrderBy when fetching questions, test won't pass")]
+    [Fact(Skip = "EF.Functions.Like cannot be translated by InMemory provider.")]
     public async Task GetRandomUniqueQuestions_ResetsHistoryAndFetchesMore_WhenInsufficientFoundInitially()
     {
         // Arrange
@@ -429,6 +445,86 @@ public class QuestionServiceTests
 
     // --- CreateQuestion Tests ---
 
+    [Theory]
+    [InlineData(2)]
+    [InlineData(4)]
+    public async Task CreateQuestion_ThrowsInvalidOperation_WhenAnswerCountIsNotThree(int answerCount)
+    {
+        // Arrange
+        var userId = "creator_invalid_answers";
+        var user = CreateClaimsPrincipal(userId);
+
+        mockUserManager.Setup(um => um.GetUserId(user)).Returns(userId);
+        var answers = Enumerable.Range(1, answerCount)
+            .Select(i => new AnswerExtendedDto { IsCorrect = i == 1 })
+            .ToList();
+        var invalidDto = new QuestionExtendedDto
+        {
+            QuestionText = "Invalid Answer Count",
+            Answers = answers,
+            Categories = new List<CategoryExtendedDto> { new CategoryExtendedDto(10) }
+        };
+
+        // Act & Assert
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            questionService.CreateQuestion(invalidDto, user));
+
+        Assert.NotNull(ex.InnerException);
+        Assert.IsType<InvalidOperationException>(ex.InnerException);
+        Assert.Contains(
+            "Invalid question: must have exactly 3 answers, 2 incorrect answers, 1 correct answer and at least one category.",
+            ex.InnerException.Message);
+        mockTransaction.Verify(t => t.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
+        mockTransaction.Verify(t => t.CommitAsync(It.IsAny<CancellationToken>()), Times.Never);
+        mockContext.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task CreateQuestion_ThrowsInvalidOperation_WhenNoCorrectAnswer()
+    {
+        // Arrange
+        var userId = "creator_no_correct";
+        var user = CreateClaimsPrincipal(userId);
+        mockUserManager.Setup(um => um.GetUserId(user)).Returns(userId);
+        var invalidDto = new QuestionExtendedDto
+        {
+            QuestionText = "No Correct Answer",
+            Answers = new List<AnswerExtendedDto>
+                { new AnswerExtendedDto(), new AnswerExtendedDto(), new AnswerExtendedDto() },
+            Categories = new List<CategoryExtendedDto> { new CategoryExtendedDto(10) }
+        };
+
+        // Act & Assert
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            questionService.CreateQuestion(invalidDto, user));
+        Assert.NotNull(ex.InnerException);
+        Assert.IsType<InvalidOperationException>(ex.InnerException);
+        Assert.Contains("1 correct answer", ex.InnerException.Message);
+    }
+
+    [Fact]
+    public async Task CreateQuestion_ThrowsInvalidOperation_WhenNoCategories()
+    {
+        // Arrange
+        var userId = "creator_no_cats";
+        var user = CreateClaimsPrincipal(userId);
+        mockUserManager.Setup(um => um.GetUserId(user)).Returns(userId);
+        var invalidDto = new QuestionExtendedDto
+        {
+            QuestionText = "No Categories",
+            Answers = new List<AnswerExtendedDto>
+                { new AnswerExtendedDto { IsCorrect = true }, new AnswerExtendedDto(), new AnswerExtendedDto() },
+            Categories = new List<CategoryExtendedDto>()
+        };
+
+        // Act & Assert
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            questionService.CreateQuestion(invalidDto, user));
+        Assert.NotNull(ex.InnerException);
+        Assert.IsType<InvalidOperationException>(ex.InnerException);
+        Assert.Contains("at least one category", ex.InnerException.Message);
+    }
+
     [Fact]
     public async Task CreateQuestion_CreatesQuestionAndRelatedEntities_WithinTransaction()
     {
@@ -499,6 +595,197 @@ public class QuestionServiceTests
     }
 
     // --- UpdateQuestion Tests ---
+
+    [Theory]
+    [InlineData(2)]
+    [InlineData(4)]
+    public async Task UpdateQuestion_ThrowsInvalidOperation_WhenAnswerCountIsNotThree(int answerCount)
+    {
+        // Arrange
+        var userId = "updater_invalid_answers";
+        var user = CreateClaimsPrincipal(userId);
+        int questionIdToUpdate = 1;
+        mockUserManager.Setup(um => um.GetUserId(user)).Returns(userId);
+        var answers = Enumerable.Range(1, answerCount)
+            .Select(i => new AnswerExtendedDto { IsCorrect = i == 1 })
+            .ToList();
+        var invalidDto = new QuestionExtendedDto(questionIdToUpdate)
+        {
+            QuestionText = "Invalid Answer Count Update",
+            Answers = answers,
+            Categories = new List<CategoryExtendedDto> { new CategoryExtendedDto(10) }
+        };
+
+        // Act & Assert
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            questionService.UpdateQuestion(questionIdToUpdate, invalidDto, user));
+
+        Assert.NotNull(ex.InnerException);
+        Assert.IsType<InvalidOperationException>(ex.InnerException);
+        Assert.Contains("Invalid question: must have exactly 3 answers", ex.InnerException.Message);
+        mockTransaction.Verify(t => t.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
+        mockTransaction.Verify(t => t.CommitAsync(It.IsAny<CancellationToken>()), Times.Never);
+        mockContext.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task UpdateQuestion_ThrowsUnauthorized_WhenUserIdNotFound()
+    {
+        // Arrange
+        var user = CreateClaimsPrincipal("dummy-id");
+        int questionIdToUpdate = 1;
+        var validDto = new QuestionExtendedDto(questionIdToUpdate)
+        {
+            QuestionText = "Question Text",
+            Answers = new List<AnswerExtendedDto>
+            {
+                new AnswerExtendedDto
+                {
+                    IsCorrect = true,
+                    AnswerText = "Answer Text"
+                },
+                new AnswerExtendedDto
+                {
+                    IsCorrect = false,
+                    AnswerText = "Answer Text"
+                },
+                new AnswerExtendedDto
+                {
+                    IsCorrect = false,
+                    AnswerText = "Answer Text"
+                }
+            },
+            Categories = new List<CategoryExtendedDto>
+            {
+                new CategoryExtendedDto(10)
+                {
+                    CategoryName = "Category Name"
+                }
+            },
+            Difficulty = Difficulty.Easy
+        };
+
+        mockUserManager.Setup(um => um.GetUserId(user)).Returns((string?)null);
+
+        // Act & Assert
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            questionService.UpdateQuestion(questionIdToUpdate, validDto, user));
+        Assert.Equal($"An error occurred while updating the question with ID {questionIdToUpdate}.", ex.Message);
+        Assert.IsType<UnauthorizedAccessException>(ex.InnerException);
+        Assert.Equal("The user is not authorized", ex.InnerException.Message);
+    }
+
+    [Fact]
+    public async Task UpdateQuestion_RollsBackTransaction_WhenAnswerServiceFails()
+    {
+        // Arrange
+        var userId = "updater_fail_answer";
+        var user = CreateClaimsPrincipal(userId);
+        int questionIdToUpdate = 1;
+        var updateDto = new QuestionExtendedDto(questionIdToUpdate)
+        {
+            QuestionText = "Question Text",
+            Answers = new List<AnswerExtendedDto>
+            {
+                new AnswerExtendedDto
+                {
+                    IsCorrect = true,
+                    AnswerText = "Answer Text"
+                },
+                new AnswerExtendedDto
+                {
+                    IsCorrect = false,
+                    AnswerText = "Answer Text"
+                },
+                new AnswerExtendedDto
+                {
+                    IsCorrect = false,
+                    AnswerText = "Answer Text"
+                }
+            },
+            Categories = new List<CategoryExtendedDto>
+            {
+                new CategoryExtendedDto(10)
+                {
+                    CategoryName = "Category Name"
+                }
+            },
+            Difficulty = Difficulty.Easy
+        };
+        var serviceException = new Exception("Answer service update failure");
+        mockUserManager.Setup(um => um.GetUserId(user)).Returns(userId);
+        mockAnswerService.Setup(a =>
+                a.UpdateQuestionAnswers(questionIdToUpdate, It.IsAny<ICollection<Answer>>(), updateDto.Answers))
+            .ThrowsAsync(serviceException);
+
+        // Act & Assert
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            questionService.UpdateQuestion(questionIdToUpdate, updateDto, user));
+        Assert.Equal($"An error occurred while updating the question with ID {questionIdToUpdate}.", ex.Message);
+        Assert.Equal(serviceException, ex.InnerException);
+
+        mockTransaction.Verify(t => t.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
+        mockTransaction.Verify(t => t.CommitAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task UpdateQuestion_RollsBackTransaction_WhenCategoryServiceFails()
+    {
+        // Arrange
+        var userId = "updater_fail_category";
+        var user = CreateClaimsPrincipal(userId);
+        int questionIdToUpdate = 1;
+        var updateDto = new QuestionExtendedDto(questionIdToUpdate)
+        {
+            QuestionText = "Question Text",
+            Answers = new List<AnswerExtendedDto>
+            {
+                new AnswerExtendedDto
+                {
+                    IsCorrect = true,
+                    AnswerText = "Answer Text"
+                },
+                new AnswerExtendedDto
+                {
+                    IsCorrect = false,
+                    AnswerText = "Answer Text"
+                },
+                new AnswerExtendedDto
+                {
+                    IsCorrect = false,
+                    AnswerText = "Answer Text"
+                }
+            },
+            Categories = new List<CategoryExtendedDto>
+            {
+                new CategoryExtendedDto(10)
+                {
+                    CategoryName = "Category Name"
+                }
+            },
+            Difficulty = Difficulty.Easy
+        };
+        var serviceException = new Exception("Category service update failure");
+
+        mockUserManager.Setup(um => um.GetUserId(user)).Returns(userId);
+        mockAnswerService.Setup(a =>
+                a.UpdateQuestionAnswers(It.IsAny<int>(), It.IsAny<ICollection<Answer>>(),
+                    It.IsAny<List<AnswerExtendedDto>>()))
+            .Returns(Task.CompletedTask);
+        mockQuestionCategoriesService.Setup(qc =>
+                qc.UpdateQuestionCategories(questionIdToUpdate, It.IsAny<ICollection<QuestionCategory>>(),
+                    updateDto.Categories))
+            .ThrowsAsync(serviceException);
+
+        // Act & Assert
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            questionService.UpdateQuestion(questionIdToUpdate, updateDto, user));
+        Assert.Equal($"An error occurred while updating the question with ID {questionIdToUpdate}.", ex.Message);
+        Assert.Equal(serviceException, ex.InnerException);
+
+        mockTransaction.Verify(t => t.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
+        mockTransaction.Verify(t => t.CommitAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
 
     [Fact]
     public async Task UpdateQuestion_UpdatesQuestionAndRelatedEntities_WithinTransaction()

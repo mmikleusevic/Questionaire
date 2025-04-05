@@ -42,6 +42,25 @@ public class AnswerServiceTests
     // ================== CreateQuestionAnswers Tests ==================
 
     [Fact]
+    public async Task CreateQuestionAnswers_ShouldDoNothing_WhenInputDtoListIsEmpty()
+    {
+        // Arrange
+        var questionId = 5;
+        var emptyInputDtos = new List<AnswerExtendedDto>();
+
+        // Act
+        await answerService.CreateQuestionAnswers(questionId, emptyInputDtos);
+
+        // Assert
+        mockDbSet.Verify(db => db.AddRangeAsync(
+                It.IsAny<IEnumerable<Answer>>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        Assert.Empty(answersData);
+    }
+
+    [Fact]
     public async Task CreateQuestionAnswers_ShouldAddMappedAnswers_ToContext()
     {
         // Arrange
@@ -89,6 +108,46 @@ public class AnswerServiceTests
 
 
     // ================== UpdateQuestionAnswers Tests ==================
+
+    [Fact]
+    public async Task UpdateQuestionAnswers_ShouldAddAllDtos_WhenExistingAnswersIsEmpty()
+    {
+        // Arrange
+        var questionId = 20;
+        var existingAnswers = new List<Answer>();
+        var updatedDtos = new List<AnswerExtendedDto>
+        {
+            new AnswerExtendedDto(0) { AnswerText = "New 1", IsCorrect = false },
+            new AnswerExtendedDto(0) { AnswerText = "New 2", IsCorrect = true }
+        };
+
+        // Act
+        await answerService.UpdateQuestionAnswers(questionId, existingAnswers, updatedDtos);
+
+        // Assert
+        Assert.Equal(2, existingAnswers.Count);
+        Assert.Contains(existingAnswers, a => a.AnswerText == "New 1" && a.QuestionId == questionId);
+        Assert.Contains(existingAnswers, a => a.AnswerText == "New 2" && a.QuestionId == questionId);
+    }
+
+    [Fact]
+    public async Task UpdateQuestionAnswers_ShouldRemoveAllExisting_WhenUpdatedDtosIsEmpty()
+    {
+        // Arrange
+        var questionId = 30;
+        var existingAnswers = new List<Answer>
+        {
+            new Answer { Id = 10, QuestionId = questionId, AnswerText = "Remove 1" },
+            new Answer { Id = 11, QuestionId = questionId, AnswerText = "Remove 2" }
+        };
+        var emptyUpdatedDtos = new List<AnswerExtendedDto>();
+
+        // Act
+        await answerService.UpdateQuestionAnswers(questionId, existingAnswers, emptyUpdatedDtos);
+
+        // Assert
+        Assert.Empty(existingAnswers);
+    }
 
     [Fact]
     public async Task UpdateQuestionAnswers_ShouldRemoveAnswers_NotInUpdatedList()

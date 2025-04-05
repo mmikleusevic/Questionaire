@@ -10,6 +10,8 @@ public class QuestionCategoriesService(QuestionaireDbContext context) : IQuestio
     {
         try
         {
+            if (categories.Count == 0) return;
+
             await context.QuestionCategories.AddRangeAsync(
                 categories.Select(a => new QuestionCategory
                 {

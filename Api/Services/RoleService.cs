@@ -10,7 +10,11 @@ public class RoleService(RoleManager<IdentityRole> roleManager) : IRoleService
     {
         try
         {
-            List<string?> roles = await roleManager.Roles.Select(r => r.Name).ToListAsync();
+            List<string?> roles = await roleManager.Roles
+                .Select(r => r.Name)
+                .Where(name => name != null)
+                .ToListAsync();
+
             return roles;
         }
         catch (Exception ex)
