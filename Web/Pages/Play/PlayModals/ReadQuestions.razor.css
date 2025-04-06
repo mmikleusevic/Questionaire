@@ -52,6 +52,11 @@
     height: 100%;
 }
 
+::deep .previous-button:disabled,
+::deep .next-button:disabled {
+    visibility: hidden;
+}
+
 .answers-part {
     display: flex;
     align-items: center;

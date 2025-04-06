@@ -130,6 +130,7 @@ public partial class Play : ComponentBase
     {
         if (!CanPlay) return;
 
+        isInitializing = true;
         isLoading = true;
 
         if (selectedCategories == null) return;
@@ -161,6 +162,7 @@ public partial class Play : ComponentBase
         }
 
         isLoading = false;
+        isInitializing = false;
     }
     
     private async Task ShowReadQuestion(bool isSingleAnswerMode)
