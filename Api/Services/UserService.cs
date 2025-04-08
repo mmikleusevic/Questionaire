@@ -15,7 +15,7 @@ public class UserService(
     {
         try
         {
-            List<User> users = userManager.Users.OrderDescending().ToList();
+            List<User> users = userManager.Users.ToList();
 
             List<UserDto> userDtos = new List<UserDto>();
 

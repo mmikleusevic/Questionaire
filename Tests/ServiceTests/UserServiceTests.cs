@@ -1,5 +1,12 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using MockQueryable.Moq;
 using Moq;
+using QuestionaireApi;
 using QuestionaireApi.Interfaces;
 using QuestionaireApi.Models.Database;
 using QuestionaireApi.Services;
@@ -11,17 +18,40 @@ namespace Tests.ServiceTests;
 public class UserServiceTests
 {
     private readonly Mock<UserManager<User>> mockUserManager;
+    private readonly Mock<QuestionaireDbContext> mockContext;
+    private readonly Mock<DbSet<Question>> mockQuestionDbSet;
+    private readonly Mock<DatabaseFacade> mockDatabaseFacade;
+    private readonly Mock<IDbContextTransaction> mockTransaction;
+
     private readonly List<User> usersData;
+    private readonly List<Question> questionsData;
     private readonly IUserService userService;
+
+    private const string DefaultUserName = "admin";
+    private readonly User defaultUser = new User { Id = Guid.NewGuid().ToString(), UserName = DefaultUserName };
 
     public UserServiceTests()
     {
         usersData = new List<User>();
-        mockUserManager = UserManagerMockHelper.MockUserManager<User>();
+        questionsData = new List<Question>();
 
+        mockUserManager = UserManagerMockHelper.MockUserManager<User>();
         mockUserManager.Setup(m => m.Users).Returns(usersData.AsQueryable());
 
-        userService = new UserService(mockUserManager.Object);
+        mockContext = new Mock<QuestionaireDbContext>(new DbContextOptions<QuestionaireDbContext>());
+        mockQuestionDbSet = questionsData.AsQueryable().BuildMockDbSet();
+        mockContext.Setup(c => c.Questions).Returns(mockQuestionDbSet.Object);
+
+        mockTransaction = new Mock<IDbContextTransaction>();
+        mockDatabaseFacade = new Mock<DatabaseFacade>(mockContext.Object);
+        mockDatabaseFacade.Setup(db => db.BeginTransactionAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(mockTransaction.Object);
+        mockContext.Setup(c => c.Database).Returns(mockDatabaseFacade.Object);
+
+        userService = new UserService(
+            mockUserManager.Object,
+            mockContext.Object
+        );
     }
 
     // --- GetUsers Tests ---
@@ -30,15 +60,15 @@ public class UserServiceTests
     public async Task GetUsers_ReturnsMappedUserDtos_WhenUsersExist()
     {
         // Arrange
-        var user1 = new User { UserName = "alice", Email = "alice@example.com" };
-        var user2 = new User { UserName = "bob", Email = "bob@example.com" };
+        var user1 = new User { Id = Guid.NewGuid().ToString(), UserName = "alice", Email = "alice@example.com" };
+        var user2 = new User { Id = Guid.NewGuid().ToString(), UserName = "bob", Email = "bob@example.com" };
         usersData.AddRange(new[] { user1, user2 });
 
         var rolesUser1 = new List<string> { "User" };
         var rolesUser2 = new List<string> { "User", "Admin" };
 
-        mockUserManager.Setup(m => m.GetRolesAsync(user1)).ReturnsAsync(rolesUser1);
-        mockUserManager.Setup(m => m.GetRolesAsync(user2)).ReturnsAsync(rolesUser2);
+        mockUserManager.Setup(m => m.GetRolesAsync(It.Is<User>(u => u.UserName == "alice"))).ReturnsAsync(rolesUser1);
+        mockUserManager.Setup(m => m.GetRolesAsync(It.Is<User>(u => u.UserName == "bob"))).ReturnsAsync(rolesUser2);
 
         // Act
         List<UserDto> result = await userService.GetUsers();
@@ -50,16 +80,20 @@ public class UserServiceTests
         var dto1 = result.FirstOrDefault(dto => dto.UserName == "alice");
         Assert.NotNull(dto1);
         Assert.Equal("alice@example.com", dto1.Email);
-        Assert.Equal(rolesUser1, dto1.Roles.Select(rn => rn.RoleName));
+        Assert.Single(dto1.Roles);
+        Assert.Equal("User", dto1.Roles[0].RoleName);
+
 
         var dto2 = result.FirstOrDefault(dto => dto.UserName == "bob");
         Assert.NotNull(dto2);
         Assert.Equal("bob@example.com", dto2.Email);
-        Assert.Equal(rolesUser2, dto2.Roles.Select(rn => rn.RoleName));
+        Assert.Equal(2, dto2.Roles.Count);
+        Assert.Contains(dto2.Roles, r => r.RoleName == "User");
+        Assert.Contains(dto2.Roles, r => r.RoleName == "Admin");
 
-        mockUserManager.Verify(m => m.Users, Times.Once);
-        mockUserManager.Verify(m => m.GetRolesAsync(user1), Times.Once);
-        mockUserManager.Verify(m => m.GetRolesAsync(user2), Times.Once);
+
+        mockUserManager.Verify(m => m.GetRolesAsync(It.Is<User>(u => u.UserName == "alice")), Times.Once);
+        mockUserManager.Verify(m => m.GetRolesAsync(It.Is<User>(u => u.UserName == "bob")), Times.Once);
     }
 
     [Fact]
@@ -119,7 +153,8 @@ public class UserServiceTests
     {
         // Arrange
         var userName = "userToUpdate";
-        var user = new User { UserName = userName };
+        var userId = Guid.NewGuid().ToString();
+        var user = new User { Id = userId, UserName = userName };
         var updatedUserDto = new UserDto
         {
             UserName = userName, Roles = new List<RoleDto>
@@ -129,13 +164,18 @@ public class UserServiceTests
             }
         };
         var currentRoles = new List<string> { "OldRole" };
+        var expectedNewRoles = new List<string> { "NewRole1", "NewRole2" };
+
 
         mockUserManager.Setup(m => m.FindByNameAsync(userName)).ReturnsAsync(user);
         mockUserManager.Setup(m => m.GetRolesAsync(user)).ReturnsAsync(currentRoles);
         mockUserManager.Setup(m => m.RemoveFromRolesAsync(user, currentRoles))
             .ReturnsAsync(IdentityResult.Success);
-        mockUserManager.Setup(m => m.AddToRolesAsync(user, updatedUserDto.Roles.Select(r => r.RoleName).ToList()))
+
+        mockUserManager.Setup(m =>
+                m.AddToRolesAsync(user, It.Is<IEnumerable<string>>(roles => roles.SequenceEqual(expectedNewRoles))))
             .ReturnsAsync(IdentityResult.Success);
+
 
         // Act
         bool result = await userService.UpdateUser(updatedUserDto);
@@ -147,8 +187,7 @@ public class UserServiceTests
         mockUserManager.Verify(m => m.RemoveFromRolesAsync(user, currentRoles), Times.Once);
         mockUserManager.Verify(m => m.AddToRolesAsync(
             user,
-            It.Is<IEnumerable<string>>(roles =>
-                roles.SequenceEqual(updatedUserDto.Roles.Select(r => r.RoleName).ToList()))
+            It.Is<IEnumerable<string>>(roles => roles.SequenceEqual(expectedNewRoles))
         ), Times.Once);
     }
 
@@ -262,90 +301,220 @@ public class UserServiceTests
     // --- DeleteUser Tests ---
 
     [Fact]
-    public async Task DeleteUser_DeletesUserAndReturnsTrue_WhenUserFoundAndDeletionSucceeds()
+    public async Task DeleteUser_ReassignsContent_DeletesUser_Commits_AndReturnsTrue_WhenSuccessful()
     {
         // Arrange
-        var userName = "userToDelete";
-        var user = new User { UserName = userName };
+        var userNameToDelete = "userToDelete";
+        var userToDelete = new User { Id = Guid.NewGuid().ToString(), UserName = userNameToDelete };
 
-        mockUserManager.Setup(m => m.FindByNameAsync(userName)).ReturnsAsync(user);
-        mockUserManager.Setup(m => m.DeleteAsync(user)).ReturnsAsync(IdentityResult.Success);
+        questionsData.Add(new Question { Id = 1, QuestionText = "Q1", CreatedById = userToDelete.Id });
+        questionsData.Add(new Question { Id = 2, QuestionText = "Q2", LastUpdatedById = userToDelete.Id });
+        questionsData.Add(new Question
+            { Id = 3, QuestionText = "Q3", CreatedById = "otherUserId" });
+
+        mockUserManager.Setup(m => m.FindByNameAsync(DefaultUserName)).ReturnsAsync(defaultUser);
+        mockUserManager.Setup(m => m.FindByNameAsync(userNameToDelete)).ReturnsAsync(userToDelete);
+        mockUserManager.Setup(m => m.DeleteAsync(userToDelete)).ReturnsAsync(IdentityResult.Success);
+        mockContext.Setup(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1);
 
         // Act
-        bool result = await userService.DeleteUser(userName);
+        var result = await userService.DeleteUser(userNameToDelete);
 
         // Assert
         Assert.True(result);
-        mockUserManager.Verify(m => m.FindByNameAsync(userName), Times.Once);
-        mockUserManager.Verify(m => m.DeleteAsync(user), Times.Once);
+        
+        mockUserManager.Verify(m => m.FindByNameAsync(DefaultUserName), Times.Once);
+        mockUserManager.Verify(m => m.FindByNameAsync(userNameToDelete), Times.Once);
+        mockContext.Verify(c => c.Questions, Times.Once);
+        mockContext.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()),
+            Times.Once);
+        mockUserManager.Verify(m => m.DeleteAsync(userToDelete), Times.Once);
+        mockTransaction.Verify(t => t.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
+        mockTransaction.Verify(t => t.RollbackAsync(It.IsAny<CancellationToken>()), Times.Never);
+        
+        Assert.Equal(defaultUser.Id, questionsData.First(q => q.Id == 1).CreatedById);
+        Assert.Equal(defaultUser.Id, questionsData.First(q => q.Id == 2).LastUpdatedById);
+        Assert.NotEqual(defaultUser.Id,
+            questionsData.First(q => q.Id == 3).CreatedById);
     }
 
     [Fact]
-    public async Task DeleteUser_ReturnsFalse_WhenUserFoundButDeletionFails()
+    public async Task DeleteUser_DoesNotSaveChanges_WhenNoContentToReassign()
     {
         // Arrange
-        var userName = "userToDeleteFail";
-        var user = new User { UserName = userName };
+        var userNameToDelete = "userWithNoContent";
+        var userToDelete = new User { Id = Guid.NewGuid().ToString(), UserName = userNameToDelete };
+
+        mockUserManager.Setup(m => m.FindByNameAsync(DefaultUserName)).ReturnsAsync(defaultUser);
+        mockUserManager.Setup(m => m.FindByNameAsync(userNameToDelete)).ReturnsAsync(userToDelete);
+        mockUserManager.Setup(m => m.DeleteAsync(userToDelete)).ReturnsAsync(IdentityResult.Success);
+
+        // Act
+        var result = await userService.DeleteUser(userNameToDelete);
+
+        // Assert
+        Assert.True(result);
+        mockUserManager.Verify(m => m.FindByNameAsync(DefaultUserName), Times.Once);
+        mockUserManager.Verify(m => m.FindByNameAsync(userNameToDelete), Times.Once);
+        mockContext.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()),
+            Times.Never);
+        mockUserManager.Verify(m => m.DeleteAsync(userToDelete), Times.Once);
+        mockTransaction.Verify(t => t.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
+        mockTransaction.Verify(t => t.RollbackAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+
+    [Fact]
+    public async Task DeleteUser_RollsBack_AndReturnsFalse_WhenUserDeletionFails()
+    {
+        // Arrange
+        var userNameToDelete = "userToDeleteFail";
+        var userToDelete = new User { Id = Guid.NewGuid().ToString(), UserName = userNameToDelete };
         var failureResult = IdentityResult.Failed(new IdentityError { Description = "Deletion failed" });
 
-        mockUserManager.Setup(m => m.FindByNameAsync(userName)).ReturnsAsync(user);
-        mockUserManager.Setup(m => m.DeleteAsync(user)).ReturnsAsync(failureResult);
+        questionsData.Add(new Question
+            { Id = 1, QuestionText = "Q1", CreatedById = userToDelete.Id });
+
+        mockUserManager.Setup(m => m.FindByNameAsync(DefaultUserName)).ReturnsAsync(defaultUser);
+        mockUserManager.Setup(m => m.FindByNameAsync(userNameToDelete)).ReturnsAsync(userToDelete);
+        mockUserManager.Setup(m => m.DeleteAsync(userToDelete)).ReturnsAsync(failureResult); 
+        mockContext.Setup(c => c.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
+
 
         // Act
-        bool result = await userService.DeleteUser(userName);
+        var result = await userService.DeleteUser(userNameToDelete);
 
         // Assert
         Assert.False(result);
-        mockUserManager.Verify(m => m.FindByNameAsync(userName), Times.Once);
-        mockUserManager.Verify(m => m.DeleteAsync(user), Times.Once);
+        mockUserManager.Verify(m => m.FindByNameAsync(DefaultUserName), Times.Once);
+        mockUserManager.Verify(m => m.FindByNameAsync(userNameToDelete), Times.Once);
+        mockContext.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+        mockUserManager.Verify(m => m.DeleteAsync(userToDelete), Times.Once);
+        mockTransaction.Verify(t => t.CommitAsync(It.IsAny<CancellationToken>()), Times.Never);
+        mockTransaction.Verify(t => t.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
-    public async Task DeleteUser_ReturnsFalse_WhenUserNotFound()
+    public async Task DeleteUser_ReturnsFalse_WhenUserToDeleteNotFound()
     {
         // Arrange
-        var userName = "notFoundDeleteUser";
+        var userNameToDelete = "notFoundDeleteUser";
 
-        mockUserManager.Setup(m => m.FindByNameAsync(userName)).ReturnsAsync((User)null);
+        mockUserManager.Setup(m => m.FindByNameAsync(DefaultUserName)).ReturnsAsync(defaultUser);
+        mockUserManager.Setup(m => m.FindByNameAsync(userNameToDelete)).ReturnsAsync((User?)null);
 
         // Act
-        bool result = await userService.DeleteUser(userName);
+        var result = await userService.DeleteUser(userNameToDelete);
 
         // Assert
         Assert.False(result);
-        mockUserManager.Verify(m => m.FindByNameAsync(userName), Times.Once);
+        mockUserManager.Verify(m => m.FindByNameAsync(DefaultUserName),
+            Times.Once);
+        mockUserManager.Verify(m => m.FindByNameAsync(userNameToDelete), Times.Once);
+        mockUserManager.Verify(m => m.DeleteAsync(It.IsAny<User>()), Times.Never);
+        mockContext.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+        mockTransaction.Verify(t => t.CommitAsync(It.IsAny<CancellationToken>()), Times.Never);
+        mockTransaction.Verify(t => t.RollbackAsync(It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task DeleteUser_ReturnsFalse_WhenDefaultUserNotFound()
+    {
+        // Arrange
+        var userNameToDelete = "someUser";
+
+        mockUserManager.Setup(m => m.FindByNameAsync(DefaultUserName))
+            .ReturnsAsync((User?)null);
+
+        // Act
+        var result = await userService.DeleteUser(userNameToDelete);
+
+        // Assert
+        Assert.False(result);
+        mockUserManager.Verify(m => m.FindByNameAsync(DefaultUserName), Times.Once);
+        mockUserManager.Verify(m => m.FindByNameAsync(userNameToDelete), Times.Never);
         mockUserManager.Verify(m => m.DeleteAsync(It.IsAny<User>()), Times.Never);
     }
 
     [Fact]
-    public async Task DeleteUser_ThrowsWrappedException_WhenFindByNameAsyncFails()
+    public async Task DeleteUser_ReturnsFalse_WhenAttemptingToDeleteDefaultUser()
     {
         // Arrange
-        var userName = "failFindDeleteUser";
-        var exception = new Exception("Simulated find error");
+        var userNameToDelete = DefaultUserName;
 
-        mockUserManager.Setup(m => m.FindByNameAsync(userName)).ThrowsAsync(exception);
+        mockUserManager.Setup(m => m.FindByNameAsync(DefaultUserName))
+            .ReturnsAsync(defaultUser);
+        mockUserManager.Setup(m => m.FindByNameAsync(userNameToDelete))
+            .ReturnsAsync(defaultUser);
+
+        // Act
+        var result = await userService.DeleteUser(userNameToDelete);
+
+        // Assert
+        Assert.False(result);
+        mockUserManager.Verify(m => m.FindByNameAsync(DefaultUserName), Times.AtMost(2));
+        mockUserManager.Verify(m => m.FindByNameAsync(userNameToDelete), Times.AtMost(2));
+        mockUserManager.Verify(m => m.DeleteAsync(It.IsAny<User>()), Times.Never);
+        mockContext.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+
+    [Fact]
+    public async Task DeleteUser_ThrowsWrappedException_AndRollsBack_WhenSaveChangesAsyncFails()
+    {
+        // Arrange
+        var userNameToDelete = "userToDeleteSaveFail";
+        var userToDelete = new User { Id = Guid.NewGuid().ToString(), UserName = userNameToDelete };
+        var exception = new DbUpdateException("Simulated save error");
+
+        questionsData.Add(new Question { Id = 1, QuestionText = "Q1", CreatedById = userToDelete.Id });
+
+        mockUserManager.Setup(m => m.FindByNameAsync(DefaultUserName)).ReturnsAsync(defaultUser);
+        mockUserManager.Setup(m => m.FindByNameAsync(userNameToDelete)).ReturnsAsync(userToDelete);
+        mockContext.Setup(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()))
+            .ThrowsAsync(exception);
 
         // Act & Assert
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => userService.DeleteUser(userName));
-        Assert.Equal($"An error occurred while deleting user with username {userName}.", ex.Message);
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => userService.DeleteUser(userNameToDelete));
+
+        Assert.Equal($"An unexpected error occurred while deleting user '{userNameToDelete}' and reassigning content.",
+            ex.Message);
         Assert.Equal(exception, ex.InnerException);
+
+        mockUserManager.Verify(m => m.DeleteAsync(It.IsAny<User>()), Times.Never);
+        mockTransaction.Verify(t => t.RollbackAsync(It.IsAny<CancellationToken>()),
+            Times.Once);
+        mockTransaction.Verify(t => t.CommitAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
-    public async Task DeleteUser_ThrowsWrappedException_WhenDeleteAsyncFails()
+    public async Task DeleteUser_ThrowsWrappedException_AndRollsBack_WhenDeleteAsyncThrowsException()
     {
         // Arrange
-        var userName = "failDeleteUser";
-        var user = new User { UserName = userName };
-        var exception = new Exception("Simulated delete error");
+        var userNameToDelete = "userToDeleteException";
+        var userToDelete = new User { Id = Guid.NewGuid().ToString(), UserName = userNameToDelete };
+        var exception = new Exception("Simulated delete exception");
 
-        mockUserManager.Setup(m => m.FindByNameAsync(userName)).ReturnsAsync(user);
-        mockUserManager.Setup(m => m.DeleteAsync(user)).ThrowsAsync(exception);
+        questionsData.Add(new Question { Id = 1, QuestionText = "Q1", CreatedById = userToDelete.Id });
+
+        mockUserManager.Setup(m => m.FindByNameAsync(DefaultUserName)).ReturnsAsync(defaultUser);
+        mockUserManager.Setup(m => m.FindByNameAsync(userNameToDelete)).ReturnsAsync(userToDelete);
+        mockContext.Setup(c => c.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
+        mockUserManager.Setup(m => m.DeleteAsync(userToDelete))
+            .ThrowsAsync(exception);
+
 
         // Act & Assert
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => userService.DeleteUser(userName));
-        Assert.Equal($"An error occurred while deleting user with username {userName}.", ex.Message);
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => userService.DeleteUser(userNameToDelete));
+
+        Assert.Equal($"An unexpected error occurred while deleting user '{userNameToDelete}' and reassigning content.",
+            ex.Message);
         Assert.Equal(exception, ex.InnerException);
+
+        mockUserManager.Verify(m => m.DeleteAsync(userToDelete), Times.Once);
+        mockTransaction.Verify(t => t.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
+        mockTransaction.Verify(t => t.CommitAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 }

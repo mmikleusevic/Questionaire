@@ -227,7 +227,7 @@ public class UserControllerTests
 
         // Assert
         var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
-        Assert.Equal($"User with username {userNameToDelete} not found.", notFoundResult.Value);
+        Assert.Equal($"User with username {userNameToDelete} not found or user was not deleted.", notFoundResult.Value);
         mockUserService.Verify(s => s.DeleteUser(userNameToDelete), Times.Once);
     }
 
