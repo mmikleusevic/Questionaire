@@ -1,5 +1,7 @@
+using System.Security.Claims;
 using BlazorBootstrap;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Shared.Models;
 using Web.Interfaces;
 using Web.Pages.Auth.Users.UserModals;
@@ -12,6 +14,9 @@ public partial class Users : ComponentBase
     private Modal? modal;
     private IList<RoleDto>? roles;
     private List<UserDto>? users;
+    private ClaimsPrincipal currentUser;
+    
+    [CascadingParameter] Task<AuthenticationState> authenticationStateTask { get; set; }
     [Inject] private IRoleService? RoleService { get; set; }
     [Inject] private IUserService? UserService { get; set; }
 
@@ -19,6 +24,9 @@ public partial class Users : ComponentBase
     {
         await GetUsers();
         await GetRoles();
+        
+        AuthenticationState authState = await authenticationStateTask;
+        currentUser = authState.User;
 
         await base.OnInitializedAsync();
     }
@@ -64,5 +72,13 @@ public partial class Users : ComponentBase
         if (RoleService == null) return;
 
         roles = await RoleService.GetRoles();
+    }
+    
+    private bool IsDeleteDisabled(UserDto user)
+    {
+        bool isSuperAdmin = user.Roles.Any(r => r.RoleName.Equals("Superadmin", StringComparison.OrdinalIgnoreCase));
+        bool isSelf = currentUser?.Identity?.Name?.Equals(user.UserName, StringComparison.OrdinalIgnoreCase) ?? false;
+
+        return isSuperAdmin || isSelf;
     }
 }

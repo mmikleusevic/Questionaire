@@ -1,17 +1,21 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using QuestionaireApi.Interfaces;
 using QuestionaireApi.Models.Database;
 using Shared.Models;
 
 namespace QuestionaireApi.Services;
 
-public class UserService(UserManager<User> userManager) : IUserService
+public class UserService(
+    UserManager<User> userManager,
+    QuestionaireDbContext context) : IUserService
 {
     public async Task<List<UserDto>> GetUsers()
     {
         try
         {
-            List<User> users = userManager.Users.ToList();
+            List<User> users = userManager.Users.OrderDescending().ToList();
 
             List<UserDto> userDtos = new List<UserDto>();
 
@@ -71,18 +75,83 @@ public class UserService(UserManager<User> userManager) : IUserService
 
     public async Task<bool> DeleteUser(string username)
     {
+        string defaultUserName = "admin";
+        User? defaultUser = await userManager.FindByNameAsync(defaultUserName);
+
+        if (defaultUser == null) return false;
+
+        string defaultUserId = defaultUser.Id;
+
+        var userToDelete = await userManager.FindByNameAsync(username);
+        if (userToDelete == null) return false;
+
+        string userIdToDelete = userToDelete.Id;
+
+        if (userIdToDelete == defaultUserId) return false;
+
+        await using IDbContextTransaction? transaction = await context.Database.BeginTransactionAsync();
+
         try
         {
-            User? user = await userManager.FindByNameAsync(username);
-            if (user == null) return false;
+            List<Question> questionsToReassign = await context.Questions
+                .Where(q => q.CreatedById == userIdToDelete ||
+                            q.LastUpdatedById == userIdToDelete ||
+                            q.ApprovedById == userIdToDelete ||
+                            q.DeletedById == userIdToDelete)
+                .ToListAsync();
 
-            IdentityResult result = await userManager.DeleteAsync(user);
+            bool requiresSaveChanges = false;
+            foreach (var question in questionsToReassign)
+            {
+                if (question.CreatedById == userIdToDelete)
+                {
+                    question.CreatedById = defaultUserId;
+                    requiresSaveChanges = true;
+                }
 
-            return result.Succeeded;
+                if (question.LastUpdatedById == userIdToDelete)
+                {
+                    question.LastUpdatedById = defaultUserId;
+                    requiresSaveChanges = true;
+                }
+
+                if (question.ApprovedById == userIdToDelete)
+                {
+                    question.ApprovedById = defaultUserId;
+                    requiresSaveChanges = true;
+                }
+
+                if (question.DeletedById == userIdToDelete)
+                {
+                    question.DeletedById = defaultUserId;
+                    requiresSaveChanges = true;
+                }
+            }
+
+            if (requiresSaveChanges)
+            {
+                await context.SaveChangesAsync();
+            }
+
+            IdentityResult deleteResult = await userManager.DeleteAsync(userToDelete);
+
+            if (deleteResult.Succeeded)
+            {
+                await transaction.CommitAsync();
+            }
+            else
+            {
+                await transaction.RollbackAsync();
+            }
+
+            return deleteResult.Succeeded;
         }
         catch (Exception ex)
         {
-            throw new InvalidOperationException($"An error occurred while deleting user with username {username}.", ex);
+            await transaction.RollbackAsync();
+
+            throw new InvalidOperationException(
+                $"An unexpected error occurred while deleting user '{username}' and reassigning content.", ex);
         }
     }
 }

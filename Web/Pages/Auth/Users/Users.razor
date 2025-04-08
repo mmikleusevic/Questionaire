@@ -43,8 +43,11 @@ else
                         }
                     </div>
                     <div class="actions">
-                        <button class="btn btn-update" @onclick="@(() => ShowUpdateUser(user))">Update</button>
-                        <button class="btn btn-delete" @onclick="@(() => ShowDeleteUser(user))">Delete</button>
+                        <Button class="btn btn-update" @onclick="@(() => ShowUpdateUser(user))">Update</Button>
+                        <Button
+                            Disabled="@(IsDeleteDisabled(user))"
+                            class="btn btn-delete" @onclick="@(() => ShowDeleteUser(user))">Delete
+                        </Button>
                     </div>
                 </li>
             }

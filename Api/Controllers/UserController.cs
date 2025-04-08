@@ -55,7 +55,7 @@ public class UserController(
         try
         {
             bool success = await userService.DeleteUser(userName);
-            if (!success) return NotFound($"User with username {userName} not found.");
+            if (!success) return NotFound($"User with username {userName} not found or user was not deleted.");
             return Ok($"User with username {userName} deleted successfully.");
         }
         catch (Exception ex)

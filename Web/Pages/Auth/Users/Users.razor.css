@@ -153,3 +153,7 @@
 .actions {
     min-width: 250px;
 }
+
+::deep .btn-delete[disabled] {
+    visibility: hidden !important;
+}
