@@ -150,13 +150,18 @@
     background-color: transparent;
 }
 
-#errorScrollView #unity-content-container {
-    height: auto;
-    width: auto;
+ScrollView {
+    height: 100%;
+    width: 100%;
+}
+
+ScrollView #unity-content-container {
+    height: 100%;
+    width: 100%;
     flex-grow: 1;
 }
 
-#errorScrollView .unity-scroll-view__vertical-scroller {
+ScrollView .unity-scroll-view__vertical-scroller {
     width: auto;
     overflow: hidden;
     background-color: rgb(255, 255, 255);
@@ -166,7 +171,7 @@
     border-bottom-left-radius: 10px;
 }
 
-#errorScrollView #unity-tracker {
+ScrollView #unity-tracker {
     background-color: rgb(255, 255, 255);
     border-left-width: 0;
     border-right-width: 0;
@@ -181,7 +186,7 @@
     top: 0;
 }
 
-#errorScrollView #unity-slider {
+ScrollView #unity-slider {
     background-color: rgb(255, 255, 255);
     border-left-width: 0;
     border-right-width: 0;
@@ -197,14 +202,14 @@
     border-bottom-left-radius: 0;
 }
 
-#errorScrollView .unity-base-slider--vertical:focus .unity-base-slider__dragger {
+ScrollView .unity-base-slider--vertical:focus .unity-base-slider__dragger {
     border-left-width: 0;
     border-right-width: 0;
     border-top-width: 0;
     border-bottom-width: 0;
 }
 
-#errorScrollView #unity-dragger {
+ScrollView #unity-dragger {
     -unity-background-image-tint-color: rgb(255, 255, 255);
     background-color: rgb(110, 114, 132);
     height: 14px;
@@ -226,18 +231,22 @@
     border-bottom-left-radius: 10px;
 }
 
-#errorScrollView #unity-dragger:hover {
+ScrollView #unity-dragger:hover {
     background-color: rgb(49, 60, 113);
 }
 
-#errorScrollView Scroller #unity-low-button {
+ScrollView Scroller #unity-low-button {
     overflow: hidden;
     width: 0;
     height: 0;
 }
 
-#errorScrollView Scroller #unity-high-button {
+ScrollView Scroller #unity-high-button {
     overflow: hidden;
     width: 0;
     height: 0;
+}
+
+.unity-disabled {
+    opacity: 0;
 }

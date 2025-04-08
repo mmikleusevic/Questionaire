@@ -27,27 +27,8 @@ namespace UI
             if (quitButton != null) quitButton.clicked -= QuitPressed;
         }
 
-        private void ApplySafeArea(VisualElement rootElement)
-        {
-            Rect safeArea = Screen.safeArea;
-
-            float screenWidth = Screen.width;
-            float screenHeight = Screen.height;
-
-            float leftMargin = safeArea.x / screenWidth;
-            float bottomMargin = safeArea.y / screenHeight;
-            float rightMargin = (screenWidth - (safeArea.x + safeArea.width)) / screenWidth;
-            float topMargin = (screenHeight - (safeArea.y + safeArea.height)) / screenHeight;
-
-            rootElement.style.marginLeft = Length.Percent(leftMargin * 100);
-            rootElement.style.marginRight = Length.Percent(rightMargin * 100);
-            rootElement.style.marginTop = Length.Percent(topMargin * 100);
-            rootElement.style.marginBottom = Length.Percent(bottomMargin * 100);
-        }
-
         private void PlayPressed()
         {
-            playUIController.LoadCategories();
             playUIController.Show();
         }
 

@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using QuestionaireApi.Controllers;
 using QuestionaireApi.Interfaces;
+using Shared.Models;
 
 namespace Tests.ControllerTests;
 
@@ -42,7 +43,12 @@ public class RoleControllerTests
     public async Task GetRoles_ReturnsOkObjectResult_WhenRolesExist()
     {
         // Arrange
-        var expectedRoles = new List<string> { "Admin", "User", "SuperAdmin" };
+        var expectedRoles = new List<RoleDto>
+        {
+            new RoleDto { RoleName = "Admin" },
+            new RoleDto  { RoleName = "User" },
+            new RoleDto  { RoleName = "SuperAdmin" }
+        };
         mockRoleService.Setup(s => s.GetRoles()).ReturnsAsync(expectedRoles);
 
         // Act
@@ -50,7 +56,7 @@ public class RoleControllerTests
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
-        var actualRoles = Assert.IsAssignableFrom<IList<string>>(okResult.Value);
+        var actualRoles = Assert.IsAssignableFrom<IList<RoleDto>>(okResult.Value);
         Assert.Equal(expectedRoles, actualRoles);
         mockRoleService.Verify(s => s.GetRoles(), Times.Once);
         mockLogger.Verify(
@@ -67,7 +73,7 @@ public class RoleControllerTests
     public async Task GetRoles_ReturnsNotFound_WhenNoRolesExist()
     {
         // Arrange
-        var emptyRoles = new List<string>();
+        var emptyRoles = new List<RoleDto>();
         mockRoleService.Setup(s => s.GetRoles()).ReturnsAsync(emptyRoles);
 
         // Act

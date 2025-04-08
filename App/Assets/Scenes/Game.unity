@@ -218,7 +218,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b9f0d65ac244baf8933d9225424f0a7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  categoriesUIController: {fileID: 1437421830}
+  gameSettingsUIController: {fileID: 1437421830}
   gameUIController: {fileID: 1371320359}
 --- !u!1 &1163337174
 GameObject:
@@ -280,7 +280,7 @@ MonoBehaviour:
   m_PanelSettings: {fileID: 11400000, guid: d4fd7b4e5a820504cbdb90881eb0e625, type: 2}
   m_ParentUI: {fileID: 0}
   sourceAsset: {fileID: 9197481963319205126, guid: 46bbd1a4bfcfbc644ad9ec8aa135fdfe, type: 3}
-  m_SortingOrder: 3
+  m_SortingOrder: 4
   m_WorldSpaceSizeMode: 1
   m_WorldSpaceWidth: 1920
   m_WorldSpaceHeight: 1080
@@ -360,7 +360,7 @@ GameObject:
   - component: {fileID: 1437421831}
   - component: {fileID: 1437421830}
   m_Layer: 0
-  m_Name: CategoriesUI
+  m_Name: GameSettingsUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -409,7 +409,7 @@ MonoBehaviour:
   m_PanelSettings: {fileID: 11400000, guid: d4fd7b4e5a820504cbdb90881eb0e625, type: 2}
   m_ParentUI: {fileID: 0}
   sourceAsset: {fileID: 9197481963319205126, guid: 2f70257255c7ad24fb9c9b0c4f59b84f, type: 3}
-  m_SortingOrder: 2
+  m_SortingOrder: 3
   m_WorldSpaceSizeMode: 1
   m_WorldSpaceWidth: 1920
   m_WorldSpaceHeight: 1080

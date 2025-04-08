@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using SharedStandard.Models;
 using UI.CustomUIElements;
 using UnityEngine;
@@ -9,22 +10,24 @@ using UnityEngine.UIElements;
 
 namespace UI
 {
-    public class CategoriesUIController : SafeArea
+    public class GameSettingsUIController : SafeArea
     {
         [SerializeField] private GameUIController gameUIController;
         private Button backButton;
+        private ListView categorieslist;
+        private Button deselectAllButton;
+        private Action deselectAllHandler;
+        private ListView difficultieslist;
 
-        private List<CategoryDto> categories;
-        private VisualElement categoriesPart;
-        private VisualElement categoriesUI;
-        private Button deSelectAllButton;
-        private Action deSelectAllHandler;
-        private ListView list;
+        private VisualElement gameSettingsUI;
         private float savedScrollPosition;
         private ScrollView scrollView;
         private Button selectAllButton;
 
         private Action selectAllHandler;
+
+        private List<CategoryDto> selectedCategories;
+        private List<Difficulty> selectedDifficulties;
         private Dictionary<SlideToggle, EventCallback<ChangeEvent<bool>>> valueChangedHandlers;
 
         private void Start()
@@ -32,26 +35,28 @@ namespace UI
             valueChangedHandlers = new Dictionary<SlideToggle, EventCallback<ChangeEvent<bool>>>();
 
             VisualElement root = GetComponent<UIDocument>().rootVisualElement;
-            categoriesUI = root.Q("categoriesUI");
-            categoriesPart = root.Q<VisualElement>("categoriesPart");
+            gameSettingsUI = root.Q("gameSettingsUI");
             selectAllButton = root.Q<Button>("selectAllButton");
-            deSelectAllButton = root.Q<Button>("deSelectAllButton");
+            deselectAllButton = root.Q<Button>("deSelectAllButton");
             backButton = root.Q<Button>("backButton");
-            list = categoriesUI.Q<ListView>("list");
-            scrollView = categoriesUI.Q<ScrollView>();
+            categorieslist = gameSettingsUI.Q<ListView>("categoriesList");
+            difficultieslist = gameSettingsUI.Q<ListView>("difficultiesList");
+            scrollView = gameSettingsUI.Q<ScrollView>();
+
+            SetDifficultyToggles();
 
             Hide();
 
             if (selectAllButton != null)
             {
-                selectAllHandler += () => SetValueAllCategories(true);
+                selectAllHandler += () => SetAllValues(true);
                 selectAllButton.clicked += selectAllHandler;
             }
 
-            if (deSelectAllButton != null)
+            if (deselectAllButton != null)
             {
-                deSelectAllHandler += () => SetValueAllCategories(false);
-                deSelectAllButton.clicked += deSelectAllHandler;
+                deselectAllHandler += () => SetAllValues(false);
+                deselectAllButton.clicked += deselectAllHandler;
             }
 
             if (backButton != null) backButton.clicked += Hide;
@@ -60,7 +65,7 @@ namespace UI
         private void OnDestroy()
         {
             if (selectAllButton != null) selectAllButton.clicked -= selectAllHandler;
-            if (deSelectAllButton != null) deSelectAllButton.clicked -= deSelectAllHandler;
+            if (deselectAllButton != null) deselectAllButton.clicked -= deselectAllHandler;
             if (backButton != null) backButton.clicked -= Hide;
 
             CleanupToggle();
@@ -76,18 +81,18 @@ namespace UI
             valueChangedHandlers.Clear();
         }
 
-        public IEnumerator OpenCategories()
+        public IEnumerator OpenGameSettings()
         {
             yield return StartCoroutine(LoadCategoriesData());
 
-            if (categories == null) yield break;
+            if (selectedCategories == null) yield break;
 
             Show();
         }
 
         private IEnumerator LoadCategoriesData()
         {
-            if (categories != null) yield break;
+            if (selectedCategories != null) yield break;
 
             yield return StartCoroutine(GetCategories());
         }
@@ -101,9 +106,24 @@ namespace UI
             }
         }
 
-        public IEnumerator GetCategories()
+        private void OnDifficultyValueChanged(ChangeEvent<bool> evt)
         {
-            if (categories != null) yield break;
+            if (evt.currentTarget is not VisualElement toggleVisualElement ||
+                toggleVisualElement.userData is not Difficulty difficulty) return;
+
+            if (evt.newValue)
+            {
+                selectedDifficulties.Add(difficulty);
+            }
+            else
+            {
+                selectedDifficulties.Remove(difficulty);
+            }
+        }
+
+        private IEnumerator GetCategories()
+        {
+            if (selectedCategories != null) yield break;
 
             LoadingUIController.Instance.ShowLoadingMessage("Loading Categories...");
 
@@ -113,7 +133,7 @@ namespace UI
 
                 if (response != null)
                 {
-                    categories = response;
+                    selectedCategories = response;
 
                     SetCategoryToggles();
                 }
@@ -126,17 +146,45 @@ namespace UI
 
         private void SetCategoryToggles()
         {
-            list.itemsSource = categories;
-            list.makeItem = () => new SlideToggle();
-            list.bindItem = (element, index) =>
+            categorieslist.itemsSource = selectedCategories;
+            categorieslist.makeItem = () => new SlideToggle();
+            categorieslist.bindItem = (element, index) =>
             {
                 if (element is not SlideToggle slideToggle) return;
 
-                CategoryDto category = categories[index];
+                CategoryDto category = selectedCategories[index];
                 CreateCategoryToggle(category, slideToggle);
             };
 
-            list.Rebuild();
+            categorieslist.Rebuild();
+        }
+
+        private void SetDifficultyToggles()
+        {
+            List<Difficulty> allDifficulties =
+                new List<Difficulty>(Enum.GetValues(typeof(Difficulty)).Cast<Difficulty>());
+            selectedDifficulties = allDifficulties.ToList();
+
+            difficultieslist.itemsSource = allDifficulties;
+            difficultieslist.makeItem = () => new SlideToggle();
+            difficultieslist.bindItem = (visualElement, index) =>
+            {
+                if (visualElement is not SlideToggle slideToggle) return;
+
+                SlideToggle element = visualElement as SlideToggle;
+
+                Difficulty difficulty = allDifficulties[index];
+
+                element.userData = difficulty;
+                element.Q<Label>("textLabel").text = difficulty.ToString();
+                element.value = true;
+
+                var handler = new EventCallback<ChangeEvent<bool>>(OnDifficultyValueChanged);
+                valueChangedHandlers[element] = handler;
+                element.RegisterValueChangedCallback(handler);
+            };
+
+            difficultieslist.Rebuild();
         }
 
         private void CreateCategoryToggle(CategoryDto category, SlideToggle element)
@@ -151,26 +199,35 @@ namespace UI
 
             foreach (CategoryDto child in category.ChildCategories)
             {
-                SlideToggle childToggle = list.itemTemplate.CloneTree().Children().First() as SlideToggle;
+                SlideToggle childToggle = categorieslist.itemTemplate.CloneTree().Children().First() as SlideToggle;
                 CreateCategoryToggle(child, childToggle);
                 childToggle.AddToClassList("child");
                 element.Add(childToggle);
             }
         }
 
-        private void SetValueAllCategories(bool value)
+        private void SetAllValues(bool value)
         {
-            for (int i = 0; i < list.itemsSource.Count; i++)
+            for (int i = 0; i < categorieslist.itemsSource.Count; i++)
             {
-                var element = list.GetRootElementForIndex(i);
+                var element = categorieslist.GetRootElementForIndex(i);
                 if (element is SlideToggle categoryToggle)
                 {
-                    SetCategorySelected(categoryToggle, value);
+                    SetValueSelected(categoryToggle, value);
+                }
+            }
+
+            for (int i = 0; i < difficultieslist.itemsSource.Count; i++)
+            {
+                var element = difficultieslist.GetRootElementForIndex(i);
+                if (element is SlideToggle categoryToggle)
+                {
+                    SetValueSelected(categoryToggle, value);
                 }
             }
         }
 
-        private void SetCategorySelected(SlideToggle toggle, bool value)
+        private void SetValueSelected(SlideToggle toggle, bool value)
         {
             toggle.value = value;
 
@@ -178,18 +235,30 @@ namespace UI
             {
                 if (child is SlideToggle childToggle)
                 {
-                    SetCategorySelected(childToggle, value);
+                    SetValueSelected(childToggle, value);
                 }
             }
         }
 
-        public List<int> GetSelectedCategoryIds()
+        public IEnumerator GetSelectedCategoryIdsCoroutine(Action<List<int>> callback)
         {
-            return categories?
+            if (selectedCategories == null)
+            {
+                yield return StartCoroutine(GetCategories());
+            }
+
+            List<int> selectedIds = selectedCategories?
                 .SelectMany(GetSelectedCategoriesRecursive)
                 .Where(c => c.isSelected)
                 .Select(c => c.Id)
                 .ToList();
+
+            callback?.Invoke(selectedIds);
+        }
+
+        public List<Difficulty> GetSelectedDifficulties()
+        {
+            return selectedDifficulties;
         }
 
         private IEnumerable<CategoryDto> GetSelectedCategoriesRecursive(CategoryDto category)
@@ -211,19 +280,19 @@ namespace UI
 
         private void SubscribeToGeometryChange()
         {
-            categoriesUI.UnregisterCallback<GeometryChangedEvent>(OnGeometryChanged);
-            categoriesUI.RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
+            gameSettingsUI.UnregisterCallback<GeometryChangedEvent>(OnGeometryChanged);
+            gameSettingsUI.RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
         }
 
         private void OnGeometryChanged(GeometryChangedEvent evt)
         {
-            categoriesUI.schedule.Execute(RestoreScrollPosition);
-            categoriesUI.UnregisterCallback<GeometryChangedEvent>(OnGeometryChanged);
+            gameSettingsUI.schedule.Execute(RestoreScrollPosition);
+            gameSettingsUI.UnregisterCallback<GeometryChangedEvent>(OnGeometryChanged);
         }
 
         private void Show()
         {
-            categoriesUI.style.display = DisplayStyle.Flex;
+            gameSettingsUI.style.display = DisplayStyle.Flex;
 
             SubscribeToGeometryChange();
         }
@@ -231,7 +300,7 @@ namespace UI
         private void Hide()
         {
             SaveScrollPosition();
-            categoriesUI.style.display = DisplayStyle.None;
+            gameSettingsUI.style.display = DisplayStyle.None;
         }
     }
 }

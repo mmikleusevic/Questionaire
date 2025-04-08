@@ -37,7 +37,7 @@ else
                     <span class="user-name">@user.UserName</span>
                     <span class="user-email">@user.Email</span>
                     <div class="user-roles">
-                        @foreach (string role in user.Roles)
+                        @foreach (string role in user.Roles.Select(r => r.RoleName))
                         {
                             <span class="role">@role</span>
                         }

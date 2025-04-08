@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using QuestionaireApi.Interfaces;
+using Shared.Models;
 
 namespace QuestionaireApi.Controllers;
 
@@ -16,7 +17,7 @@ public class RoleController(
     {
         try
         {
-            IList<string> roles = await roleService.GetRoles();
+            IList<RoleDto> roles = await roleService.GetRoles();
 
             if (roles.Count == 0) return NotFound("No roles found.");
             return Ok(roles);

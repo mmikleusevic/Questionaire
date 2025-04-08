@@ -10,7 +10,7 @@ namespace Web.Pages.Auth.Users;
 public partial class Users : ComponentBase
 {
     private Modal? modal;
-    private IList<string>? roles;
+    private IList<RoleDto>? roles;
     private List<UserDto>? users;
     [Inject] private IRoleService? RoleService { get; set; }
     [Inject] private IUserService? UserService { get; set; }

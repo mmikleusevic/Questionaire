@@ -32,6 +32,7 @@ public class GameManager : MonoBehaviour
     }
 
     public IEnumerator GetUniqueQuestions(int numberOfQuestions, List<int> categoryIds, bool isSingleAnswerMode,
+        List<Difficulty> difficulties,
         Action<List<QuestionDto>, string> onComplete)
     {
         UniqueQuestionsRequestDto request = new UniqueQuestionsRequestDto
@@ -39,6 +40,7 @@ public class GameManager : MonoBehaviour
             UserId = uniqueID,
             NumberOfQuestions = numberOfQuestions,
             CategoryIds = categoryIds.ToArray(),
+            Difficulties = difficulties.ToArray(),
             IsSingleAnswerMode = isSingleAnswerMode
         };
 

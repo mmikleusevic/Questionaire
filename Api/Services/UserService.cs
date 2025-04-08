@@ -19,11 +19,21 @@ public class UserService(UserManager<User> userManager) : IUserService
             {
                 IList<string>? roles = await userManager.GetRolesAsync(user);
 
+                List<RoleDto> rolesDto = new List<RoleDto>();
+
+                foreach (string role in roles)
+                {
+                    rolesDto.Add(new RoleDto
+                    {
+                        RoleName = role
+                    });
+                }
+
                 userDtos.Add(new UserDto
                 {
                     UserName = user.UserName ?? string.Empty,
                     Email = user.Email ?? string.Empty,
-                    Roles = roles
+                    Roles = rolesDto
                 });
             }
 
@@ -45,7 +55,10 @@ public class UserService(UserManager<User> userManager) : IUserService
             IList<string> currentRoles = await userManager.GetRolesAsync(user);
 
             await userManager.RemoveFromRolesAsync(user, currentRoles);
-            await userManager.AddToRolesAsync(user, updatedUser.Roles);
+
+            IList<string> newRoles = updatedUser.Roles?.Select(a => a.RoleName).ToList() ?? new List<string>();
+
+            await userManager.AddToRolesAsync(user, newRoles);
 
             return true;
         }

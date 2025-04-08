@@ -1,6 +1,8 @@
+using Shared.Models;
+
 namespace Web.Interfaces;
 
 public interface IRoleService
 {
-    Task<IList<string>> GetRoles();
+    Task<IList<RoleDto>> GetRoles();
 }

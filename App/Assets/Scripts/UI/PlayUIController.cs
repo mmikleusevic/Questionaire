@@ -1,15 +1,22 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using SharedStandard.Models;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UIElements;
 
 namespace UI
 {
     public class PlayUIController : SafeArea
     {
-        [SerializeField] private CategoriesUIController categoriesUIController;
+        [FormerlySerializedAs("categoriesUIController")] [SerializeField]
+        private GameSettingsUIController gameSettingsUIController;
+
         [SerializeField] private GameUIController gameUIController;
         private Button backButton;
-        private Button categoriesButton;
+        private Button gameSettingsButton;
         private Button playMultipleChoiceButton;
         private Button playSingleAnswerButton;
 
@@ -21,14 +28,14 @@ namespace UI
             playUI = root.Q("playUI");
             playSingleAnswerButton = root.Q<Button>("playSingleAnswerButton");
             playMultipleChoiceButton = root.Q<Button>("playMultipleChoiceButton");
-            categoriesButton = root.Q<Button>("categoriesButton");
+            gameSettingsButton = root.Q<Button>("gameSettingsButton");
             backButton = root.Q<Button>("backButton");
 
             Hide();
 
             if (playMultipleChoiceButton != null) playMultipleChoiceButton.clicked += PlayMultipleChoiceClicked;
             if (playSingleAnswerButton != null) playSingleAnswerButton.clicked += PlaySingleAnswerClicked;
-            if (categoriesButton != null) categoriesButton.clicked += OpenCategories;
+            if (gameSettingsButton != null) gameSettingsButton.clicked += OpenGameSettings;
             if (backButton != null) backButton.clicked += Hide;
         }
 
@@ -36,42 +43,53 @@ namespace UI
         {
             if (playMultipleChoiceButton != null) playMultipleChoiceButton.clicked -= PlayMultipleChoiceClicked;
             if (playSingleAnswerButton != null) playSingleAnswerButton.clicked -= PlaySingleAnswerClicked;
-            if (categoriesButton != null) categoriesButton.clicked -= OpenCategories;
+            if (gameSettingsButton != null) gameSettingsButton.clicked -= OpenGameSettings;
             if (backButton != null) backButton.clicked -= Hide;
         }
 
         private void PlayMultipleChoiceClicked()
         {
-            PlayQuestionaire(false);
+            StartCoroutine(PlayQuestionaire(false));
         }
 
         private void PlaySingleAnswerClicked()
         {
-            PlayQuestionaire(true);
+            StartCoroutine(PlayQuestionaire(true));
         }
 
-        private void OpenCategories()
+        private void OpenGameSettings()
         {
-            StartCoroutine(categoriesUIController.OpenCategories());
+            StartCoroutine(gameSettingsUIController.OpenGameSettings());
         }
 
-        private void PlayQuestionaire(bool isSingleAnswerMode)
+        private IEnumerator PlayQuestionaire(bool isSingleAnswerMode)
         {
-            List<int> selectedCategoryIds = categoriesUIController.GetSelectedCategoryIds();
+            List<string> errorMessages = new List<string>();
+            List<int> selectedCategoryIds = new List<int>();
+            yield return StartCoroutine(
+                gameSettingsUIController.GetSelectedCategoryIdsCoroutine((value) => selectedCategoryIds = value));
+            List<Difficulty> selectedDifficulties = gameSettingsUIController.GetSelectedDifficulties();
 
             if (selectedCategoryIds == null || selectedCategoryIds.Count == 0)
             {
-                ErrorModalUIController.Instance.ShowMessage("You have to select at least one category!");
-
-                return;
+                errorMessages.Add("You have to select at least one category!");
             }
 
-            StartCoroutine(gameUIController.LoadQuestions(selectedCategoryIds, isSingleAnswerMode));
-        }
+            if (selectedDifficulties == null || selectedDifficulties.Count == 0)
+            {
+                errorMessages.Add("You have to select at least one difficulty!");
+            }
 
-        public void LoadCategories()
-        {
-            StartCoroutine(categoriesUIController.GetCategories());
+            if (errorMessages.Any())
+            {
+                string combinedErrorMessage = string.Join(Environment.NewLine, errorMessages);
+
+                ErrorModalUIController.Instance.ShowMessage(combinedErrorMessage);
+                yield break;
+            }
+
+            yield return StartCoroutine(
+                gameUIController.LoadQuestions(selectedCategoryIds, selectedDifficulties, isSingleAnswerMode));
         }
 
         public void Show()

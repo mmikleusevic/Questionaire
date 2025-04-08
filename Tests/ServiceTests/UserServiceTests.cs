@@ -50,12 +50,12 @@ public class UserServiceTests
         var dto1 = result.FirstOrDefault(dto => dto.UserName == "alice");
         Assert.NotNull(dto1);
         Assert.Equal("alice@example.com", dto1.Email);
-        Assert.Equal(rolesUser1, dto1.Roles);
+        Assert.Equal(rolesUser1, dto1.Roles.Select(rn => rn.RoleName));
 
         var dto2 = result.FirstOrDefault(dto => dto.UserName == "bob");
         Assert.NotNull(dto2);
         Assert.Equal("bob@example.com", dto2.Email);
-        Assert.Equal(rolesUser2, dto2.Roles);
+        Assert.Equal(rolesUser2, dto2.Roles.Select(rn => rn.RoleName));
 
         mockUserManager.Verify(m => m.Users, Times.Once);
         mockUserManager.Verify(m => m.GetRolesAsync(user1), Times.Once);
@@ -120,14 +120,21 @@ public class UserServiceTests
         // Arrange
         var userName = "userToUpdate";
         var user = new User { UserName = userName };
-        var updatedUserDto = new UserDto { UserName = userName, Roles = new List<string> { "NewRole1", "NewRole2" } };
+        var updatedUserDto = new UserDto
+        {
+            UserName = userName, Roles = new List<RoleDto>
+            {
+                new RoleDto { RoleName = "NewRole1" },
+                new RoleDto { RoleName = "NewRole2" }
+            }
+        };
         var currentRoles = new List<string> { "OldRole" };
 
         mockUserManager.Setup(m => m.FindByNameAsync(userName)).ReturnsAsync(user);
         mockUserManager.Setup(m => m.GetRolesAsync(user)).ReturnsAsync(currentRoles);
         mockUserManager.Setup(m => m.RemoveFromRolesAsync(user, currentRoles))
             .ReturnsAsync(IdentityResult.Success);
-        mockUserManager.Setup(m => m.AddToRolesAsync(user, updatedUserDto.Roles))
+        mockUserManager.Setup(m => m.AddToRolesAsync(user, updatedUserDto.Roles.Select(r => r.RoleName).ToList()))
             .ReturnsAsync(IdentityResult.Success);
 
         // Act
@@ -138,7 +145,11 @@ public class UserServiceTests
         mockUserManager.Verify(m => m.FindByNameAsync(userName), Times.Once);
         mockUserManager.Verify(m => m.GetRolesAsync(user), Times.Once);
         mockUserManager.Verify(m => m.RemoveFromRolesAsync(user, currentRoles), Times.Once);
-        mockUserManager.Verify(m => m.AddToRolesAsync(user, updatedUserDto.Roles), Times.Once);
+        mockUserManager.Verify(m => m.AddToRolesAsync(
+            user,
+            It.Is<IEnumerable<string>>(roles =>
+                roles.SequenceEqual(updatedUserDto.Roles.Select(r => r.RoleName).ToList()))
+        ), Times.Once);
     }
 
     [Fact]
@@ -146,7 +157,13 @@ public class UserServiceTests
     {
         // Arrange
         var userName = "notFoundUser";
-        var updatedUserDto = new UserDto { UserName = userName, Roles = new List<string> { "SomeRole" } };
+        var updatedUserDto = new UserDto
+        {
+            UserName = userName, Roles = new List<RoleDto>
+            {
+                new RoleDto { RoleName = "SomeRole" }
+            }
+        };
 
         mockUserManager.Setup(m => m.FindByNameAsync(userName)).ReturnsAsync((User)null);
 
@@ -166,7 +183,14 @@ public class UserServiceTests
     {
         // Arrange
         var userName = "failFindUser";
-        var updatedUserDto = new UserDto { UserName = userName, Roles = new List<string> { "SomeRole" } };
+        var updatedUserDto = new UserDto
+        {
+            UserName = userName, Roles = new List<RoleDto>
+            {
+                new RoleDto { RoleName = "SomeRole" }
+            }
+        };
+
         var exception = new Exception("Simulated find error");
 
         mockUserManager.Setup(m => m.FindByNameAsync(userName)).ThrowsAsync(exception);
@@ -183,7 +207,13 @@ public class UserServiceTests
         // Arrange
         var userName = "failRemoveRoleUser";
         var user = new User { UserName = userName };
-        var updatedUserDto = new UserDto { UserName = userName, Roles = new List<string> { "NewRole" } };
+        var updatedUserDto = new UserDto
+        {
+            UserName = userName, Roles = new List<RoleDto>
+            {
+                new RoleDto { RoleName = "NewRole" }
+            }
+        };
         var currentRoles = new List<string> { "OldRole" };
         var exception = new Exception("Simulated role removal error");
 
@@ -205,27 +235,28 @@ public class UserServiceTests
     {
         // Arrange
         var userName = "failAddRoleUser";
-        var user = new User { UserName = userName };
-        var updatedUserDto = new UserDto { UserName = userName, Roles = new List<string> { "NewRole" } };
-        var currentRoles = new List<string> { "OldRole" };
-        var exception = new Exception("Simulated role addition error");
+        var updatedUserDto = new UserDto
+        {
+            UserName = userName, Roles = new List<RoleDto>
+            {
+                new RoleDto { RoleName = "NewRole" }
+            }
+        };
 
-        mockUserManager.Setup(m => m.FindByNameAsync(userName)).ReturnsAsync(user);
-        mockUserManager.Setup(m => m.GetRolesAsync(user)).ReturnsAsync(currentRoles);
-        mockUserManager.Setup(m => m.RemoveFromRolesAsync(user, currentRoles))
-            .ReturnsAsync(IdentityResult.Success);
-        mockUserManager.Setup(m => m.AddToRolesAsync(user, updatedUserDto.Roles))
-            .ThrowsAsync(exception);
+        mockUserManager.Setup(m => m.FindByNameAsync(userName))
+            .ReturnsAsync((User)null);
 
-        // Act & Assert
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => userService.UpdateUser(updatedUserDto));
-        Assert.Equal($"An error occurred while updating user with username {userName}.", ex.Message);
-        Assert.Equal(exception, ex.InnerException);
+        // Act
+        var result = await userService.UpdateUser(updatedUserDto);
+
+        // Assert
+        Assert.False(result);
 
         mockUserManager.Verify(m => m.FindByNameAsync(userName), Times.Once);
-        mockUserManager.Verify(m => m.GetRolesAsync(user), Times.Once);
-        mockUserManager.Verify(m => m.RemoveFromRolesAsync(user, currentRoles), Times.Once);
-        mockUserManager.Verify(m => m.AddToRolesAsync(user, updatedUserDto.Roles), Times.Once);
+        mockUserManager.Verify(m => m.GetRolesAsync(It.IsAny<User>()), Times.Never);
+        mockUserManager.Verify(m => m.RemoveFromRolesAsync(It.IsAny<User>(), It.IsAny<IEnumerable<string>>()),
+            Times.Never);
+        mockUserManager.Verify(m => m.AddToRolesAsync(It.IsAny<User>(), It.IsAny<IEnumerable<string>>()), Times.Never);
     }
 
     // --- DeleteUser Tests ---

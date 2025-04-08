@@ -1,21 +1,31 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using QuestionaireApi.Interfaces;
+using Shared.Models;
 
 namespace QuestionaireApi.Services;
 
 public class RoleService(RoleManager<IdentityRole> roleManager) : IRoleService
 {
-    public async Task<IList<string>> GetRoles()
+    public async Task<IList<RoleDto>> GetRoles()
     {
         try
         {
-            List<string?> roles = await roleManager.Roles
-                .Select(r => r.Name)
-                .Where(name => name != null)
-                .ToListAsync();
+            List<IdentityRole> roles = await roleManager.Roles.ToListAsync();
 
-            return roles;
+            List<RoleDto> rolesDto = new List<RoleDto>();
+
+            foreach (IdentityRole role in roles)
+            {
+                if (string.IsNullOrEmpty(role.Name)) continue;
+
+                rolesDto.Add(new RoleDto
+                {
+                    RoleName = role.Name
+                });
+            }
+
+            return rolesDto;
         }
         catch (Exception ex)
         {

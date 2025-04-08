@@ -1,3 +1,4 @@
+@using Shared.Models
 <EditForm OnValidSubmit="HandleValidSubmit" EditContext="editContext">
     <div class="form-group row mb-3">
         <label class="col-form-label col-md-3">UserName:</label>
@@ -14,39 +15,38 @@
     <div class="roles">
         <div class="form-group mb-3 roles-row ">
             <label class="col-form-label col-md-3">Roles:</label>
+            <div>
+                <Dropdown Color="DropdownColor.Secondary" Disabled="@(Roles.Count == selectedRoles.Count)">
+                    <DropdownToggleButton>
+                        Add Role
+                    </DropdownToggleButton>
+                    <DropdownMenu>
+                        @foreach (RoleDto role in Roles.Where(a => !selectedRoles.Select(sr => sr.RoleName).Contains(a.RoleName)))
+                        {
+                            <DropdownItem @onclick="() => SelectRole(role)">
+                                @role.RoleName
+                            </DropdownItem>
+                        }
+                    </DropdownMenu>
+                </Dropdown>
+            </div>
+        </div>
+        <div class="roles-row">
             @foreach (var selectedRole in selectedRoles)
             {
-                <div>
-                    <Dropdown Color="DropdownColor.Secondary" Disabled="@(Roles.All(a => selectedRoles.Contains(a)))">
-                        <DropdownToggleButton>
-                            @selectedRole
-                        </DropdownToggleButton>
-                        <DropdownMenu>
-                            @foreach (string role in Roles.Where(a => !selectedRoles.Contains(a)))
-                            {
-                                <DropdownItem @onclick="() => SelectRole(selectedRole, role)">
-                                    @role
-                                </DropdownItem>
-                            }
-                        </DropdownMenu>
-                    </Dropdown>
-                </div>
+                if (!string.IsNullOrEmpty(selectedRole?.RoleName))
+                {
+                    <span class="role-item">
+                        @selectedRole.RoleName
+                        <span class="remove-role" @onclick="() => RemoveRole(selectedRole)">X</span>
+                    </span>
+                }
             }
-        </div>
-        <div class="role-add-remove">
-            <div class="col-md-12 text-right">
-                <Button Color="ButtonColor.Primary" @onclick="AddRole" Disabled="@(selectedRoles.Count == Roles.Count)">
-                    + Add Role
-                </Button>
-                <Button Color="ButtonColor.Warning" @onclick="RemoveRole" Disabled="@(selectedRoles.Count <= 1)">-
-                    Remove Role
-                </Button>
-            </div>
         </div>
     </div>
     <div class="row">
         <div class="col-md-12 text-right modal-buttons">
-            <Button Type="ButtonType.Submit" Color="ButtonColor.Primary" Class="float-end me-2">Update</Button>
+            <Button Type="ButtonType.Submit" Disabled="selectedRoles.Count <= 0" Color="ButtonColor.Primary" Class="float-end me-2">Update</Button>
             <Button Type="ButtonType.Button" Color="ButtonColor.Danger" Class="float-end" @onclick="Hide">Cancel
             </Button>
         </div>

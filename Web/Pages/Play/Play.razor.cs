@@ -1,10 +1,8 @@
 using BlazorBootstrap;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
 using Shared.Models;
 using SharedStandard.Models;
-using Web.Handlers;
 using Web.Interfaces;
 using Web.Pages.Play.PlayModals;
 
@@ -12,19 +10,18 @@ namespace Web.Pages.Play;
 
 public partial class Play : ComponentBase
 {
-    [Inject] private ICategoryService CategoryService { get; set; }
-    [Inject] private ILocalStorageService LocalStorage { get; set; }
-    [Inject] private IQuestionService QuestionService { get; set; }
+    private readonly List<QuestionExtendedDto> questions = new List<QuestionExtendedDto>();
+    private readonly HashSet<Difficulty> selectedDifficulties = new HashSet<Difficulty> { Difficulty.Easy };
+    private string? deviceIdentifier;
+    private bool isInitializing = true;
+    private bool isLoading;
 
     private Modal? modal;
     private List<CategoryExtendedDto>? nestedCategories;
     private List<CategoryExtendedDto>? selectedCategories;
-    private readonly HashSet<Difficulty> selectedDifficulties = new HashSet<Difficulty> { Difficulty.Easy };
-
-    private List<QuestionExtendedDto> questions = new List<QuestionExtendedDto>();
-    private bool isLoading;
-    private string? deviceIdentifier;
-    private bool isInitializing = true;
+    [Inject] private ICategoryService CategoryService { get; set; }
+    [Inject] private ILocalStorageService LocalStorage { get; set; }
+    [Inject] private IQuestionService QuestionService { get; set; }
 
     private List<Difficulty> AvailableDifficultiesToAdd =>
         Enum.GetValues<Difficulty>().Except(selectedDifficulties).ToList();
@@ -140,7 +137,7 @@ public partial class Play : ComponentBase
         int numberOfQuestionsToFetch = 40;
         int numberOfUnreadQuestions = questions.Count(q => !q.isRead);
         numberOfQuestionsToFetch -= numberOfUnreadQuestions;
-        
+
         questions.RemoveAll(q => q.isRead);
 
         UniqueQuestionsRequestDto request = new UniqueQuestionsRequestDto
@@ -153,9 +150,9 @@ public partial class Play : ComponentBase
         };
 
         List<QuestionExtendedDto> fetchedQuestions = await QuestionService.GetRandomUniqueQuestions(request);
-        
+
         questions.AddRange(fetchedQuestions);
-        
+
         if (questions.Any())
         {
             await ShowReadQuestion(isSingleAnswerMode);
@@ -164,7 +161,7 @@ public partial class Play : ComponentBase
         isLoading = false;
         isInitializing = false;
     }
-    
+
     private async Task ShowReadQuestion(bool isSingleAnswerMode)
     {
         if (modal == null) return;

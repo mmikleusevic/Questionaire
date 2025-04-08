@@ -9,13 +9,13 @@ namespace Web.Pages.Auth.Users.UserModals;
 public partial class UpdateUser : ComponentBase
 {
     private EditContext? editContext;
-    private List<string> selectedRoles = new List<string>();
+    private List<RoleDto> selectedRoles = new List<RoleDto>();
     private UserDto updatedUser = new UserDto();
 
     private List<string> validationMessages = new List<string>();
     [Inject] private IUserService? UserService { get; set; }
     [Parameter] public UserDto? User { get; set; }
-    [Parameter] public List<string>? Roles { get; set; }
+    [Parameter] public List<RoleDto>? Roles { get; set; }
     [Parameter] public EventCallback OnUserChanged { get; set; }
     [Parameter] public Modal? Modal { get; set; }
 
@@ -27,7 +27,7 @@ public partial class UpdateUser : ComponentBase
         {
             UserName = User?.UserName ?? string.Empty,
             Email = User?.Email ?? string.Empty,
-            Roles = User?.Roles.ToList() ?? new List<string>()
+            Roles = User?.Roles.ToList() ?? new List<RoleDto>()
         };
 
         selectedRoles = updatedUser.Roles.ToList();
@@ -63,24 +63,14 @@ public partial class UpdateUser : ComponentBase
         await Hide();
     }
 
-    private void AddRole()
+    private void RemoveRole(RoleDto selectedRole)
     {
-        selectedRoles.Add(Roles.FirstOrDefault(a => !selectedRoles.Contains(a)));
+        selectedRoles.Remove(selectedRole);
     }
 
-    private void RemoveRole()
+    private void SelectRole(RoleDto role)
     {
-        if (selectedRoles.Count > 1)
-        {
-            selectedRoles.RemoveAt(selectedRoles.Count - 1);
-        }
-    }
-
-    private void SelectRole(string role, string newRole)
-    {
-        int categoryIndex = selectedRoles.IndexOf(role);
-
-        selectedRoles[categoryIndex] = newRole;
+        selectedRoles.Add(role);
     }
 
     private async Task Hide()

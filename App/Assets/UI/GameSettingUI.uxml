@@ -1,0 +1,23 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/Style.uss?fileID=7433441132597879392&amp;guid=3d10b170ed6bc9845a37f7814cd118c9&amp;type=3#Style" />
+    <Style src="project://database/Assets/UI/SlideToggle.uss?fileID=7433441132597879392&amp;guid=937d48c76b369fe49a9434a63461bb86&amp;type=3#SlideToggle" />
+    <engine:VisualElement name="gameSettingsUI" class="background" style="flex-grow: 1;">
+        <engine:VisualElement name="headerPart" style="flex-grow: 0; height: 10%; flex-direction: row; justify-content: space-between; border-bottom-width: 0; border-left-color: rgb(255, 255, 255); border-right-color: rgb(255, 255, 255); border-top-color: rgb(255, 255, 255); border-bottom-color: rgb(255, 255, 255); align-content: center; align-items: center; position: relative; width: 100%; border-top-width: 0; border-right-width: 0; border-left-width: 0;">
+            <engine:VisualElement name="leftPart" style="flex-grow: 0; flex-direction: row; height: 100%; align-items: center; width: 50%;">
+                <engine:Button text="Select All" name="selectAllButton" class="button" style="height: 75%; width: 40%;" />
+                <engine:Button text="Deselect All" name="deSelectAllButton" class="button" style="height: 75%; width: 40%;" />
+            </engine:VisualElement>
+            <engine:VisualElement name="rightPart" style="flex-grow: 0; height: 100%; width: 50%; align-items: center; justify-content: flex-end; flex-direction: row;">
+                <engine:Button text="Back" name="backButton" class="button" style="height: 75%; width: 40%;" />
+            </engine:VisualElement>
+        </engine:VisualElement>
+        <engine:VisualElement name="categoriesPart" picking-mode="Ignore" style="flex-grow: 0; height: 75%; width: 100%; justify-content: flex-start; align-items: stretch; flex-direction: column; flex-wrap: wrap; align-content: flex-start; border-bottom-width: 2px; border-left-color: rgb(255, 255, 255); border-right-color: rgb(255, 255, 255); border-top-color: rgb(255, 255, 255); border-bottom-color: rgb(255, 255, 255); align-self: auto;">
+            <engine:Label text="Select Categories&#10;" name="selectCategoriesLabel" style="font-size: 30px; margin-left: 10px; color: rgb(255, 255, 255); -unity-font-style: bold; -unity-text-align: middle-center; flex-grow: 0; flex-shrink: 1; justify-content: center; align-items: center; width: 100%;" />
+            <engine:ListView allow-add="false" allow-remove="false" virtualization-method="DynamicHeight" show-border="true" item-template="project://database/Assets/UI/CustomUIElements/SlideToggleUsage.uxml?fileID=9197481963319205126&amp;guid=6ca113a1ea2fbf3408af663d4895bce6&amp;type=3#SlideToggleUsage" name="categoriesList" picking-mode="Ignore" focusable="false" horizontal-scrolling="true" selection-type="None" show-bound-collection-size="true" class="list" style="width: 100%; flex-grow: 1; justify-content: center; align-items: flex-start;" />
+        </engine:VisualElement>
+        <engine:VisualElement name="difficultiesPart" picking-mode="Ignore" style="flex-grow: 0; height: 25%; width: 100%; justify-content: center; align-items: flex-start; flex-direction: column; flex-wrap: wrap; align-content: center; align-self: auto;">
+            <engine:Label text="Select Difficulties&#10;" name="selectDifficultiesLabel" style="font-size: 30px; margin-left: 10px; color: rgb(255, 255, 255); -unity-font-style: bold; -unity-text-align: middle-center; flex-grow: 0; flex-shrink: 1; justify-content: center; align-items: center; width: 100%;" />
+            <engine:ListView name="difficultiesList" allow-add="false" allow-remove="false" show-bound-collection-size="true" show-border="false" focusable="false" horizontal-scrolling="true" virtualization-method="DynamicHeight" item-template="project://database/Assets/UI/CustomUIElements/SlideToggleUsage.uxml?fileID=9197481963319205126&amp;guid=6ca113a1ea2fbf3408af663d4895bce6&amp;type=3#SlideToggleUsage" binding-source-selection-mode="Manual" style="flex-grow: 1; align-content: center; align-items: flex-start; height: 100%; justify-content: center; width: 100%;" />
+        </engine:VisualElement>
+    </engine:VisualElement>
+</engine:UXML>

@@ -144,6 +144,37 @@
     color: red;
 }
 
+.role-item {
+    margin: 5px;
+    background-color: gray;
+    color: white;
+    font-weight: bold;
+    border-radius: 10px;
+    text-align: center;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+}
+
+.remove-role{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    color: white;
+    background-color: #dd2323;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 14px;
+    font-weight: bold;
+}
+
 .modal-buttons {
     display: flex;
     justify-content: end;

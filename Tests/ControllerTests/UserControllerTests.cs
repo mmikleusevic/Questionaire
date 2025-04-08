@@ -45,8 +45,8 @@ public class UserControllerTests
         // Arrange
         var expectedUsers = new List<UserDto>
         {
-            new UserDto { UserName = "user1", Email = "user1@test.com", Roles = ["User"] },
-            new UserDto { UserName = "admin1", Email = "admin1@test.com", Roles = ["Admin"] }
+            new UserDto { UserName = "user1", Email = "user1@test.com", Roles = new List<RoleDto> { new RoleDto { RoleName = "User" } } },
+            new UserDto { UserName = "admin1", Email = "admin1@test.com", Roles = new List<RoleDto> { new RoleDto { RoleName = "Admin"}} }
         };
         mockUserService.Setup(s => s.GetUsers()).ReturnsAsync(expectedUsers);
 
@@ -106,7 +106,7 @@ public class UserControllerTests
     public async Task UpdateUserRole_ReturnsOk_WhenSuccessful()
     {
         // Arrange
-        var userToUpdate = new UserDto { UserName = "testuser", Roles = ["Admin"] };
+        var userToUpdate = new UserDto { UserName = "testuser", Roles = new List<RoleDto> { new RoleDto { RoleName = "Admin" } } };
         mockUserService.Setup(s => s.UpdateUser(userToUpdate)).ReturnsAsync(true);
 
         // Act
@@ -142,7 +142,7 @@ public class UserControllerTests
     public async Task UpdateUserRole_ReturnsNotFound_WhenUserNotFound()
     {
         // Arrange
-        var userToUpdate = new UserDto { UserName = "nonexistent", Roles = ["User"] };
+        var userToUpdate = new UserDto { UserName = "nonexistent", Roles = new List<RoleDto> { new RoleDto { RoleName = "User" } } };
         mockUserService.Setup(s => s.UpdateUser(userToUpdate)).ReturnsAsync(false);
 
         // Act
@@ -158,7 +158,7 @@ public class UserControllerTests
     public async Task UpdateUserRole_ReturnsStatusCode500_WhenServiceThrowsException()
     {
         // Arrange
-        var userToUpdate = new UserDto { UserName = "testuser", Roles = ["Admin"] };
+        var userToUpdate = new UserDto { UserName = "testuser", Roles = new List<RoleDto> { new RoleDto { RoleName = "Admin" } } };
         var exception = new Exception("Concurrency conflict during update.");
         mockUserService.Setup(s => s.UpdateUser(userToUpdate)).ThrowsAsync(exception);
         string expectedLogMessage =

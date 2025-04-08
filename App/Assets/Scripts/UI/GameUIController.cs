@@ -68,7 +68,7 @@ namespace UI
             NextQuestion();
         }
 
-        public IEnumerator LoadQuestions(List<int> categories, bool isSingleAnswerMode)
+        public IEnumerator LoadQuestions(List<int> categories, List<Difficulty> difficulties, bool isSingleAnswerMode)
         {
             this.isSingleAnswerMode = isSingleAnswerMode;
             LoadingUIController.Instance.ShowLoadingMessage("Loading Questions...");
@@ -87,7 +87,7 @@ namespace UI
             }
 
             yield return StartCoroutine(GameManager.Instance.GetUniqueQuestions(numberOfQuestionsToFetch, categories,
-                this.isSingleAnswerMode, (retrievedQuestions, message) =>
+                this.isSingleAnswerMode, difficulties, (retrievedQuestions, message) =>
                 {
                     LoadingUIController.Instance.Hide();
 
@@ -121,8 +121,8 @@ namespace UI
 
         private void SetNavigationButtons()
         {
-            previousButton.visible = currentQuestionIndex > 0;
-            nextButton.visible = currentQuestionIndex < questions.Count - 1;
+            previousButton.SetEnabled(currentQuestionIndex > 0);
+            nextButton.SetEnabled(currentQuestionIndex < questions.Count - 1);
         }
 
         private void ShowQuestion()
@@ -133,7 +133,9 @@ namespace UI
             question.isRead = true;
             questionText.text = question.QuestionText;
 
-            if (isSingleAnswerMode)
+            bool hasOneAnswer = question.Answers.Count == 1;
+
+            if (isSingleAnswerMode || hasOneAnswer)
             {
                 AnswerDto correctAnswer = question.Answers.FirstOrDefault(a => a.IsCorrect);
 
@@ -158,7 +160,7 @@ namespace UI
         private void PreviousQuestion()
         {
             currentQuestionIndex--;
-            RemoveCorrectAnswerBackground();
+            ResetAnswers();
             SetNavigationButtons();
             ShowQuestion();
         }
@@ -166,15 +168,17 @@ namespace UI
         private void NextQuestion()
         {
             currentQuestionIndex++;
-            RemoveCorrectAnswerBackground();
+            ResetAnswers();
             SetNavigationButtons();
             ShowQuestion();
         }
 
-        private void RemoveCorrectAnswerBackground()
+        private void ResetAnswers()
         {
             foreach (var answer in answerTexts)
             {
+                answer.text = string.Empty;
+
                 answer.RemoveFromClassList("correctAnswerBackground");
                 answer.RemoveFromClassList("incorrectAnswerBackground");
             }
@@ -187,7 +191,7 @@ namespace UI
 
         private void Hide()
         {
-            RemoveCorrectAnswerBackground();
+            ResetAnswers();
             gameUI.style.display = DisplayStyle.None;
         }
     }

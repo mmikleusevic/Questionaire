@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Moq;
 using QuestionaireApi.Interfaces;
 using QuestionaireApi.Services;
+using Shared.Models;
 using Tests.Helper;
 
 namespace Tests.ServiceTests;
@@ -37,15 +38,15 @@ public class RoleServiceTests
         var expectedRoleNames = new List<string> { "Admin", "User", "SuperAdmin" };
 
         // Act
-        IList<string> result = await roleService.GetRoles();
+        IList<RoleDto> result = await roleService.GetRoles();
 
         // Assert
         Assert.NotNull(result);
         Assert.Equal(expectedRoleNames.Count, result.Count);
 
-        Assert.Contains("Admin", result);
-        Assert.Contains("User", result);
-        Assert.Contains("SuperAdmin", result);
+        Assert.Contains("Admin", result.Select(r => r.RoleName));
+        Assert.Contains("User", result.Select(r => r.RoleName));
+        Assert.Contains("SuperAdmin", result.Select(r => r.RoleName));
 
         mockRoleManager.Verify(m => m.Roles, Times.Once);
     }
@@ -56,7 +57,7 @@ public class RoleServiceTests
         // Arrange
 
         // Act
-        IList<string> result = await roleService.GetRoles();
+        IList<RoleDto> result = await roleService.GetRoles();
 
         // Assert
         Assert.NotNull(result);
@@ -96,13 +97,13 @@ public class RoleServiceTests
         var expectedRoleNames = new List<string> { "Admin", "User" };
 
         // Act
-        IList<string> result = await roleService.GetRoles();
+        IList<RoleDto> result = await roleService.GetRoles();
 
         // Assert
         Assert.NotNull(result);
         Assert.Equal(expectedRoleNames.Count, result.Count);
-        Assert.Contains("Admin", result);
-        Assert.Contains("User", result);
+        Assert.Contains("Admin", result.Select(r => r.RoleName));
+        Assert.Contains("User", result.Select(r => r.RoleName));
         Assert.DoesNotContain(null, result);
 
         mockRoleManager.Verify(m => m.Roles, Times.Once);
