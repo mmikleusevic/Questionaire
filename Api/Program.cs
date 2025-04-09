@@ -1,6 +1,8 @@
+using System.Threading.RateLimiting;
 using DotNetEnv;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Newtonsoft.Json;
@@ -70,7 +72,15 @@ try
     {
         options.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
         options.UseSqlServer(connectionString,
-            sqlOptions => { sqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery); });
+            sqlOptions =>
+            {
+                sqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+                sqlOptions.EnableRetryOnFailure(
+                    maxRetryCount: 3,
+                    maxRetryDelay: TimeSpan.FromSeconds(5),
+                    errorNumbersToAdd: null
+                );
+            });
     });
 
     builder.Services.AddAuthorization();
@@ -131,6 +141,19 @@ try
     {
         Log.Warning("No valid origins specified for CORS policy 'Cors'. Requests might be blocked.");
     }
+    
+    builder.Services.AddRateLimiter(options =>
+    {
+        options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+        
+        options.AddFixedWindowLimiter(policyName: "fixed", fixedWindowOptions =>
+        {
+            fixedWindowOptions.PermitLimit = 30;
+            fixedWindowOptions.Window = TimeSpan.FromMinutes(1);
+            fixedWindowOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+            fixedWindowOptions.QueueLimit = 2;
+        });
+    });
 
     WebApplication app = builder.Build();
 
@@ -192,11 +215,15 @@ try
     }
 
     app.UseRouting();
-
+    
+    app.UseRateLimiter();
+    Log.Information("Rate Limiting middleware enabled.");
+    
     app.UseAuthentication();
     app.UseAuthorization();
 
-    app.MapControllers();
+    app.MapControllers()
+        .RequireRateLimiting("fixed");
 
     Log.Information("Application configuration complete. Starting...");
     app.Run();
