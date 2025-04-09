@@ -269,3 +269,7 @@ p {
     background-color: #88454b;
     color: #ffffff;
 }
+
+::deep .btn-approve[disabled] {
+    visibility: hidden !important;
+}

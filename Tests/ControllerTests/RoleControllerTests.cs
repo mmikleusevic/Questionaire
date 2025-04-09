@@ -46,8 +46,8 @@ public class RoleControllerTests
         var expectedRoles = new List<RoleDto>
         {
             new RoleDto { RoleName = "Admin" },
-            new RoleDto  { RoleName = "User" },
-            new RoleDto  { RoleName = "SuperAdmin" }
+            new RoleDto { RoleName = "User" },
+            new RoleDto { RoleName = "SuperAdmin" }
         };
         mockRoleService.Setup(s => s.GetRoles()).ReturnsAsync(expectedRoles);
 

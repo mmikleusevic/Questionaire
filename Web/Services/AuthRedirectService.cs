@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using BlazorBootstrap;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components;
 using Web.Interfaces;
@@ -8,18 +7,20 @@ namespace Web.Services;
 
 public class AuthRedirectService(
     NavigationManager navigationManager,
-    ToastService toastService,
     ILogger<AuthRedirectService> logger,
     ILocalStorageService localStorageService) : IAuthRedirectService
 {
+    private const string SuperAdminRole = "SuperAdmin";
+    private const string AdminRole = "Admin";
+    private const string UserRole = "User";
     private const string AccessTokenKey = "accessToken";
     private const string LoginPath = "/Login";
 
     private static readonly List<KeyValuePair<string, string>> RoleRedirects = new List<KeyValuePair<string, string>>
     {
-        new KeyValuePair<string, string>("SuperAdmin", "/Users"),
-        new KeyValuePair<string, string>("Admin", "/Questions"),
-        new KeyValuePair<string, string>("User", "/PendingQuestions")
+        new KeyValuePair<string, string>(SuperAdminRole, "/Users"),
+        new KeyValuePair<string, string>(AdminRole, "/Questions"),
+        new KeyValuePair<string, string>(UserRole, "/PendingQuestions")
     };
 
     /// <summary>

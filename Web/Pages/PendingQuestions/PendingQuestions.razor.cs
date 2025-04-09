@@ -9,6 +9,9 @@ namespace Web.Pages.PendingQuestions;
 
 public partial class PendingQuestions : ComponentBase
 {
+    private const string SuperAdminRole = "SuperAdmin";
+    private const string AdminRole = "Admin";
+
     private readonly QuestionsRequestDto questionsRequest = new QuestionsRequestDto
     {
         PageSize = 50,
@@ -17,16 +20,19 @@ public partial class PendingQuestions : ComponentBase
     };
 
     private BaseQuestions? baseQuestionsRef;
+    private string currentUserId;
     [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         AuthenticationState authState = await authenticationStateTask;
-        ClaimsPrincipal currentUser = authState.User;
+        ClaimsPrincipal? currentUser = authState.User;
 
         if (currentUser.Identity?.IsAuthenticated == true)
         {
-            if (currentUser.IsInRole("Admin") || currentUser.IsInRole("SuperAdmin"))
+            currentUserId = currentUser?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (currentUser.IsInRole(AdminRole) || currentUser.IsInRole(SuperAdminRole))
             {
                 questionsRequest.OnlyMyQuestions = false;
             }
@@ -45,7 +51,7 @@ public partial class PendingQuestions : ComponentBase
 
     private async Task ShowApproveQuestion(QuestionExtendedDto? question)
     {
-        if (baseQuestionsRef?.modal == null || question == null) return;
+        if (baseQuestionsRef?.modal == null || question == null || IsCreatedBySameUser(question)) return;
 
         Dictionary<string, object> parameters = new Dictionary<string, object>
         {
@@ -68,5 +74,10 @@ public partial class PendingQuestions : ComponentBase
         };
 
         await baseQuestionsRef?.modal.ShowAsync<CreateQuestion>("Create New Question", parameters: parameters);
+    }
+
+    private bool IsCreatedBySameUser(QuestionExtendedDto question)
+    {
+        return question.CreatedById == currentUserId;
     }
 }

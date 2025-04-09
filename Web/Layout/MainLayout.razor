@@ -36,6 +36,10 @@
 <Toasts class="p-3" AutoHide="true" Delay="3000" Placement="ToastsPlacement.BottomRight"/>
 
 @code {
+    private const string SuperAdminRole = "SuperAdmin";
+    private const string AdminRole = "Admin";
+    private const string UserRole = "User";
+
     [Inject] private CustomAuthStateProvider CustomAuthStateProvider { get; set; }
     [CascadingParameter] Task<AuthenticationState> authenticationStateTask { get; set; }
 
@@ -58,18 +62,18 @@
 
         if (user.Identity is { IsAuthenticated: true })
         {
-            if (user.IsInRole("User") || user.IsInRole("Admin") || user.IsInRole("SuperAdmin"))
+            if (user.IsInRole(UserRole) || user.IsInRole(AdminRole) || user.IsInRole(SuperAdminRole))
             {
                 navItems.Add(new NavItem { Id = "2", Href = "/Questions", IconName = IconName.QuestionCircleFill, Text = "Questions", IconColor = IconColor.White });
                 navItems.Add(new NavItem { Id = "3", Href = "/PendingQuestions", IconName = IconName.QuestionCircle, Text = "Pending Questions", IconColor = IconColor.White });
             }
 
-            if (user.IsInRole("Admin") || user.IsInRole("SuperAdmin"))
+            if (user.IsInRole(AdminRole) || user.IsInRole(SuperAdminRole))
             {
                 navItems.Add(new NavItem { Id = "1", Href = "/Categories", IconName = IconName.FolderFill, Text = "Categories", IconColor = IconColor.White });
             }
 
-            if (user.IsInRole("SuperAdmin"))
+            if (user.IsInRole(SuperAdminRole))
             {
                 navItems.Add(new NavItem { Id = "4", Href = "/Users", IconName = IconName.House, Text = "Users", IconColor = IconColor.White });
             }

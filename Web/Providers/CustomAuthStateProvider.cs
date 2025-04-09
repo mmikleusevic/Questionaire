@@ -85,12 +85,14 @@ public class CustomAuthStateProvider(
     {
         string? email = jsonResponse.Value<string>("email");
         string? name = jsonResponse.Value<string>("name");
+        string? userId = jsonResponse.Value<string>("userId");
         JArray? rolesArray = jsonResponse["roles"] as JArray;
 
         var claims = new List<Claim>();
 
         if (!string.IsNullOrEmpty(email)) claims.Add(new Claim(ClaimTypes.Email, email));
         if (!string.IsNullOrEmpty(name)) claims.Add(new Claim(ClaimTypes.Name, name));
+        if (!string.IsNullOrEmpty(userId)) claims.Add(new Claim(ClaimTypes.NameIdentifier, userId));
 
         if (rolesArray != null)
         {

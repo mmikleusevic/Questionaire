@@ -11,12 +11,13 @@ namespace Web.Pages.Auth.Users;
 
 public partial class Users : ComponentBase
 {
+    private const string SuperAdminRole = "SuperAdmin";
+    
+    private ClaimsPrincipal currentUser;
     private Modal? modal;
     private IList<RoleDto>? roles;
     private List<UserDto>? users;
-    private ClaimsPrincipal currentUser;
-    
-    [CascadingParameter] Task<AuthenticationState> authenticationStateTask { get; set; }
+    [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
     [Inject] private IRoleService? RoleService { get; set; }
     [Inject] private IUserService? UserService { get; set; }
 
@@ -24,7 +25,7 @@ public partial class Users : ComponentBase
     {
         await GetUsers();
         await GetRoles();
-        
+
         AuthenticationState authState = await authenticationStateTask;
         currentUser = authState.User;
 
@@ -48,7 +49,7 @@ public partial class Users : ComponentBase
 
     private async Task ShowDeleteUser(UserDto? userDto)
     {
-        if (modal == null || userDto == null) return;
+        if (modal == null || userDto == null || IsDeleteDisabled(userDto)) return;
 
         Dictionary<string, object> parameters = new Dictionary<string, object>
         {
@@ -73,10 +74,10 @@ public partial class Users : ComponentBase
 
         roles = await RoleService.GetRoles();
     }
-    
+
     private bool IsDeleteDisabled(UserDto user)
     {
-        bool isSuperAdmin = user.Roles.Any(r => r.RoleName.Equals("Superadmin", StringComparison.OrdinalIgnoreCase));
+        bool isSuperAdmin = user.Roles.Any(r => r.RoleName.Equals(SuperAdminRole, StringComparison.OrdinalIgnoreCase));
         bool isSelf = currentUser?.Identity?.Name?.Equals(user.UserName, StringComparison.OrdinalIgnoreCase) ?? false;
 
         return isSuperAdmin || isSelf;

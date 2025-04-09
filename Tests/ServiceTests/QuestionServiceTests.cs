@@ -18,6 +18,9 @@ namespace Tests.ServiceTests;
 
 public class QuestionServiceTests
 {
+    private const string SuperAdminRole = "SuperAdmin";
+    private const string AdminRole = "Admin";
+
     private readonly List<UserQuestionHistory> historyData;
     private readonly Mock<IAnswerService> mockAnswerService;
     private readonly Mock<QuestionaireDbContext> mockContext;
@@ -27,7 +30,6 @@ public class QuestionServiceTests
     private readonly Mock<DbSet<Question>> mockQuestionDbSet;
     private readonly Mock<IDbContextTransaction> mockTransaction;
     private readonly Mock<UserManager<User>> mockUserManager;
-
     private readonly List<Question> questionsData;
     private readonly IQuestionService questionService;
 
@@ -46,6 +48,7 @@ public class QuestionServiceTests
         mockTransaction = new Mock<IDbContextTransaction>();
 
         questionsData = GetTestQuestions();
+
         historyData = new List<UserQuestionHistory>();
 
         mockQuestionDbSet = questionsData.AsQueryable().BuildMockDbSet();
@@ -373,12 +376,15 @@ public class QuestionServiceTests
     // --- ApproveQuestion Tests ---
 
     [Fact]
-    public async Task ApproveQuestion_ApprovesValidQuestionAndSaves()
+    public async Task ApproveQuestion_ApprovesValidQuestionAndSaves_WhenUserIsSuperAdmin()
     {
         // Arrange
-        var user = CreateClaimsPrincipal("admin1");
+        var userId = "superadmin1";
+        var user = CreateClaimsPrincipal(userId, SuperAdminRole);
         var questionToApprove = questionsData.First(q => q.Id == 5);
+        questionToApprove.CreatedById = "anotherUser";
         Assert.False(questionToApprove.IsApproved);
+        mockUserManager.Setup(um => um.GetUserId(user)).Returns(userId);
 
         // Act
         var result = await questionService.ApproveQuestion(questionToApprove.Id, user);
@@ -386,9 +392,105 @@ public class QuestionServiceTests
         // Assert
         Assert.True(result);
         Assert.True(questionToApprove.IsApproved);
-        Assert.Equal("admin1", questionToApprove.ApprovedById);
+        Assert.Equal(userId, questionToApprove.ApprovedById);
         Assert.NotNull(questionToApprove.ApprovedAt);
         mockContext.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task ApproveQuestion_ReturnsFalse_WhenUserIsUser()
+    {
+        // Arrange
+        var userId = "notauser";
+        var user = CreateClaimsPrincipal(userId, "User");
+        int questionId = 5;
+
+        // Act & Assert
+        bool result = await questionService.ApproveQuestion(questionId, user);
+
+        Assert.False(result);
+        mockContext.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task ApproveQuestion_ThrowsUnauthorized_WhenUserIdNotFound_And_UserHasSuperAdminRole()
+    {
+        // Arrange
+        var user = CreateClaimsPrincipal("some-dummy-id", SuperAdminRole);
+        int questionId = 5;
+        mockUserManager.Setup(um => um.GetUserId(user)).Returns((string?)null);
+
+        // Act & Assert
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            questionService.ApproveQuestion(questionId, user));
+
+        Assert.Equal("The user is not authorized.", ex?.InnerException?.Message);
+
+        mockUserManager.Verify(um => um.GetUserId(user), Times.Once);
+        mockContext.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task ApproveQuestion_ReturnsFalse_WhenUserApprovesOwnQuestion_And_IsNotSuperAdmin()
+    {
+        // Arrange
+        var userId = "creator_user";
+        var user = CreateClaimsPrincipal(userId, "User");
+        var questionToApprove = questionsData.First(q => q.Id == 5);
+        questionToApprove.CreatedById = userId;
+        Assert.False(questionToApprove.IsApproved);
+        mockUserManager.Setup(um => um.GetUserId(user)).Returns(userId);
+
+        // Act
+        var result = await questionService.ApproveQuestion(questionToApprove.Id, user);
+
+        // Assert
+        Assert.False(result);
+        Assert.False(questionToApprove.IsApproved);
+        mockContext.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task ApproveQuestion_ApprovesOwnQuestion_WhenUserIsSuperAdmin()
+    {
+        // Arrange
+        var userId = "superadmin_creator";
+        var user = CreateClaimsPrincipal(userId, SuperAdminRole);
+        var questionToApprove = questionsData.First(q => q.Id == 5);
+        questionToApprove.CreatedById = userId;
+        Assert.False(questionToApprove.IsApproved);
+        mockUserManager.Setup(um => um.GetUserId(user)).Returns(userId);
+
+        // Act
+        var result = await questionService.ApproveQuestion(questionToApprove.Id, user);
+
+        // Assert
+        Assert.True(result);
+        Assert.True(questionToApprove.IsApproved);
+        Assert.Equal(userId, questionToApprove.ApprovedById);
+        mockContext.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task ApproveQuestion_ReturnsFalse_WhenQuestionAlreadyApproved()
+    {
+        // Arrange
+        var userId = "superadmin2";
+        var user = CreateClaimsPrincipal(userId, SuperAdminRole);
+        var questionAlreadyApproved = questionsData.First(q => q.Id == 1);
+        Assert.True(questionAlreadyApproved.IsApproved);
+        var originalApprovedAt = questionAlreadyApproved.ApprovedAt;
+        var originalApprovedById = questionAlreadyApproved.ApprovedById;
+        mockUserManager.Setup(um => um.GetUserId(user)).Returns(userId);
+
+        // Act
+        var result = await questionService.ApproveQuestion(questionAlreadyApproved.Id, user);
+
+        // Assert
+        Assert.False(result);
+        Assert.Equal(originalApprovedAt, questionAlreadyApproved.ApprovedAt);
+        Assert.Equal(originalApprovedById, questionAlreadyApproved.ApprovedById);
+        mockContext.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -406,32 +508,15 @@ public class QuestionServiceTests
         mockContext.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
-    [Fact]
-    public async Task ApproveQuestion_ThrowsUnauthorized_WhenUserIdNotFound()
-    {
-        // Arrange
-        var user = CreateClaimsPrincipal("some-dummy-id");
-        int questionId = 5;
-
-        mockUserManager.Setup(um => um.GetUserId(user)).Returns((string?)null);
-
-        // Act & Assert
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            questionService.ApproveQuestion(questionId, user));
-
-        Assert.Equal("The user is not authorized.", ex?.InnerException?.Message);
-
-        mockUserManager.Verify(um => um.GetUserId(user), Times.Once);
-        mockContext.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
-    }
-
     [Theory]
     [InlineData(6)]
     [InlineData(7)]
-    public async Task ApproveQuestion_ThrowsInvalidOperation_WhenQuestionIsInvalid(int invalidQuestionId)
+    public async Task ApproveQuestion_ThrowsInvalidOperation_WhenQuestionIsInvalid_AndUserIsSuperAdmin(
+        int invalidQuestionId)
     {
         // Arrange
-        var user = CreateClaimsPrincipal("admin1");
+        var user = CreateClaimsPrincipal("superadmin3", SuperAdminRole);
+        mockUserManager.Setup(um => um.GetUserId(user)).Returns("superadmin3");
 
         // Act & Assert
         var ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
@@ -440,7 +525,9 @@ public class QuestionServiceTests
         Assert.Equal("An error occurred while approving the question.", ex.Message);
         Assert.NotNull(ex.InnerException);
         Assert.IsType<InvalidOperationException>(ex.InnerException);
-        Assert.Contains("Invalid question:", ex.InnerException.Message);
+        Assert.Equal(
+            "Invalid question: must have exactly 3 answers, 2 incorrect answers, 1 correct answer and at least one category.",
+            ex.InnerException.Message);
     }
 
     // --- CreateQuestion Tests ---
@@ -526,24 +613,27 @@ public class QuestionServiceTests
     }
 
     [Fact]
-    public async Task CreateQuestion_CreatesQuestionAndRelatedEntities_WithinTransaction()
+    public async Task CreateQuestion_CreatesQuestionAndRelatedEntities_DoesNotApprove_WhenUserIsNotSuperAdmin()
     {
         // Arrange
-        var userId = "creator1";
-        var user = CreateClaimsPrincipal(userId);
+        var userId = "creator1_non_admin";
+        var user = CreateClaimsPrincipal(userId, "User");
         var newQuestionDto = new QuestionExtendedDto
         {
-            QuestionText = "New Q Create?",
+            QuestionText = "New Q Create NonAdmin?",
             Answers = new List<AnswerExtendedDto>
                 { new AnswerExtendedDto { IsCorrect = true }, new AnswerExtendedDto(), new AnswerExtendedDto() },
             Categories = new List<CategoryExtendedDto> { new CategoryExtendedDto(10) }
         };
         int questionIdAfterSave = 99;
+        Question addedQuestion = null;
 
+        mockUserManager.Setup(um => um.GetUserId(user)).Returns(userId);
         mockQuestionDbSet.Setup(m => m.AddAsync(It.IsAny<Question>(), It.IsAny<CancellationToken>()))
             .Callback<Question, CancellationToken>((q, ct) =>
             {
                 q.Id = questionIdAfterSave;
+                addedQuestion = q;
                 questionsData.Add(q);
             })
             .ReturnsAsync((EntityEntry<Question>)null);
@@ -552,18 +642,158 @@ public class QuestionServiceTests
         await questionService.CreateQuestion(newQuestionDto, user);
 
         // Assert
+        Assert.NotNull(addedQuestion);
+        Assert.False(addedQuestion.IsApproved);
+        Assert.Null(addedQuestion.ApprovedById);
+
         mockContext.Verify(c => c.Database.BeginTransactionAsync(It.IsAny<CancellationToken>()), Times.Once);
         mockTransaction.Verify(t => t.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
         mockTransaction.Verify(t => t.RollbackAsync(It.IsAny<CancellationToken>()), Times.Never);
+
         mockQuestionDbSet.Verify(
             db => db.AddAsync(
                 It.Is<Question>(q => q.QuestionText == newQuestionDto.QuestionText && q.CreatedById == userId),
                 It.IsAny<CancellationToken>()), Times.Once);
         mockContext.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Exactly(2));
-        mockAnswerService.Verify(a => a.CreateQuestionAnswers(questionIdAfterSave, newQuestionDto.Answers),
-            Times.Once);
+
+        mockAnswerService.Verify(a => a.CreateQuestionAnswers(questionIdAfterSave, newQuestionDto.Answers), Times.Once);
         mockQuestionCategoriesService.Verify(
             qc => qc.CreateQuestionCategories(questionIdAfterSave, newQuestionDto.Categories), Times.Once);
+    }
+
+    [Fact]
+    public async Task CreateQuestion_CreatesQuestionAndAutoApproves_WhenUserIsSuperAdmin()
+    {
+        // Arrange
+        var userId = "superadmin_creator";
+        var user = CreateClaimsPrincipal(userId, SuperAdminRole);
+        var newQuestionDto = new QuestionExtendedDto
+        {
+            QuestionText = "New Q Create SuperAdmin?",
+            Answers = new List<AnswerExtendedDto>
+            {
+                new AnswerExtendedDto { AnswerText = "Correct", IsCorrect = true },
+                new AnswerExtendedDto { AnswerText = "Wrong A" },
+                new AnswerExtendedDto { AnswerText = "Wrong B" }
+            },
+            Categories = new List<CategoryExtendedDto> { new CategoryExtendedDto(10) { CategoryName = "Tech" } }
+        };
+        int questionIdAfterSave = 5;
+        Question addedQuestion = null;
+
+        mockUserManager.Setup(um => um.GetUserId(user)).Returns(userId);
+
+        mockQuestionDbSet.Setup(m => m.AddAsync(It.IsAny<Question>(), It.IsAny<CancellationToken>()))
+            .Callback<Question, CancellationToken>((q, ct) =>
+            {
+                q.Id = questionIdAfterSave;
+                addedQuestion = q;
+                var existing = questionsData.FirstOrDefault(x => x.Id == q.Id);
+                if (existing == null) questionsData.Add(q);
+            })
+            .ReturnsAsync((EntityEntry<Question>)null);
+
+        mockAnswerService.Setup(a => a.CreateQuestionAnswers(questionIdAfterSave, newQuestionDto.Answers))
+            .Callback(() =>
+            {
+                if (addedQuestion != null)
+                {
+                    addedQuestion.Answers = newQuestionDto.Answers.Select((aDto, index) => new Answer
+                    {
+                        Id = 50 + index,
+                        QuestionId = questionIdAfterSave,
+                        AnswerText = aDto.AnswerText,
+                        IsCorrect = aDto.IsCorrect,
+                        Question = addedQuestion
+                    }).ToList();
+                }
+            })
+            .Returns(Task.CompletedTask);
+
+        mockQuestionCategoriesService
+            .Setup(qc => qc.CreateQuestionCategories(questionIdAfterSave, newQuestionDto.Categories))
+            .Callback(() =>
+            {
+                if (addedQuestion != null)
+                {
+                    addedQuestion.IsApproved = true;
+                    addedQuestion.ApprovedById = userId;
+                    addedQuestion.ApprovedAt = DateTime.Now;
+                    addedQuestion.QuestionCategories = newQuestionDto.Categories.Select((cDto, index) =>
+                        new QuestionCategory
+                        {
+                            QuestionId = questionIdAfterSave,
+                            CategoryId = cDto.Id,
+                            Question = addedQuestion
+                        }).ToList();
+                }
+            })
+            .Returns(Task.CompletedTask);
+
+        mockContext.Setup(c => c.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
+
+        // Act
+        await questionService.CreateQuestion(newQuestionDto, user);
+
+        // Assert
+        Assert.NotNull(addedQuestion);
+        Assert.True(addedQuestion.IsApproved, "Question should be approved by SuperAdmin");
+        Assert.Equal(userId, addedQuestion.ApprovedById);
+        Assert.NotNull(addedQuestion.ApprovedAt);
+
+        mockContext.Verify(c => c.Database.BeginTransactionAsync(It.IsAny<CancellationToken>()), Times.Once);
+        mockTransaction.Verify(t => t.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
+        mockTransaction.Verify(t => t.RollbackAsync(It.IsAny<CancellationToken>()), Times.Never);
+
+        mockQuestionDbSet.Verify(
+            db => db.AddAsync(
+                It.Is<Question>(q => q.QuestionText == newQuestionDto.QuestionText && q.CreatedById == userId),
+                It.IsAny<CancellationToken>()), Times.Once);
+        mockContext.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Exactly(3));
+        mockAnswerService.Verify(a => a.CreateQuestionAnswers(questionIdAfterSave, newQuestionDto.Answers), Times.Once);
+        mockQuestionCategoriesService.Verify(
+            qc => qc.CreateQuestionCategories(questionIdAfterSave, newQuestionDto.Categories), Times.Once);
+    }
+
+    [Fact]
+    public async Task CreateQuestion_RollsBack_WhenAutoApprovalFails()
+    {
+        // Arrange
+        var userId = "superadmin_creator_fail";
+        var user = CreateClaimsPrincipal(userId, SuperAdminRole);
+        var newQuestionDto = new QuestionExtendedDto
+        {
+            QuestionText = "New Q Create SuperAdmin Fail?",
+            Answers = new List<AnswerExtendedDto>
+                { new AnswerExtendedDto { IsCorrect = true }, new AnswerExtendedDto(), new AnswerExtendedDto() },
+            Categories = new List<CategoryExtendedDto> { new CategoryExtendedDto(10) }
+        };
+        int questionIdAfterSave = 101;
+        var approvalException = new InvalidOperationException("Simulated approval failure");
+
+        mockUserManager.Setup(um => um.GetUserId(user)).Returns(userId);
+        mockQuestionDbSet.Setup(m => m.AddAsync(It.IsAny<Question>(), It.IsAny<CancellationToken>()))
+            .Callback<Question, CancellationToken>((q, ct) =>
+            {
+                q.Id = questionIdAfterSave;
+                questionsData.Add(q);
+            })
+            .ReturnsAsync((EntityEntry<Question>)null);
+
+        mockContext.SetupSequence(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1)
+            .ThrowsAsync(approvalException);
+
+        // Act & Assert
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            questionService.CreateQuestion(newQuestionDto, user));
+
+        Assert.Equal("An error occurred while creating the question.", ex.Message);
+        Assert.NotNull(ex.InnerException);
+        Assert.Equal(approvalException, ex.InnerException);
+
+        mockTransaction.Verify(t => t.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
+        mockTransaction.Verify(t => t.CommitAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]

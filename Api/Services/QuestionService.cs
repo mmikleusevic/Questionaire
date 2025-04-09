@@ -16,6 +16,9 @@ public class QuestionService(
     IQuestionCategoriesService questionCategoriesService,
     UserManager<User> userManager) : IQuestionService
 {
+    private const string SuperAdminRole = "SuperAdmin";
+    private const string AdminRole = "Admin";
+
     public async Task<PaginatedResponse<QuestionExtendedDto>> GetQuestions(QuestionsRequestDto questionsRequestDto,
         ClaimsPrincipal user)
     {
@@ -56,6 +59,7 @@ public class QuestionService(
                 Items = questions.Select(q => new QuestionExtendedDto(q.Id)
                 {
                     QuestionText = q.QuestionText,
+                    CreatedById = q.CreatedById,
                     Difficulty = q.Difficulty,
                     Answers = q.Answers.Select(a => new AnswerExtendedDto(a.Id)
                     {
@@ -137,15 +141,24 @@ public class QuestionService(
                 .Include(q => q.QuestionCategories)
                 .FirstOrDefaultAsync(q => q.Id == id);
 
-            if (question == null) return false;
+            if (question == null || question.IsApproved) return false;
 
-            if (question.Answers.Count != 3 ||
+            if (question.Answers == null ||
+                question.Answers.Count != 3 ||
                 !question.Answers.Any(a => a.IsCorrect) ||
+                question.QuestionCategories == null ||
                 question.QuestionCategories.Count == 0)
             {
                 throw new InvalidOperationException(
                     "Invalid question: must have exactly 3 answers, 2 incorrect answers, 1 correct answer and at least one category.");
             }
+
+            bool isOwner = question.CreatedById == userId;
+            bool isAdmin = user.IsInRole(AdminRole);
+            bool isSuperAdmin = user.IsInRole(SuperAdminRole);
+
+            if (!isAdmin && !isSuperAdmin) return false;
+            if (isAdmin && !isSuperAdmin && isOwner) return false;
 
             question.ApprovedAt = DateTime.UtcNow;
             question.IsApproved = true;
@@ -172,8 +185,10 @@ public class QuestionService(
 
             if (string.IsNullOrEmpty(userId)) throw new UnauthorizedAccessException("The user is not authorized");
 
-            if (newQuestion.Answers.Count != 3 ||
+            if (newQuestion.Answers == null ||
+                newQuestion.Answers.Count != 3 ||
                 !newQuestion.Answers.Any(a => a.IsCorrect) ||
+                newQuestion.Categories == null ||
                 newQuestion.Categories.Count == 0)
             {
                 throw new InvalidOperationException(
@@ -197,6 +212,17 @@ public class QuestionService(
                 newQuestion.Categories);
 
             await context.SaveChangesAsync();
+
+            if (user.IsInRole(SuperAdminRole))
+            {
+                bool approved = await ApproveQuestion(dbQuestion.Id, user);
+                if (!approved)
+                {
+                    throw new InvalidOperationException(
+                        $"Auto approval failed for question {dbQuestion.Id} created by SuperAdmin {userId}.");
+                }
+            }
+
             await transaction.CommitAsync();
         }
         catch (Exception ex)
@@ -216,8 +242,10 @@ public class QuestionService(
 
             if (string.IsNullOrEmpty(userId)) throw new UnauthorizedAccessException("The user is not authorized");
 
-            if (updatedQuestion.Answers.Count != 3 ||
+            if (updatedQuestion.Answers == null ||
+                updatedQuestion.Answers.Count != 3 ||
                 !updatedQuestion.Answers.Any(a => a.IsCorrect) ||
+                updatedQuestion.Categories == null ||
                 updatedQuestion.Categories.Count == 0)
             {
                 throw new InvalidOperationException(
@@ -270,8 +298,8 @@ public class QuestionService(
 
             if (question == null) return false;
 
-            bool isAdmin = user.IsInRole("Admin");
-            bool isSuperAdmin = user.IsInRole("SuperAdmin");
+            bool isAdmin = user.IsInRole(AdminRole);
+            bool isSuperAdmin = user.IsInRole(SuperAdminRole);
             bool isOwner = question.CreatedById == userId;
 
             if (!isAdmin && !isSuperAdmin && !isOwner) return false;

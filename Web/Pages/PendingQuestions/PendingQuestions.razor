@@ -15,7 +15,9 @@
     </AdditionalTopControls>
     <QuestionActions Context="question">
         <AuthorizeView Roles="Admin, SuperAdmin">
-            <button class="btn btn-approve" @onclick="@(() => ShowApproveQuestion(question))">Approve</button>
+            <Button Disabled="@IsCreatedBySameUser(question)" class="btn-approve"
+                    @onclick="@(() => ShowApproveQuestion(question))">Approve
+            </Button>
         </AuthorizeView>
         <button class="btn btn-update" @onclick="@(() => baseQuestionsRef?.ShowUpdateQuestion(question)!)">Update
         </button>

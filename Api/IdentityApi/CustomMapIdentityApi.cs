@@ -480,7 +480,9 @@ public static class IdentityApiEndpointRouteBuilderExtensions
                    throw new NotSupportedException("Users must have a name."),
             IsEmailConfirmed = await userManager.IsEmailConfirmedAsync(user),
             Roles = await userManager.GetRolesAsync(user) ??
-                    throw new NotSupportedException("Users must have at least one role.")
+                    throw new NotSupportedException("Users must have at least one role."),
+            UserId = await userManager.GetUserIdAsync(user) ??
+                     throw new NotSupportedException("Users must have an id.")
         };
     }
 

@@ -2,8 +2,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using MockQueryable.Moq;
 using Moq;
 using QuestionaireApi;
@@ -17,18 +15,17 @@ namespace Tests.ServiceTests;
 
 public class UserServiceTests
 {
-    private readonly Mock<UserManager<User>> mockUserManager;
-    private readonly Mock<QuestionaireDbContext> mockContext;
-    private readonly Mock<DbSet<Question>> mockQuestionDbSet;
-    private readonly Mock<DatabaseFacade> mockDatabaseFacade;
-    private readonly Mock<IDbContextTransaction> mockTransaction;
-
-    private readonly List<User> usersData;
-    private readonly List<Question> questionsData;
-    private readonly IUserService userService;
-
     private const string DefaultUserName = "admin";
     private readonly User defaultUser = new User { Id = Guid.NewGuid().ToString(), UserName = DefaultUserName };
+    private readonly Mock<QuestionaireDbContext> mockContext;
+    private readonly Mock<DatabaseFacade> mockDatabaseFacade;
+    private readonly Mock<DbSet<Question>> mockQuestionDbSet;
+    private readonly Mock<IDbContextTransaction> mockTransaction;
+    private readonly Mock<UserManager<User>> mockUserManager;
+    private readonly List<Question> questionsData;
+
+    private readonly List<User> usersData;
+    private readonly IUserService userService;
 
     public UserServiceTests()
     {
@@ -323,7 +320,7 @@ public class UserServiceTests
 
         // Assert
         Assert.True(result);
-        
+
         mockUserManager.Verify(m => m.FindByNameAsync(DefaultUserName), Times.Once);
         mockUserManager.Verify(m => m.FindByNameAsync(userNameToDelete), Times.Once);
         mockContext.Verify(c => c.Questions, Times.Once);
@@ -332,7 +329,7 @@ public class UserServiceTests
         mockUserManager.Verify(m => m.DeleteAsync(userToDelete), Times.Once);
         mockTransaction.Verify(t => t.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
         mockTransaction.Verify(t => t.RollbackAsync(It.IsAny<CancellationToken>()), Times.Never);
-        
+
         Assert.Equal(defaultUser.Id, questionsData.First(q => q.Id == 1).CreatedById);
         Assert.Equal(defaultUser.Id, questionsData.First(q => q.Id == 2).LastUpdatedById);
         Assert.NotEqual(defaultUser.Id,
@@ -378,7 +375,7 @@ public class UserServiceTests
 
         mockUserManager.Setup(m => m.FindByNameAsync(DefaultUserName)).ReturnsAsync(defaultUser);
         mockUserManager.Setup(m => m.FindByNameAsync(userNameToDelete)).ReturnsAsync(userToDelete);
-        mockUserManager.Setup(m => m.DeleteAsync(userToDelete)).ReturnsAsync(failureResult); 
+        mockUserManager.Setup(m => m.DeleteAsync(userToDelete)).ReturnsAsync(failureResult);
         mockContext.Setup(c => c.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
 
 
