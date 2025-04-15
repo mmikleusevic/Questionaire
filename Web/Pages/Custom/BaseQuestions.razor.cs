@@ -32,7 +32,7 @@ public partial class BaseQuestions : ComponentBase
 
     private async Task GetQuestions()
     {
-        if (QuestionsRequest != null && QuestionService == null) return;
+        if (QuestionsRequest == null || QuestionService == null) return;
 
         PaginatedResponse<QuestionExtendedDto> paginatedResponse = await QuestionService.GetQuestions(QuestionsRequest);
         questions = paginatedResponse.Items;
@@ -41,6 +41,8 @@ public partial class BaseQuestions : ComponentBase
 
     private async Task OnPageChanged(int newPage)
     {
+        if (QuestionsRequest == null) return;
+        
         QuestionsRequest.PageNumber = newPage;
         await GetQuestions();
         Navigation.NavigateTo(Navigation.Uri.Split('#')[0] + "#topElement");
@@ -81,6 +83,8 @@ public partial class BaseQuestions : ComponentBase
 
     private async Task ToggleOnlyMyQuestions(ChangeEventArgs e)
     {
+        if (QuestionsRequest == null) return;
+        
         QuestionsRequest.OnlyMyQuestions = (bool)e.Value;
         QuestionsRequest.PageNumber = 1;
         await GetQuestions();
@@ -88,6 +92,8 @@ public partial class BaseQuestions : ComponentBase
 
     private async Task SearchQueryChanged(string value)
     {
+        if (QuestionsRequest == null) return;
+        
         QuestionsRequest.SearchQuery = value;
         QuestionsRequest.PageNumber = 1;
         await GetQuestions();
