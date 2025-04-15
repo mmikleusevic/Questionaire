@@ -89,6 +89,7 @@ public partial class BaseQuestions : ComponentBase
     private async Task SearchQueryChanged(string value)
     {
         QuestionsRequest.SearchQuery = value;
+        QuestionsRequest.PageNumber = 1;
         await GetQuestions();
     }
 }
