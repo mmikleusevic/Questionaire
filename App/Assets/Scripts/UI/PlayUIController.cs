@@ -65,10 +65,11 @@ namespace UI
         private IEnumerator PlayQuestionaire(bool isSingleAnswerMode)
         {
             List<string> errorMessages = new List<string>();
-            List<int> selectedCategoryIds = new List<int>();
+            HashSet<int> selectedCategoryIds = new HashSet<int>();
             yield return StartCoroutine(
-                gameSettingsUIController.GetSelectedCategoryIdsCoroutine((value) => selectedCategoryIds = value));
-            List<Difficulty> selectedDifficulties = gameSettingsUIController.GetSelectedDifficulties();
+                gameSettingsUIController.GetSelectedCategoryIdsCoroutine(value =>
+                    selectedCategoryIds = value.ToHashSet()));
+            HashSet<Difficulty> selectedDifficulties = gameSettingsUIController.GetSelectedDifficulties();
 
             if (selectedCategoryIds == null || selectedCategoryIds.Count == 0)
             {

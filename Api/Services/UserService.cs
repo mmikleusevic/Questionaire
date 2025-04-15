@@ -75,81 +75,84 @@ public class UserService(
 
     public async Task<bool> DeleteUser(string username)
     {
-        string defaultUserName = "admin";
-        User? defaultUser = await userManager.FindByNameAsync(defaultUserName);
-
-        if (defaultUser == null) return false;
-
-        string defaultUserId = defaultUser.Id;
-
-        var userToDelete = await userManager.FindByNameAsync(username);
-        if (userToDelete == null) return false;
-
-        string userIdToDelete = userToDelete.Id;
-
-        if (userIdToDelete == defaultUserId) return false;
-
-        await using IDbContextTransaction? transaction = await context.Database.BeginTransactionAsync();
+        IExecutionStrategy strategy = context.Database.CreateExecutionStrategy();
 
         try
         {
-            List<Question> questionsToReassign = await context.Questions
-                .Where(q => q.CreatedById == userIdToDelete ||
-                            q.LastUpdatedById == userIdToDelete ||
-                            q.ApprovedById == userIdToDelete ||
-                            q.DeletedById == userIdToDelete)
-                .ToListAsync();
-
-            bool requiresSaveChanges = false;
-            foreach (var question in questionsToReassign)
+            return await strategy.ExecuteAsync(async () =>
             {
-                if (question.CreatedById == userIdToDelete)
+                await using IDbContextTransaction? transaction = await context.Database.BeginTransactionAsync();
+
+                string defaultUserName = "admin";
+                User? defaultUser = await userManager.FindByNameAsync(defaultUserName);
+
+                if (defaultUser == null) return false;
+
+                string defaultUserId = defaultUser.Id;
+
+                var userToDelete = await userManager.FindByNameAsync(username);
+                if (userToDelete == null) return false;
+
+                string userIdToDelete = userToDelete.Id;
+
+                if (userIdToDelete == defaultUserId) return false;
+
+                List<Question> questionsToReassign = await context.Questions
+                    .Where(q => q.CreatedById == userIdToDelete ||
+                                q.LastUpdatedById == userIdToDelete ||
+                                q.ApprovedById == userIdToDelete ||
+                                q.DeletedById == userIdToDelete)
+                    .ToListAsync();
+
+                bool requiresSaveChanges = false;
+                foreach (var question in questionsToReassign)
                 {
-                    question.CreatedById = defaultUserId;
-                    requiresSaveChanges = true;
+                    if (question.CreatedById == userIdToDelete)
+                    {
+                        question.CreatedById = defaultUserId;
+                        requiresSaveChanges = true;
+                    }
+
+                    if (question.LastUpdatedById == userIdToDelete)
+                    {
+                        question.LastUpdatedById = defaultUserId;
+                        requiresSaveChanges = true;
+                    }
+
+                    if (question.ApprovedById == userIdToDelete)
+                    {
+                        question.ApprovedById = defaultUserId;
+                        requiresSaveChanges = true;
+                    }
+
+                    if (question.DeletedById == userIdToDelete)
+                    {
+                        question.DeletedById = defaultUserId;
+                        requiresSaveChanges = true;
+                    }
                 }
 
-                if (question.LastUpdatedById == userIdToDelete)
+                if (requiresSaveChanges)
                 {
-                    question.LastUpdatedById = defaultUserId;
-                    requiresSaveChanges = true;
+                    await context.SaveChangesAsync();
                 }
 
-                if (question.ApprovedById == userIdToDelete)
+                IdentityResult deleteResult = await userManager.DeleteAsync(userToDelete);
+
+                if (deleteResult.Succeeded)
                 {
-                    question.ApprovedById = defaultUserId;
-                    requiresSaveChanges = true;
+                    await transaction.CommitAsync();
+                }
+                else
+                {
+                    await transaction.RollbackAsync();
                 }
 
-                if (question.DeletedById == userIdToDelete)
-                {
-                    question.DeletedById = defaultUserId;
-                    requiresSaveChanges = true;
-                }
-            }
-
-            if (requiresSaveChanges)
-            {
-                await context.SaveChangesAsync();
-            }
-
-            IdentityResult deleteResult = await userManager.DeleteAsync(userToDelete);
-
-            if (deleteResult.Succeeded)
-            {
-                await transaction.CommitAsync();
-            }
-            else
-            {
-                await transaction.RollbackAsync();
-            }
-
-            return deleteResult.Succeeded;
+                return deleteResult.Succeeded;
+            });
         }
         catch (Exception ex)
         {
-            await transaction.RollbackAsync();
-
             throw new InvalidOperationException(
                 $"An unexpected error occurred while deleting user '{username}' and reassigning content.", ex);
         }

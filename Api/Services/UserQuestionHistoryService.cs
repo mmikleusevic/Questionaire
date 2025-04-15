@@ -21,14 +21,14 @@ public class UserQuestionHistoryService(QuestionaireDbContext context) : IUserQu
         }
     }
 
-    public async Task CreateUserQuestionHistory(string userId, List<Question> questions)
+    public async Task CreateUserQuestionHistory(string userId, List<int> questionIds)
     {
         try
         {
-            await context.UserQuestionHistory.AddRangeAsync(questions.Select(q => new UserQuestionHistory
+            await context.UserQuestionHistory.AddRangeAsync(questionIds.Select(q => new UserQuestionHistory
             {
                 UserId = userId,
-                QuestionId = q.Id,
+                QuestionId = q,
                 RoundNumber = 1
             }));
 

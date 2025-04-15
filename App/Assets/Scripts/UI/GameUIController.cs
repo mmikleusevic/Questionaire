@@ -2,18 +2,20 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using SharedStandard.Models;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace UI
 {
     public class GameUIController : SafeArea
     {
+        private const int targetQuestionNumber = 50;
+        [SerializeField] private GameSettingsUIController gameSettingsUIController;
         private Label answer1Text;
         private Label answer2Text;
         private Label answer3Text;
 
         private Label[] answerTexts;
-        private List<int> currentCategoryIds;
         private int currentQuestionIndex;
         private Button exitButton;
         private VisualElement gameUI;
@@ -36,7 +38,6 @@ namespace UI
             nextButton = root.Q<Button>("nextButton");
 
             questions = new List<QuestionDto>();
-            currentCategoryIds = new List<int>();
             answerTexts = new[] { answer1Text, answer2Text, answer3Text };
 
             Hide();
@@ -55,7 +56,7 @@ namespace UI
 
         private void ExitPressed()
         {
-            Hide();
+            StartCoroutine(CreateUserQuestionHistory());
         }
 
         private void PreviousPressed()
@@ -68,33 +69,20 @@ namespace UI
             NextQuestion();
         }
 
-        public IEnumerator LoadQuestions(List<int> categories, List<Difficulty> difficulties, bool isSingleAnswerMode)
+        public IEnumerator LoadQuestions(HashSet<int> categories, HashSet<Difficulty> difficulties,
+            bool isSingleAnswerMode)
         {
             this.isSingleAnswerMode = isSingleAnswerMode;
             LoadingUIController.Instance.ShowLoadingMessage("Loading Questions...");
 
-            int numberOfQuestionsToFetch = 40;
-            if (currentCategoryIds.SequenceEqual(categories))
-            {
-                int numberOfUnreadQuestions = questions.Count(q => !q.isRead);
-                numberOfQuestionsToFetch -= numberOfUnreadQuestions;
-
-                questions.RemoveAll(q => q.isRead);
-            }
-            else
-            {
-                questions.Clear();
-            }
-
-            yield return StartCoroutine(GameManager.Instance.GetUniqueQuestions(numberOfQuestionsToFetch, categories,
-                this.isSingleAnswerMode, difficulties, (retrievedQuestions, message) =>
+            yield return StartCoroutine(GameManager.Instance.GetUniqueQuestions(this.isSingleAnswerMode, questions,
+                categories,
+                difficulties, (retrievedQuestions, message) =>
                 {
                     LoadingUIController.Instance.Hide();
 
                     if (retrievedQuestions != null)
                     {
-                        currentCategoryIds.Clear();
-                        currentCategoryIds.AddRange(categories);
                         questions.AddRange(retrievedQuestions);
                         currentQuestionIndex = 0;
 
@@ -182,6 +170,23 @@ namespace UI
                 answer.RemoveFromClassList("correctAnswerBackground");
                 answer.RemoveFromClassList("incorrectAnswerBackground");
             }
+        }
+
+        private IEnumerator CreateUserQuestionHistory()
+        {
+            List<int> questionIds = questions.Where(q => q.isRead).Select(q => q.Id).ToList();
+
+            yield return StartCoroutine(GameManager.Instance.CreateUserQuestionHistory(questionIds, message =>
+            {
+                if (string.IsNullOrEmpty(message))
+                {
+                    Hide();
+                }
+                else
+                {
+                    ErrorModalUIController.Instance.ShowMessage(message);
+                }
+            }));
         }
 
         private void Show()

@@ -12,7 +12,7 @@ namespace Web.Pages.Auth.Users;
 public partial class Users : ComponentBase
 {
     private const string SuperAdminRole = "SuperAdmin";
-    
+
     private ClaimsPrincipal currentUser;
     private Modal? modal;
     private IList<RoleDto>? roles;

@@ -1,6 +1,8 @@
 using BlazorBootstrap;
 using Microsoft.AspNetCore.Components;
 using Shared.Models;
+using SharedStandard.Models;
+using Web.Interfaces;
 
 namespace Web.Pages.Play.PlayModals;
 
@@ -11,7 +13,9 @@ public partial class ReadQuestions : ComponentBase
     private int currentQuestionIndex;
     private Button nextButton;
     private Button previousButton;
+    [Inject] private IUserQuestionHistoryService UserQuestionHistoryService { get; set; }
     [Parameter] public Modal Modal { get; set; }
+    [Parameter] public string deviceIdentifier { get; set; }
     [Parameter] public List<QuestionExtendedDto> Questions { get; set; }
     [Parameter] public bool IsSingleAnswerMode { get; set; }
     private bool IsPreviousButtonDisabled => currentQuestionIndex <= 0;
@@ -33,9 +37,7 @@ public partial class ReadQuestions : ComponentBase
 
         answers = new AnswerExtendedDto[3];
 
-        bool hasOneAnswer = currentQuestion.Answers.Count == 1;
-
-        if (IsSingleAnswerMode || hasOneAnswer)
+        if (IsSingleAnswerMode)
         {
             AnswerExtendedDto correctAnswer = currentQuestion?.Answers?.FirstOrDefault(a => a.IsCorrect);
 
@@ -64,6 +66,17 @@ public partial class ReadQuestions : ComponentBase
         ShowQuestion(currentQuestionIndex + 1);
     }
 
+    private async Task CreateUserQuestionHistory()
+    {
+        UserQuestionHistoryDto userQuestionHistoryDto = new UserQuestionHistoryDto
+        {
+            UserId = deviceIdentifier,
+            QuestionIds = Questions.Where(q => q.isRead).Select(q => q.Id).ToList()
+        };
+
+        await UserQuestionHistoryService.CreateUserHistory(userQuestionHistoryDto);
+    }
+
     private string GetAnswerClass(AnswerExtendedDto? answer)
     {
         if (answer == null) return "answer-default";
@@ -73,6 +86,7 @@ public partial class ReadQuestions : ComponentBase
 
     private async Task HideModal()
     {
+        await CreateUserQuestionHistory();
         await Modal.HideAsync();
     }
 }

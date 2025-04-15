@@ -19,6 +19,9 @@
 
     @AdditionalTopControls
 
+    <TextInput Value="@QuestionsRequest.SearchQuery" ValueExpression="() => QuestionsRequest.SearchQuery"
+               ValueChanged="value => SearchQueryChanged(value)" Placeholder="Enter text to search"/>
+
     @if (questions == null)
     {
         <p><em>Loading...</em></p>
@@ -29,9 +32,6 @@
     }
     else
     {
-        <TextInput Value="@QuestionsRequest.SearchQuery" ValueExpression="() => QuestionsRequest.SearchQuery"
-                   ValueChanged="value => SearchQueryChanged(value)" Placeholder="Enter text to search"/>
-
         <div id="topElement" class="questions-container">
             @foreach (var question in questions)
             {

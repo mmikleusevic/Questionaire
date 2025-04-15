@@ -23,6 +23,7 @@ builder.Services.AddScoped<IQuestionService, QuestionService>();
 builder.Services.AddScoped<IAuthRedirectService, AuthRedirectService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
+builder.Services.AddScoped<IUserQuestionHistoryService, UserQuestionHistoryService>();
 builder.Services.AddScoped<JavaScriptHandler>();
 builder.Services.AddScoped<CustomAuthStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();

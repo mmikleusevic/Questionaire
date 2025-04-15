@@ -81,11 +81,11 @@ public class UserQuestionHistoryServiceTests
     {
         // Arrange
         var userId = "user-empty-history";
-        var emptyQuestions = new List<Question>();
+        var emptyQuestionsIds = new List<int>();
         int initialCount = userQuestionHistoryData.Count;
 
         // Act
-        await userQuestionService.CreateUserQuestionHistory(userId, emptyQuestions);
+        await userQuestionService.CreateUserQuestionHistory(userId, emptyQuestionsIds);
 
         // Assert
         mockDbSet.Verify(db => db.AddRangeAsync(
@@ -103,15 +103,14 @@ public class UserQuestionHistoryServiceTests
     {
         // Arrange
         var userId = "user-creating-history";
-        var questions = new List<Question>
+        var questionIds = new List<int>
         {
-            new Question { Id = 10 },
-            new Question { Id = 20 }
+            10, 20
         };
         int initialCount = userQuestionHistoryData.Count;
 
         // Act
-        await userQuestionService.CreateUserQuestionHistory(userId, questions);
+        await userQuestionService.CreateUserQuestionHistory(userId, questionIds);
 
         // Assert
         mockDbSet.Verify(db => db.AddRangeAsync(
@@ -135,7 +134,7 @@ public class UserQuestionHistoryServiceTests
     {
         // Arrange
         var userId = "user-creating-history-fail1";
-        var questions = new List<Question> { new Question { Id = 30 } };
+        var questionIds = new List<int> { 30 };
         var dbException = new InvalidOperationException("Simulated AddRangeAsync failure");
 
         mockDbSet.Setup(db =>
@@ -144,7 +143,7 @@ public class UserQuestionHistoryServiceTests
 
         // Act & Assert
         var ex = await Assert.ThrowsAsync<InvalidOperationException>(
-            () => userQuestionService.CreateUserQuestionHistory(userId, questions)
+            () => userQuestionService.CreateUserQuestionHistory(userId, questionIds)
         );
 
         Assert.Equal($"An error occurred while creating question history for user with ID {userId}.", ex.Message);
@@ -158,7 +157,7 @@ public class UserQuestionHistoryServiceTests
     {
         // Arrange
         var userId = "user-creating-history-fail2";
-        var questions = new List<Question> { new Question { Id = 40 } };
+        var questionIds = new List<int> { 40 };
         var dbException = new DbUpdateException("Simulated SaveChanges failure");
 
         mockContext.Setup(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()))
@@ -166,7 +165,7 @@ public class UserQuestionHistoryServiceTests
 
         // Act & Assert
         var ex = await Assert.ThrowsAsync<InvalidOperationException>(
-            () => userQuestionService.CreateUserQuestionHistory(userId, questions)
+            () => userQuestionService.CreateUserQuestionHistory(userId, questionIds)
         );
 
         Assert.Equal($"An error occurred while creating question history for user with ID {userId}.", ex.Message);

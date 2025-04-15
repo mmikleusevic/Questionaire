@@ -94,3 +94,8 @@
     vertical-align: middle;
 }
 
+::deep .previous-button,
+::deep .next-button {
+    margin: 0 !important;
+}
+

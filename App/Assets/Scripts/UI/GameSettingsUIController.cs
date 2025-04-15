@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using SharedStandard.Models;
 using UI.CustomUIElements;
 using UnityEngine;
@@ -27,7 +26,7 @@ namespace UI
         private Action selectAllHandler;
 
         private List<CategoryDto> selectedCategories;
-        private List<Difficulty> selectedDifficulties;
+        private HashSet<Difficulty> selectedDifficulties;
         private Dictionary<SlideToggle, EventCallback<ChangeEvent<bool>>> valueChangedHandlers;
 
         private void Start()
@@ -163,7 +162,7 @@ namespace UI
         {
             List<Difficulty> allDifficulties =
                 new List<Difficulty>(Enum.GetValues(typeof(Difficulty)).Cast<Difficulty>());
-            selectedDifficulties = allDifficulties.ToList();
+            selectedDifficulties = allDifficulties.ToHashSet();
 
             difficultieslist.itemsSource = allDifficulties;
             difficultieslist.makeItem = () => new SlideToggle();
@@ -256,7 +255,7 @@ namespace UI
             callback?.Invoke(selectedIds);
         }
 
-        public List<Difficulty> GetSelectedDifficulties()
+        public HashSet<Difficulty> GetSelectedDifficulties()
         {
             return selectedDifficulties;
         }

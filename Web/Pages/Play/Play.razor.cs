@@ -10,11 +10,13 @@ namespace Web.Pages.Play;
 
 public partial class Play : ComponentBase
 {
+    private const int TargetQuestionNumber = 50;
     private readonly List<QuestionExtendedDto> questions = new List<QuestionExtendedDto>();
     private readonly HashSet<Difficulty> selectedDifficulties = new HashSet<Difficulty> { Difficulty.Easy };
     private string? deviceIdentifier;
     private bool isInitializing = true;
     private bool isLoading;
+    private UniqueQuestionsRequestDto? lastQuestionsRequestState;
 
     private Modal? modal;
     private List<CategoryExtendedDto>? nestedCategories;
@@ -28,7 +30,7 @@ public partial class Play : ComponentBase
 
     private bool CanPlay => !isInitializing &&
                             selectedCategories != null &&
-                            GetSelectedCategoryIds().Length > 0 &&
+                            GetSelectedCategoryIds().Count > 0 &&
                             selectedDifficulties.Any() &&
                             !isLoading &&
                             !string.IsNullOrEmpty(deviceIdentifier);
@@ -69,14 +71,14 @@ public partial class Play : ComponentBase
         }
     }
 
-    private int[] GetSelectedCategoryIds()
+    private HashSet<int> GetSelectedCategoryIds()
     {
-        List<int> selectedIds = new();
+        HashSet<int> selectedIds = new HashSet<int>();
         CollectSelectedCategoryIdsRecursive(nestedCategories, selectedIds);
-        return selectedIds.ToArray();
+        return selectedIds.ToHashSet();
     }
 
-    private void CollectSelectedCategoryIdsRecursive(List<CategoryExtendedDto>? categories, List<int> selectedIds)
+    private void CollectSelectedCategoryIdsRecursive(List<CategoryExtendedDto>? categories, HashSet<int> selectedIds)
     {
         if (categories == null) return;
 
@@ -130,28 +132,54 @@ public partial class Play : ComponentBase
         isInitializing = true;
         isLoading = true;
 
-        if (selectedCategories == null) return;
+        HashSet<int> currentCategoryIds = GetSelectedCategoryIds();
+        HashSet<Difficulty> currentDifficulties = selectedDifficulties;
 
-        int[] categoryIds = GetSelectedCategoryIds();
+        bool criteriaChanged = true;
+        if (lastQuestionsRequestState != null)
+        {
+            HashSet<int> lastCategoryIds = lastQuestionsRequestState?.CategoryIds?.ToHashSet() ?? new HashSet<int>();
+            HashSet<Difficulty> lastDifficulties =
+                lastQuestionsRequestState?.Difficulties?.ToHashSet() ?? new HashSet<Difficulty>();
 
-        int numberOfQuestionsToFetch = 40;
-        int numberOfUnreadQuestions = questions.Count(q => !q.isRead);
-        numberOfQuestionsToFetch -= numberOfUnreadQuestions;
+            bool categoriesSame = currentCategoryIds.SetEquals(lastCategoryIds);
+            bool difficultiesSame = currentDifficulties.SetEquals(lastDifficulties);
+            criteriaChanged = !categoriesSame || !difficultiesSame;
+        }
 
-        questions.RemoveAll(q => q.isRead);
+        int numberOfQuestionsToFetch = 0;
 
-        UniqueQuestionsRequestDto request = new UniqueQuestionsRequestDto
+        if (criteriaChanged)
+        {
+            questions.Clear();
+            numberOfQuestionsToFetch = TargetQuestionNumber;
+        }
+        else
+        {
+            questions.RemoveAll(q => q.isRead);
+
+            int currentQuestionCount = questions.Count;
+            numberOfQuestionsToFetch = TargetQuestionNumber - currentQuestionCount;
+            numberOfQuestionsToFetch = Math.Max(0, numberOfQuestionsToFetch);
+        }
+
+        UniqueQuestionsRequestDto currentRequestDto = new UniqueQuestionsRequestDto
         {
             UserId = deviceIdentifier,
             NumberOfQuestions = numberOfQuestionsToFetch,
-            Difficulties = selectedDifficulties.ToArray(),
-            CategoryIds = categoryIds,
+            Difficulties = currentDifficulties.ToArray(),
+            CategoryIds = currentCategoryIds.ToArray(),
             IsSingleAnswerMode = isSingleAnswerMode
         };
 
-        List<QuestionExtendedDto> fetchedQuestions = await QuestionService.GetRandomUniqueQuestions(request);
+        lastQuestionsRequestState = currentRequestDto;
 
-        questions.AddRange(fetchedQuestions);
+        if (numberOfQuestionsToFetch > 0)
+        {
+            List<QuestionExtendedDto> fetchedQuestions =
+                await QuestionService.GetRandomUniqueQuestions(currentRequestDto);
+            questions.AddRange(fetchedQuestions);
+        }
 
         if (questions.Any())
         {
@@ -164,11 +192,12 @@ public partial class Play : ComponentBase
 
     private async Task ShowReadQuestion(bool isSingleAnswerMode)
     {
-        if (modal == null) return;
+        if (modal == null || deviceIdentifier == null) return;
 
         Dictionary<string, object> parameters = new Dictionary<string, object>
         {
             { "Modal", modal },
+            { "DeviceIdentifier", deviceIdentifier },
             { "Questions", questions },
             { "IsSingleAnswerMode", isSingleAnswerMode }
         };

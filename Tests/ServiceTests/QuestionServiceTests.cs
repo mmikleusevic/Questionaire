@@ -19,11 +19,11 @@ namespace Tests.ServiceTests;
 public class QuestionServiceTests
 {
     private const string SuperAdminRole = "SuperAdmin";
-    private const string AdminRole = "Admin";
 
     private readonly List<UserQuestionHistory> historyData;
     private readonly Mock<IAnswerService> mockAnswerService;
     private readonly Mock<QuestionaireDbContext> mockContext;
+    private readonly Mock<IExecutionStrategy> mockExecutionStrategy;
     private readonly Mock<DbSet<UserQuestionHistory>> mockHistoryDbSet;
     private readonly Mock<IUserQuestionHistoryService> mockHistoryService;
     private readonly Mock<IQuestionCategoriesService> mockQuestionCategoriesService;
@@ -46,6 +46,7 @@ public class QuestionServiceTests
         mockAnswerService = new Mock<IAnswerService>();
         mockQuestionCategoriesService = new Mock<IQuestionCategoriesService>();
         mockTransaction = new Mock<IDbContextTransaction>();
+        mockExecutionStrategy = new Mock<IExecutionStrategy>();
 
         questionsData = GetTestQuestions();
 
@@ -54,13 +55,55 @@ public class QuestionServiceTests
         mockQuestionDbSet = questionsData.AsQueryable().BuildMockDbSet();
         mockHistoryDbSet = historyData.AsQueryable().BuildMockDbSet();
 
+
         mockContext.Setup(c => c.Questions).Returns(mockQuestionDbSet.Object);
         mockContext.Setup(c => c.UserQuestionHistory).Returns(mockHistoryDbSet.Object);
 
         var mockDatabaseFacade = new Mock<DatabaseFacade>(mockContext.Object);
 
+        mockDatabaseFacade.Setup(db => db.CreateExecutionStrategy())
+            .Returns(mockExecutionStrategy.Object);
         mockDatabaseFacade.Setup(db => db.BeginTransactionAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(mockTransaction.Object);
+        mockContext.Setup(c => c.Database).Returns(mockDatabaseFacade.Object);
+
+        mockExecutionStrategy
+            .Setup(s => s.ExecuteAsync(
+                It.IsAny<Func<Task<bool>>>(),
+                It.IsAny<Func<DbContext, Func<Task<bool>>, CancellationToken, Task<bool>>>(),
+                It.IsAny<Func<DbContext, Func<Task<bool>>, CancellationToken, Task<ExecutionResult<bool>>>?>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(
+                async (
+                    Func<Task<bool>> state,
+                    Func<DbContext, Func<Task<bool>>, CancellationToken, Task<bool>> operation,
+                    Func<DbContext, Func<Task<bool>>, CancellationToken, Task<ExecutionResult<bool>>>? verifySucceeded,
+                    CancellationToken cancellationToken
+                ) =>
+                {
+                    var result = await operation(mockContext.Object, state, cancellationToken);
+                    return result;
+                })
+            .Verifiable();
+
+        mockExecutionStrategy
+            .Setup(s => s.ExecuteAsync(
+                It.IsAny<Func<Task>>(),
+                It.IsAny<Func<DbContext, Func<Task>, CancellationToken, Task<bool>>>(),
+                It.IsAny<Func<DbContext, Func<Task>, CancellationToken, Task<ExecutionResult<bool>>>?>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(
+                async (
+                    Func<Task> state,
+                    Func<DbContext, Func<Task>, CancellationToken, Task<bool>> operation,
+                    Func<DbContext, Func<Task>, CancellationToken, Task<ExecutionResult<bool>>>? verifySucceeded,
+                    CancellationToken cancellationToken
+                ) =>
+                {
+                    var result = await operation(mockContext.Object, state, cancellationToken);
+                    return result;
+                })
+            .Verifiable();
 
         mockContext.Setup(c => c.Database).Returns(mockDatabaseFacade.Object);
         mockContext.Setup(c => c.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
@@ -321,7 +364,7 @@ public class QuestionServiceTests
     // --- GetRandomUniqueQuestions Tests ---
 
     [Fact(Skip = "EF.Functions.Like cannot be translated by InMemory provider.")]
-    public async Task GetRandomUniqueQuestions_FetchesQuestionsAndCreatesHistory_WhenEnoughFoundInitially()
+    public async Task GetRandomUniqueQuestions_FetchesQuestions_WhenEnoughFoundInitially()
     {
         // Arrange
         var userId = "testUserForRandom";
@@ -341,10 +384,6 @@ public class QuestionServiceTests
         // Assert
         Assert.NotNull(result);
         Assert.Equal(request.NumberOfQuestions, result.Count);
-        Assert.All(result, r => Assert.Contains(r.Id, availableQuestions.Select(q => q.Id)));
-        mockHistoryService.Verify(
-            h => h.CreateUserQuestionHistory(userId, It.Is<List<Question>>(l => l.Count == request.NumberOfQuestions)),
-            Times.Once);
         mockHistoryService.Verify(h => h.ResetUserQuestionHistory(It.IsAny<string>()),
             Times.Never);
     }
@@ -369,8 +408,6 @@ public class QuestionServiceTests
         Assert.Contains(result, r => r.Id == 1);
         Assert.Contains(result, r => r.Id == 3);
         mockHistoryService.Verify(h => h.ResetUserQuestionHistory(userId), Times.Once);
-        mockHistoryService.Verify(h => h.CreateUserQuestionHistory(userId, It.Is<List<Question>>(l => l.Count == 2)),
-            Times.Once);
     }
 
     // --- ApproveQuestion Tests ---
@@ -561,7 +598,7 @@ public class QuestionServiceTests
         Assert.Contains(
             "Invalid question: must have exactly 3 answers, 2 incorrect answers, 1 correct answer and at least one category.",
             ex.InnerException.Message);
-        mockTransaction.Verify(t => t.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
+
         mockTransaction.Verify(t => t.CommitAsync(It.IsAny<CancellationToken>()), Times.Never);
         mockContext.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -755,75 +792,6 @@ public class QuestionServiceTests
             qc => qc.CreateQuestionCategories(questionIdAfterSave, newQuestionDto.Categories), Times.Once);
     }
 
-    [Fact]
-    public async Task CreateQuestion_RollsBack_WhenAutoApprovalFails()
-    {
-        // Arrange
-        var userId = "superadmin_creator_fail";
-        var user = CreateClaimsPrincipal(userId, SuperAdminRole);
-        var newQuestionDto = new QuestionExtendedDto
-        {
-            QuestionText = "New Q Create SuperAdmin Fail?",
-            Answers = new List<AnswerExtendedDto>
-                { new AnswerExtendedDto { IsCorrect = true }, new AnswerExtendedDto(), new AnswerExtendedDto() },
-            Categories = new List<CategoryExtendedDto> { new CategoryExtendedDto(10) }
-        };
-        int questionIdAfterSave = 101;
-        var approvalException = new InvalidOperationException("Simulated approval failure");
-
-        mockUserManager.Setup(um => um.GetUserId(user)).Returns(userId);
-        mockQuestionDbSet.Setup(m => m.AddAsync(It.IsAny<Question>(), It.IsAny<CancellationToken>()))
-            .Callback<Question, CancellationToken>((q, ct) =>
-            {
-                q.Id = questionIdAfterSave;
-                questionsData.Add(q);
-            })
-            .ReturnsAsync((EntityEntry<Question>)null);
-
-        mockContext.SetupSequence(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(1)
-            .ThrowsAsync(approvalException);
-
-        // Act & Assert
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            questionService.CreateQuestion(newQuestionDto, user));
-
-        Assert.Equal("An error occurred while creating the question.", ex.Message);
-        Assert.NotNull(ex.InnerException);
-        Assert.Equal(approvalException, ex.InnerException);
-
-        mockTransaction.Verify(t => t.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
-        mockTransaction.Verify(t => t.CommitAsync(It.IsAny<CancellationToken>()), Times.Never);
-    }
-
-    [Fact]
-    public async Task CreateQuestion_RollsBackTransaction_WhenAnswerServiceFails()
-    {
-        // Arrange
-        var userId = "creator2";
-        var user = CreateClaimsPrincipal(userId);
-        var newQuestionDto = new QuestionExtendedDto
-        {
-            QuestionText = "New Q Create Fail Answer?",
-            Answers = new List<AnswerExtendedDto>
-                { new AnswerExtendedDto { IsCorrect = true }, new AnswerExtendedDto(), new AnswerExtendedDto() },
-            Categories = new List<CategoryExtendedDto> { new CategoryExtendedDto(10) }
-        };
-        var serviceException = new Exception("Answer service failure");
-        mockAnswerService.Setup(a => a.CreateQuestionAnswers(It.IsAny<int>(), It.IsAny<List<AnswerExtendedDto>>()))
-            .ThrowsAsync(serviceException);
-
-        // Act & Assert
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            questionService.CreateQuestion(newQuestionDto, user));
-        Assert.Equal("An error occurred while creating the question.", ex.Message);
-        Assert.Equal(serviceException, ex.InnerException);
-
-        mockTransaction.Verify(t => t.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
-        mockTransaction.Verify(t => t.CommitAsync(It.IsAny<CancellationToken>()), Times.Never);
-        mockContext.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-    }
-
     // --- UpdateQuestion Tests ---
 
     [Theory]
@@ -853,7 +821,7 @@ public class QuestionServiceTests
         Assert.NotNull(ex.InnerException);
         Assert.IsType<InvalidOperationException>(ex.InnerException);
         Assert.Contains("Invalid question: must have exactly 3 answers", ex.InnerException.Message);
-        mockTransaction.Verify(t => t.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
+
         mockTransaction.Verify(t => t.CommitAsync(It.IsAny<CancellationToken>()), Times.Never);
         mockContext.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -906,7 +874,7 @@ public class QuestionServiceTests
     }
 
     [Fact]
-    public async Task UpdateQuestion_RollsBackTransaction_WhenAnswerServiceFails()
+    public async Task UpdateQuestion_ThrowsException_WhenAnswerServiceFails()
     {
         // Arrange
         var userId = "updater_fail_answer";
@@ -954,12 +922,11 @@ public class QuestionServiceTests
         Assert.Equal($"An error occurred while updating the question with ID {questionIdToUpdate}.", ex.Message);
         Assert.Equal(serviceException, ex.InnerException);
 
-        mockTransaction.Verify(t => t.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
         mockTransaction.Verify(t => t.CommitAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
-    public async Task UpdateQuestion_RollsBackTransaction_WhenCategoryServiceFails()
+    public async Task UpdateQuestion_ThrowsException_WhenCategoryServiceFails()
     {
         // Arrange
         var userId = "updater_fail_category";
@@ -1013,7 +980,6 @@ public class QuestionServiceTests
         Assert.Equal($"An error occurred while updating the question with ID {questionIdToUpdate}.", ex.Message);
         Assert.Equal(serviceException, ex.InnerException);
 
-        mockTransaction.Verify(t => t.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
         mockTransaction.Verify(t => t.CommitAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 

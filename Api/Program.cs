@@ -74,11 +74,10 @@ try
         options.UseSqlServer(connectionString,
             sqlOptions =>
             {
-                sqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
                 sqlOptions.EnableRetryOnFailure(
-                    maxRetryCount: 3,
-                    maxRetryDelay: TimeSpan.FromSeconds(5),
-                    errorNumbersToAdd: null
+                    3,
+                    TimeSpan.FromSeconds(5),
+                    null
                 );
             });
     });
@@ -141,12 +140,12 @@ try
     {
         Log.Warning("No valid origins specified for CORS policy 'Cors'. Requests might be blocked.");
     }
-    
+
     builder.Services.AddRateLimiter(options =>
     {
         options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
-        
-        options.AddFixedWindowLimiter(policyName: "fixed", fixedWindowOptions =>
+
+        options.AddFixedWindowLimiter("fixed", fixedWindowOptions =>
         {
             fixedWindowOptions.PermitLimit = 30;
             fixedWindowOptions.Window = TimeSpan.FromMinutes(1);
@@ -215,10 +214,10 @@ try
     }
 
     app.UseRouting();
-    
+
     app.UseRateLimiter();
     Log.Information("Rate Limiting middleware enabled.");
-    
+
     app.UseAuthentication();
     app.UseAuthorization();
 

@@ -29,29 +29,31 @@ public class QuestionService(
             if (userDb == null)
                 return new PaginatedResponse<QuestionExtendedDto> { Items = new List<QuestionExtendedDto>() };
 
-            IQueryable<Question> query = context.Questions
+            IQueryable<Question> baseQuery = context.Questions
                 .Where(q => q.IsDeleted == false)
-                .Include(a => a.Answers)
-                .Include(a => a.QuestionCategories)
-                .ThenInclude(c => c.Category)
-                .Where(q => q.IsApproved == questionsRequestDto.FetchApprovedQuestions)
-                .OrderBy(q => q.Id);
+                .Where(q => q.IsApproved == questionsRequestDto.FetchApprovedQuestions);
 
             if (questionsRequestDto.OnlyMyQuestions)
             {
-                query = query.Where(q => q.CreatedById == userDb.Id);
+                baseQuery = baseQuery.Where(q => q.CreatedById == userDb.Id);
             }
 
             if (!string.IsNullOrEmpty(questionsRequestDto.SearchQuery))
             {
-                query = query.Where(q => EF.Functions.Like(q.QuestionText, $"%{questionsRequestDto.SearchQuery}%"));
+                string searchTerm = $"%{questionsRequestDto.SearchQuery.ToLower()}%";
+                baseQuery = baseQuery.Where(q => EF.Functions.Like(q.QuestionText.ToLower(), searchTerm));
             }
 
-            int totalQuestions = await query.CountAsync();
+            int totalQuestions = await baseQuery.CountAsync();
 
-            List<Question> questions = await query
+            List<Question> questions = await baseQuery
+                .Include(q => q.Answers)
+                .Include(q => q.QuestionCategories)
+                .ThenInclude(qc => qc.Category)
+                .OrderBy(q => q.Id)
                 .Skip((questionsRequestDto.PageNumber - 1) * questionsRequestDto.PageSize)
                 .Take(questionsRequestDto.PageSize)
+                .AsSplitQuery()
                 .ToListAsync();
 
             PaginatedResponse<QuestionExtendedDto> response = new PaginatedResponse<QuestionExtendedDto>
@@ -91,10 +93,9 @@ public class QuestionService(
             IQueryable<Question> coreQuery = context.Questions
                 .Where(q => q.IsApproved == true && q.IsDeleted == false)
                 .Where(q => requestDto.Difficulties.Contains(q.Difficulty))
-                .Include(q => q.Answers)
-                .Where(q => q.Answers.Count >= (requestDto.IsSingleAnswerMode ? 1 : 3))
+                .Where(q => q.QuestionCategories.Any(qc => requestDto.CategoryIds.Contains(qc.CategoryId)))
                 .Where(q => q.Answers.Any(a => a.IsCorrect))
-                .Where(q => q.QuestionCategories.Any(qc => requestDto.CategoryIds.Contains(qc.CategoryId)));
+                .Include(q => q.Answers);
 
             IQueryable<Question> initialQuery = coreQuery
                 .Where(q => !context.UserQuestionHistory.Any(h => h.UserId == requestDto.UserId
@@ -113,11 +114,6 @@ public class QuestionService(
                     await FetchRandomQuestions(coreQuery, remainingQuestionsCount, idsToExclude);
 
                 questions.AddRange(additionalQuestions);
-            }
-
-            if (questions.Any())
-            {
-                await userQuestionHistoryService.CreateUserQuestionHistory(requestDto.UserId, questions);
             }
 
             return MapQuestionsToDtos(questions, requestDto.IsSingleAnswerMode);
@@ -177,109 +173,129 @@ public class QuestionService(
 
     public async Task CreateQuestion(QuestionExtendedDto newQuestion, ClaimsPrincipal user)
     {
-        await using IDbContextTransaction? transaction = await context.Database.BeginTransactionAsync();
+        IExecutionStrategy strategy = context.Database.CreateExecutionStrategy();
 
         try
         {
-            string? userId = userManager.GetUserId(user);
-
-            if (string.IsNullOrEmpty(userId)) throw new UnauthorizedAccessException("The user is not authorized");
-
-            if (newQuestion.Answers == null ||
-                newQuestion.Answers.Count != 3 ||
-                !newQuestion.Answers.Any(a => a.IsCorrect) ||
-                newQuestion.Categories == null ||
-                newQuestion.Categories.Count == 0)
+            await strategy.ExecuteAsync(async () =>
             {
-                throw new InvalidOperationException(
-                    "Invalid question: must have exactly 3 answers, 2 incorrect answers, 1 correct answer and at least one category.");
-            }
+                await using IDbContextTransaction? transaction = await context.Database.BeginTransactionAsync();
 
-            Question dbQuestion = new Question
-            {
-                QuestionText = newQuestion.QuestionText,
-                CreatedById = userId,
-                CreatedAt = DateTime.UtcNow,
-                IsApproved = false,
-                Difficulty = newQuestion.Difficulty
-            };
+                string? userId = userManager.GetUserId(user);
 
-            await context.Questions.AddAsync(dbQuestion);
-            await context.SaveChangesAsync();
-
-            await answerService.CreateQuestionAnswers(dbQuestion.Id, newQuestion.Answers);
-            await questionCategoriesService.CreateQuestionCategories(dbQuestion.Id,
-                newQuestion.Categories);
-
-            await context.SaveChangesAsync();
-
-            if (user.IsInRole(SuperAdminRole))
-            {
-                bool approved = await ApproveQuestion(dbQuestion.Id, user);
-                if (!approved)
+                if (string.IsNullOrEmpty(userId))
                 {
-                    throw new InvalidOperationException(
-                        $"Auto approval failed for question {dbQuestion.Id} created by SuperAdmin {userId}.");
-                }
-            }
+                    await transaction.RollbackAsync();
 
-            await transaction.CommitAsync();
+                    throw new UnauthorizedAccessException("The user is not authorized");
+                }
+
+                if (newQuestion.Answers == null ||
+                    newQuestion.Answers.Count != 3 ||
+                    !newQuestion.Answers.Any(a => a.IsCorrect) ||
+                    newQuestion.Categories == null ||
+                    newQuestion.Categories.Count == 0)
+                {
+                    await transaction.RollbackAsync();
+
+                    throw new InvalidOperationException(
+                        "Invalid question: must have exactly 3 answers, 2 incorrect answers, 1 correct answer and at least one category.");
+                }
+
+                Question dbQuestion = new Question
+                {
+                    QuestionText = newQuestion.QuestionText,
+                    CreatedById = userId,
+                    CreatedAt = DateTime.UtcNow,
+                    IsApproved = false,
+                    Difficulty = newQuestion.Difficulty
+                };
+
+                await context.Questions.AddAsync(dbQuestion);
+                await context.SaveChangesAsync();
+
+                await answerService.CreateQuestionAnswers(dbQuestion.Id, newQuestion.Answers);
+                await questionCategoriesService.CreateQuestionCategories(dbQuestion.Id,
+                    newQuestion.Categories);
+
+                await context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                if (user.IsInRole(SuperAdminRole))
+                {
+                    bool approved = await ApproveQuestion(dbQuestion.Id, user);
+                    if (!approved)
+                    {
+                        throw new InvalidOperationException(
+                            $"Auto approval failed for question {dbQuestion.Id} created by SuperAdmin {userId}.");
+                    }
+                }
+            });
         }
         catch (Exception ex)
         {
-            await transaction.RollbackAsync();
             throw new InvalidOperationException("An error occurred while creating the question.", ex);
         }
     }
 
     public async Task<bool> UpdateQuestion(int id, QuestionExtendedDto updatedQuestion, ClaimsPrincipal user)
     {
-        await using IDbContextTransaction? transaction = await context.Database.BeginTransactionAsync();
+        IExecutionStrategy strategy = context.Database.CreateExecutionStrategy();
 
         try
         {
-            string? userId = userManager.GetUserId(user);
-
-            if (string.IsNullOrEmpty(userId)) throw new UnauthorizedAccessException("The user is not authorized");
-
-            if (updatedQuestion.Answers == null ||
-                updatedQuestion.Answers.Count != 3 ||
-                !updatedQuestion.Answers.Any(a => a.IsCorrect) ||
-                updatedQuestion.Categories == null ||
-                updatedQuestion.Categories.Count == 0)
+            return await strategy.ExecuteAsync(async () =>
             {
-                throw new InvalidOperationException(
-                    "Invalid question: must have exactly 3 answers, 1 correct answer and at least one category.");
-            }
+                await using IDbContextTransaction? transaction = await context.Database.BeginTransactionAsync();
 
-            Question? question = await context.Questions
-                .Include(q => q.Answers)
-                .Include(q => q.QuestionCategories)
-                .FirstOrDefaultAsync(q => q.Id == id);
+                string? userId = userManager.GetUserId(user);
 
-            if (question == null)
-            {
-                await transaction.RollbackAsync();
-                return false;
-            }
+                if (string.IsNullOrEmpty(userId))
+                {
+                    await transaction.RollbackAsync();
+                    throw new UnauthorizedAccessException("The user is not authorized");
+                }
 
-            question.QuestionText = updatedQuestion.QuestionText;
-            question.LastUpdatedById = userId;
-            question.LastUpdatedAt = DateTime.UtcNow;
-            question.Difficulty = updatedQuestion.Difficulty;
+                if (updatedQuestion.Answers == null ||
+                    updatedQuestion.Answers.Count != 3 ||
+                    !updatedQuestion.Answers.Any(a => a.IsCorrect) ||
+                    updatedQuestion.Categories == null ||
+                    updatedQuestion.Categories.Count == 0)
+                {
+                    await transaction.RollbackAsync();
 
-            await answerService.UpdateQuestionAnswers(question.Id, question.Answers, updatedQuestion.Answers);
-            await questionCategoriesService.UpdateQuestionCategories(question.Id, question.QuestionCategories,
-                updatedQuestion.Categories);
+                    throw new InvalidOperationException(
+                        "Invalid question: must have exactly 3 answers, 1 correct answer and at least one category.");
+                }
 
-            await context.SaveChangesAsync();
-            await transaction.CommitAsync();
+                Question? question = await context.Questions
+                    .Include(q => q.Answers)
+                    .Include(q => q.QuestionCategories)
+                    .FirstOrDefaultAsync(q => q.Id == id);
 
-            return true;
+                if (question == null)
+                {
+                    await transaction.RollbackAsync();
+                    return false;
+                }
+
+                question.QuestionText = updatedQuestion.QuestionText;
+                question.LastUpdatedById = userId;
+                question.LastUpdatedAt = DateTime.UtcNow;
+                question.Difficulty = updatedQuestion.Difficulty;
+
+                await answerService.UpdateQuestionAnswers(question.Id, question.Answers, updatedQuestion.Answers);
+                await questionCategoriesService.UpdateQuestionCategories(question.Id, question.QuestionCategories,
+                    updatedQuestion.Categories);
+
+                await context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return true;
+            });
         }
         catch (Exception ex)
         {
-            await transaction.RollbackAsync();
             throw new InvalidOperationException($"An error occurred while updating the question with ID {id}.", ex);
         }
     }
@@ -328,7 +344,7 @@ public class QuestionService(
             }
 
             return await query
-                .OrderBy(q => EF.Functions.Random())
+                .OrderBy(q => Guid.NewGuid())
                 .Take(count)
                 .ToListAsync();
         }
@@ -350,8 +366,6 @@ public class QuestionService(
                     QuestionText = q.QuestionText,
                     Difficulty = q.Difficulty,
                     Answers = q.Answers
-                        .OrderBy(a => a.IsCorrect ? 0 : 1)
-                        .Take(isSingleAnswerMode ? 1 : 3)
                         .OrderBy(a => random.Next())
                         .Select(a => new AnswerExtendedDto(a.Id)
                         {

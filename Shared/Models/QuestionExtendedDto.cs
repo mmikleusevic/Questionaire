@@ -19,9 +19,8 @@ public class QuestionExtendedDto : QuestionDto
     [Required(ErrorMessage = "Question Text is required")]
     [StringLength(500, ErrorMessage = "Question Text must be between 1 and 500 characters", MinimumLength = 1)]
     public override string QuestionText { get; set; }
-    
-    [JsonProperty]
-    public string? CreatedById { get; set; }
+
+    [JsonProperty] public string? CreatedById { get; set; }
 
     [ValidateComplexType]
     [JsonProperty]
