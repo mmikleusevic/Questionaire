@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace QuestionaireApi.Models.Database;
 
-[Index(nameof(UserId), nameof(QuestionId))]
 public class UserQuestionHistory
 {
     public int Id { get; set; }

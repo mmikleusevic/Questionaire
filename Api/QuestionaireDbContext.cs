@@ -43,12 +43,16 @@ public class QuestionaireDbContext(DbContextOptions options) : IdentityDbContext
             .WithMany(q => q.Answers)
             .HasForeignKey(a => a.QuestionId)
             .OnDelete(DeleteBehavior.Cascade);
+        
+        modelBuilder.Entity<UserQuestionHistory>()
+            .HasIndex(uqh => new { uqh.UserId, uqh.QuestionId })
+            .IsUnique();  
 
         modelBuilder.Entity<Question>().HasQueryFilter(q => !q.IsDeleted);
         modelBuilder.Entity<Answer>().HasQueryFilter(a => !a.Question.IsDeleted);
         modelBuilder.Entity<QuestionCategory>().HasQueryFilter(qc => !qc.Question.IsDeleted);
-        modelBuilder.Entity<UserQuestionHistory>().HasQueryFilter(uqh => !uqh.Question.IsDeleted);
-
+        modelBuilder.Entity<UserQuestionHistory>().HasQueryFilter(uqh => !uqh.Question.IsDeleted && uqh.Question.IsApproved);
+        
         string userId = "2db072f6-3706-4996-b222-343896c40606";
 
         modelBuilder.Entity<User>().HasData(new User
@@ -105,11 +109,9 @@ public class QuestionaireDbContext(DbContextOptions options) : IdentityDbContext
             .Property(q => q.CreatedById)
             .HasDefaultValue(userId);
 
-        DateTime utcNow = new DateTime(2025, 1, 1);
-
         modelBuilder.Entity<Question>()
             .Property(q => q.CreatedAt)
-            .HasDefaultValue(utcNow);
+            .HasDefaultValueSql("GETUTCDATE()");
 
         modelBuilder.Entity<Question>()
             .Property(q => q.IsApproved)

@@ -384,7 +384,8 @@ public class QuestionServiceTests
         // Assert
         Assert.NotNull(result);
         Assert.Equal(request.NumberOfQuestions, result.Count);
-        mockHistoryService.Verify(h => h.ResetUserQuestionHistory(It.IsAny<string>()),
+        mockHistoryService.Verify(h => h.ResetUserQuestionHistoryForCriteria(It.IsAny<string>(),
+                It.IsAny<List<int>>(), It.IsAny<List<Difficulty>>()),
             Times.Never);
     }
 
@@ -407,7 +408,9 @@ public class QuestionServiceTests
         Assert.Equal(2, result.Count);
         Assert.Contains(result, r => r.Id == 1);
         Assert.Contains(result, r => r.Id == 3);
-        mockHistoryService.Verify(h => h.ResetUserQuestionHistory(userId), Times.Once);
+        mockHistoryService.Verify(
+            h => h.ResetUserQuestionHistoryForCriteria(request.UserId, request.CategoryIds, request.Difficulties),
+            Times.Once);
     }
 
     // --- ApproveQuestion Tests ---

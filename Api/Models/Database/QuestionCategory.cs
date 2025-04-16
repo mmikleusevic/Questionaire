@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace QuestionaireApi.Models.Database;
 
-[Index(nameof(QuestionId), nameof(CategoryId))]
+[Index(nameof(CategoryId))]
 public class QuestionCategory
 {
     public int QuestionId { get; set; }

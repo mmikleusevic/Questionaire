@@ -105,7 +105,10 @@ public class QuestionService(
 
             if (questions.Count < requestDto.NumberOfQuestions)
             {
-                await userQuestionHistoryService.ResetUserQuestionHistory(requestDto.UserId);
+                await userQuestionHistoryService.ResetUserQuestionHistoryForCriteria(
+                    requestDto.UserId,
+                    requestDto.CategoryIds,
+                    requestDto.Difficulties);
 
                 int remainingQuestionsCount = requestDto.NumberOfQuestions - questions.Count;
                 HashSet<int> idsToExclude = questions.Select(q => q.Id).ToHashSet();

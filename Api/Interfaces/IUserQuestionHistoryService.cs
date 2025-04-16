@@ -1,7 +1,9 @@
+using SharedStandard.Models;
+
 namespace QuestionaireApi.Interfaces;
 
 public interface IUserQuestionHistoryService
 {
-    Task ResetUserQuestionHistory(string userId);
+    Task ResetUserQuestionHistoryForCriteria(string userId, IEnumerable<int> categoryIds, IEnumerable<Difficulty> difficulties);
     Task CreateUserQuestionHistory(string userId, List<int> questionIds);
 }
