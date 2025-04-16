@@ -20,10 +20,12 @@ public partial class ReadQuestions : ComponentBase
     [Parameter] public bool IsSingleAnswerMode { get; set; }
     private bool IsPreviousButtonDisabled => currentQuestionIndex <= 0;
     private bool IsNextButtonDisabled => currentQuestionIndex >= Questions.Count - 1;
+    private bool showAnswersOrStyling;
 
     protected override void OnParametersSet()
     {
         currentQuestionIndex = 0;
+        showAnswersOrStyling = false;
         ShowQuestion(currentQuestionIndex);
     }
 
@@ -77,13 +79,19 @@ public partial class ReadQuestions : ComponentBase
         await UserQuestionHistoryService.CreateUserHistory(userQuestionHistoryDto);
     }
 
-    private string GetAnswerClass(AnswerExtendedDto? answer)
+    private string GetDynamicAnswerClass(AnswerExtendedDto? answer)
     {
-        if (answer == null) return "answer-default";
+        if (answer == null) return "answer-item answer-default";
 
-        return answer.IsCorrect ? "answer-correct" : "answer-incorrect";
+        string baseClass = "answer-item";
+        string correctnessClass = answer.IsCorrect ? "answer-correct" : "answer-incorrect";
+
+        if (IsSingleAnswerMode) return $"{baseClass} {correctnessClass}";
+
+        return showAnswersOrStyling ? $"{baseClass} {correctnessClass}" : baseClass;
+        
     }
-
+    
     private async Task HideModal()
     {
         await CreateUserQuestionHistory();

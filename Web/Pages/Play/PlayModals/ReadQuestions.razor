@@ -1,3 +1,4 @@
+@using Web.Pages.Custom
 <div class="read-question">
     <div class="question-part">
         <Button class="back-button" @onclick="HideModal">Back</Button>
@@ -7,13 +8,26 @@
         <Button class="previous-button" Disabled="IsPreviousButtonDisabled" @onclick="PreviousQuestion">@("<")</Button>
         <Button class="next-button" Disabled="IsNextButtonDisabled" @onclick="NextQuestion">@(">")</Button>
     </div>
-    <div class="answers-part">
-        @for (int i = 0; i < 3; i++)
-        {
-            var index = i;
-            var answer = answers[index];
-
-            <div class="@($"answer-item {GetAnswerClass(answer)}")">@(answer?.AnswerText)</div>
-        }
-    </div>
+    <ShowHideContent @bind-IsVisible="showAnswersOrStyling" 
+                     InitiallyHidden="true" 
+                     ApplyVisibilityCss="IsSingleAnswerMode"
+                     ShowText="Show" 
+                     HideText="Hide">
+        <div class="answers-part">
+            @for (int i = 0; i < 3; i++)
+            {
+                var index = i;
+                var answer = answers?[index];
+                
+                @if (answer != null)
+                {
+                    <div class="@GetDynamicAnswerClass(answer)">@(answer.AnswerText)</div>
+                }
+                else
+                {
+                    <div class="answer-item answer-default"></div> 
+                }
+            }
+        </div>
+    </ShowHideContent>
 </div>

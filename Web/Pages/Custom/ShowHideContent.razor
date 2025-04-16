@@ -1,0 +1,14 @@
+@if (ChildContent != null)
+{
+    <button class="@ButtonClass" @onclick="ToggleVisibility">
+        @currentButtonText
+    </button>
+    
+    <div class="@ContentContainerClass">
+        @ChildContent
+    </div>
+}
+else
+{
+    <p><em>(No content provided for ShowHideContent component)</em></p>
+}

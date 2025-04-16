@@ -23,6 +23,11 @@
     flex-wrap: nowrap;
     white-space: pre-wrap;
     text-overflow: clip;
+    opacity: 0;
+    transition-property: opacity, background-color;
+    transition-duration: 0.2s, 0.2s;
+    transition-timing-function: linear, linear;
+    transition-delay: 0s, 0s;
 }
 
 .button {

@@ -1,8 +1,11 @@
 <engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/Style.uss?fileID=7433441132597879392&amp;guid=3d10b170ed6bc9845a37f7814cd118c9&amp;type=3#Style" />
     <engine:VisualElement name="gameUI" class="background" style="flex-grow: 1; visibility: visible; display: flex; font-size: 45px;">
-        <engine:VisualElement name="questionPart" style="flex-grow: 0; justify-content: center; align-items: flex-end; flex-shrink: 0; width: 100%; height: 50%; border-bottom-width: 0; border-left-color: rgb(255, 255, 255); border-right-color: rgb(255, 255, 255); border-top-color: rgb(255, 255, 255); border-bottom-color: rgb(255, 255, 255); border-top-width: 0; border-right-width: 0; border-left-width: 0;">
-            <engine:Button text="Back" name="exitButton" class="button" style="height: 20%; width: 10%; position: relative; right: auto; top: auto;" />
+        <engine:VisualElement name="questionPart" style="flex-grow: 0; justify-content: center; align-items: center; flex-shrink: 0; width: 100%; height: 50%; border-bottom-width: 0; border-left-color: rgb(255, 255, 255); border-right-color: rgb(255, 255, 255); border-top-color: rgb(255, 255, 255); border-bottom-color: rgb(255, 255, 255); border-top-width: 0; border-right-width: 0; border-left-width: 0;">
+            <engine:VisualElement name="controlButtons" style="flex-grow: 1; width: 100%; height: 20%; flex-direction: row; justify-content: space-between;">
+                <engine:Button text="Show" name="showHideButton" class="button" style="height: 100%; width: 10%; position: relative; right: auto; top: auto;" />
+                <engine:Button text="Back" name="exitButton" class="button" style="height: 100%; width: 10%; position: relative; right: auto; top: auto;" />
+            </engine:VisualElement>
             <engine:Label text="Question" name="questionText" style="width: 100%; height: 80%; align-items: center; justify-content: center; -unity-text-align: middle-center; font-size: 40px; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; -unity-font-style: bold; color: rgb(255, 255, 255); -unity-slice-scale: 0; background-color: rgba(0, 0, 0, 0); text-overflow: clip; white-space: pre-wrap;" />
         </engine:VisualElement>
         <engine:VisualElement name="navigationPart" style="flex-grow: 0; flex-shrink: 0; height: 10%; width: 100%; justify-content: space-between; align-items: center; flex-direction: row;">

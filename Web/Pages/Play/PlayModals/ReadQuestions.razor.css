@@ -92,6 +92,7 @@
     font-size: 22px;
     text-align: center;
     vertical-align: middle;
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
 ::deep .previous-button,

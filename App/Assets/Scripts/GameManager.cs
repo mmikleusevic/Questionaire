@@ -15,7 +15,7 @@ public class GameManager : MonoBehaviour
     [CanBeNull] private UniqueQuestionsRequestDto lastUniqueQuestionsRequestDto;
     private QuestionServiceHandler questionServiceHandler;
 
-    private string uniqueID;
+    private string deviceIdentifier;
     private UserQuestionHistoryHandler userQuestionHistoryHandler;
     public static GameManager Instance { get; private set; }
 
@@ -35,7 +35,7 @@ public class GameManager : MonoBehaviour
         userQuestionHistoryHandler = new UserQuestionHistoryHandler();
         categoryServiceHandler = new CategoryServiceHandler();
 
-        uniqueID = SystemInfo.deviceUniqueIdentifier;
+        deviceIdentifier = SystemInfo.deviceUniqueIdentifier;
     }
 
     public IEnumerator GetUniqueQuestions(bool isSingleAnswerMode,
@@ -61,7 +61,7 @@ public class GameManager : MonoBehaviour
     {
         UserQuestionHistoryDto userQuestionHistoryDto = new UserQuestionHistoryDto
         {
-            UserId = uniqueID,
+            UserId = deviceIdentifier,
             QuestionIds = questionIds
         };
 
@@ -104,7 +104,7 @@ public class GameManager : MonoBehaviour
 
         UniqueQuestionsRequestDto currentRequestDto = new UniqueQuestionsRequestDto
         {
-            UserId = uniqueID,
+            UserId = deviceIdentifier,
             NumberOfQuestions = numberOfQuestionsToFetch,
             Difficulties = difficulties.ToArray(),
             CategoryIds = categories.ToArray(),

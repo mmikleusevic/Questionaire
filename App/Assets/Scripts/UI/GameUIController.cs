@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,8 +10,8 @@ namespace UI
 {
     public class GameUIController : SafeArea
     {
-        private const int targetQuestionNumber = 50;
         [SerializeField] private GameSettingsUIController gameSettingsUIController;
+        
         private Label answer1Text;
         private Label answer2Text;
         private Label answer3Text;
@@ -22,8 +23,10 @@ namespace UI
         private bool isSingleAnswerMode;
         private Button nextButton;
         private Button previousButton;
+        private Button showHideButton;
         private List<QuestionDto> questions;
         private Label questionText;
+        private bool showAnswerOrStyling;
 
         private void Start()
         {
@@ -33,6 +36,7 @@ namespace UI
             answer1Text = root.Q<Label>("answer1Text");
             answer2Text = root.Q<Label>("answer2Text");
             answer3Text = root.Q<Label>("answer3Text");
+            showHideButton = root.Q<Button>("showHideButton");
             exitButton = root.Q<Button>("exitButton");
             previousButton = root.Q<Button>("previousButton");
             nextButton = root.Q<Button>("nextButton");
@@ -42,6 +46,7 @@ namespace UI
 
             Hide();
 
+            if (showHideButton != null) showHideButton.clicked += ToggleAnswerStyle;
             if (exitButton != null) exitButton.clicked += ExitPressed;
             if (previousButton != null) previousButton.clicked += PreviousPressed;
             if (nextButton != null) nextButton.clicked += NextPressed;
@@ -49,25 +54,15 @@ namespace UI
 
         private void OnDestroy()
         {
+            if (showHideButton != null) showHideButton.clicked -= ToggleAnswerStyle;
             if (exitButton != null) exitButton.clicked -= ExitPressed;
             if (previousButton != null) previousButton.clicked -= PreviousPressed;
             if (nextButton != null) nextButton.clicked -= NextPressed;
         }
 
-        private void ExitPressed()
-        {
-            StartCoroutine(CreateUserQuestionHistory());
-        }
-
-        private void PreviousPressed()
-        {
-            PreviousQuestion();
-        }
-
-        private void NextPressed()
-        {
-            NextQuestion();
-        }
+        private void ExitPressed() => StartCoroutine(CreateUserQuestionHistory());
+        private void PreviousPressed() => PreviousQuestion();
+        private void NextPressed() => NextQuestion();
 
         public IEnumerator LoadQuestions(HashSet<int> categories, HashSet<Difficulty> difficulties,
             bool isSingleAnswerMode)
@@ -88,7 +83,6 @@ namespace UI
 
                         Show();
 
-                        ShowAnswers(isSingleAnswerMode ? new[] { false, true, false } : new[] { true, true, true });
                         SetNavigationButtons();
                         ShowQuestion();
                     }
@@ -97,14 +91,6 @@ namespace UI
                         ErrorModalUIController.Instance.ShowMessage(message);
                     }
                 }));
-        }
-
-        private void ShowAnswers(bool[] showAnswers)
-        {
-            for (int i = 0; i < answerTexts.Length; i++)
-            {
-                answerTexts[i].visible = showAnswers[i];
-            }
         }
 
         private void SetNavigationButtons()
@@ -131,16 +117,17 @@ namespace UI
 
                 answer2Text.text = correctAnswer.AnswerText;
                 answer2Text.AddToClassList("correctAnswerBackground");
+                ToggleAnswerStyle(answer2Text);
             }
             else
             {
                 for (int i = 0; i < question.Answers.Count; i++)
                 {
-                    answerTexts[i].text = question.Answers[i].AnswerText;
-
-                    answerTexts[i].AddToClassList(question.Answers[i].IsCorrect
-                        ? "correctAnswerBackground"
-                        : "incorrectAnswerBackground");
+                    Label answerLabel = answerTexts[i];
+                    answerLabel.userData = question.Answers[i];
+                    answerLabel.text = question.Answers[i].AnswerText;
+                    answerLabel.style.opacity = 1;
+                    ToggleAnswerStyle(answerLabel);
                 }
             }
         }
@@ -161,17 +148,6 @@ namespace UI
             ShowQuestion();
         }
 
-        private void ResetAnswers()
-        {
-            foreach (var answer in answerTexts)
-            {
-                answer.text = string.Empty;
-
-                answer.RemoveFromClassList("correctAnswerBackground");
-                answer.RemoveFromClassList("incorrectAnswerBackground");
-            }
-        }
-
         private IEnumerator CreateUserQuestionHistory()
         {
             List<int> questionIds = questions.Where(q => q.isRead).Select(q => q.Id).ToList();
@@ -189,13 +165,89 @@ namespace UI
             }));
         }
 
+        private void ResetAnswers()
+        {
+            foreach (Label answerLabel in answerTexts)
+            {
+                answerLabel.text = string.Empty;
+
+                ResetAnswerClass(answerLabel);
+            }
+        }
+
+        private void ResetAnswerClass(Label answerLabel)
+        {
+            answerLabel.RemoveFromClassList("correctAnswerBackground");
+            answerLabel.RemoveFromClassList("incorrectAnswerBackground");
+        }
+
+        private void ToggleAnswerStyle()
+        {
+            showAnswerOrStyling = !showAnswerOrStyling;
+            UpdateShowHideState(showAnswerOrStyling);
+
+            if (isSingleAnswerMode)
+            {
+                ToggleAnswerStyle(answer2Text);
+            }
+            else
+            {
+                foreach (Label answerLabel in answerTexts)
+                {
+                    ToggleAnswerStyle(answerLabel);
+                }
+            }
+        }
+
+        private void ToggleAnswerStyle(Label answerLabel)
+        {
+            if (isSingleAnswerMode)
+            {
+                answerLabel.style.opacity = showAnswerOrStyling ? 1 : 0;
+            }
+            else
+            {
+                AnswerDto answer = answerLabel.userData as AnswerDto;
+
+                if (answer == null) return;
+
+                if (!showAnswerOrStyling)
+                {
+                    ResetAnswerClass(answerLabel);
+                }
+                else
+                {
+                    answerLabel.AddToClassList(answer.IsCorrect
+                        ? "correctAnswerBackground"
+                        : "incorrectAnswerBackground");
+                }
+            }
+        }
+
+        private void HideAnswers()
+        {
+            foreach (Label answerLabel in answerTexts)
+            {
+                answerLabel.style.opacity = 0;
+            }
+        }
+
+        private void UpdateShowHideState(bool value)
+        {
+            showAnswerOrStyling = value;
+            showHideButton.text = value ? "Hide" : "Show";
+        }
+
         private void Show()
         {
+            UpdateShowHideState(false);
             gameUI.style.display = DisplayStyle.Flex;
         }
 
         private void Hide()
         {
+            UpdateShowHideState(true);
+            HideAnswers();
             ResetAnswers();
             gameUI.style.display = DisplayStyle.None;
         }
