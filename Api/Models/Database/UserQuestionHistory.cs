@@ -12,6 +12,4 @@ public class UserQuestionHistory
     public int QuestionId { get; set; }
 
     [ForeignKey(nameof(QuestionId))] public virtual Question Question { get; set; } = null!;
-
-    public int RoundNumber { get; set; }
 }

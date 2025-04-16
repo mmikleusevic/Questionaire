@@ -20,6 +20,13 @@ namespace QuestionaireApi.Migrations
             migrationBuilder.DropColumn(
                 name: "IsApproved",
                 table: "PendingQuestions");
+            
+            migrationBuilder.AddColumn<bool>(
+                name: "IsApproved",
+                table: "Questions",
+                type: "bit",
+                nullable: false,
+                defaultValue: false);
 
             migrationBuilder.AddColumn<DateTime>(
                 name: "ApprovedAt",
@@ -309,6 +316,10 @@ namespace QuestionaireApi.Migrations
                 type: "bit",
                 nullable: false,
                 defaultValue: false);
+            
+            migrationBuilder.DropColumn(
+                name: "IsApproved",
+                table: "Questions");
         }
     }
 }

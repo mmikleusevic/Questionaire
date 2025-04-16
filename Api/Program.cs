@@ -20,6 +20,7 @@ using Serilog.Sinks.SystemConsole.Themes;
 Env.Load();
 
 string logPath = "logs/api-log-.txt";
+
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
     .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)

@@ -40,7 +40,6 @@ public class UserQuestionHistoryService(QuestionaireDbContext context) : IUserQu
             {
                 UserId = userId,
                 QuestionId = q,
-                RoundNumber = 1
             }));
             
             await context.SaveChangesAsync();

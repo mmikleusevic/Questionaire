@@ -11,7 +11,7 @@ namespace QuestionaireApi.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropIndex(
-                name: "IX_Questions_Id_CreatedById_ApprovedById_QuestionText",
+                name: "IX_Questions_Id_CreatedById_ApprovedById",
                 table: "Questions");
             
             migrationBuilder.DropIndex(
@@ -23,7 +23,6 @@ namespace QuestionaireApi.Migrations
                 table: "Questions",
                 type: "bit",
                 nullable: false,
-                defaultValue: true,
                 oldClrType: typeof(bool),
                 oldType: "bit");
 
@@ -64,7 +63,7 @@ namespace QuestionaireApi.Migrations
                 value: "6976178d-7fb1-44bd-a246-4fefe7ac841b");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Questions_Id_CreatedById_ApprovedById_QuestionText",
+                name: "IX_Questions_Id_CreatedById_ApprovedById",
                 table: "Questions",
                 columns: new[] { "Id", "CreatedById", "ApprovedById", "QuestionText" });
             

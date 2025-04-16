@@ -48,12 +48,13 @@ public class QuestionService(
 
             List<Question> questions = await baseQuery
                 .Include(q => q.Answers)
+                .AsSplitQuery()
                 .Include(q => q.QuestionCategories)
                 .ThenInclude(qc => qc.Category)
+                .AsSplitQuery()
                 .OrderBy(q => q.Id)
                 .Skip((questionsRequestDto.PageNumber - 1) * questionsRequestDto.PageSize)
                 .Take(questionsRequestDto.PageSize)
-                .AsSplitQuery()
                 .ToListAsync();
 
             PaginatedResponse<QuestionExtendedDto> response = new PaginatedResponse<QuestionExtendedDto>

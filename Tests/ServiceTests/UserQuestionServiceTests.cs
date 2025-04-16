@@ -57,9 +57,9 @@ public class UserQuestionHistoryServiceTests
 
         userQuestionHistoryData.AddRange(new[]
         {
-            new UserQuestionHistory { Id = 1, UserId = userIdToReset, QuestionId = 1, RoundNumber = 1 },
-            new UserQuestionHistory { Id = 2, UserId = userIdToReset, QuestionId = 2, RoundNumber = 1 },
-            new UserQuestionHistory { Id = 3, UserId = userIdToKeep, QuestionId = 3, RoundNumber = 1 }
+            new UserQuestionHistory { Id = 1, UserId = userIdToReset, QuestionId = 1 },
+            new UserQuestionHistory { Id = 2, UserId = userIdToReset, QuestionId = 2 },
+            new UserQuestionHistory { Id = 3, UserId = userIdToKeep, QuestionId = 3 }
         });
 
         // Act & Assert
@@ -98,8 +98,8 @@ public class UserQuestionHistoryServiceTests
 
         // Assert
         Assert.Equal(initialCount + expectedAddedCount, userQuestionHistoryData.Count);
-        Assert.Contains(userQuestionHistoryData, h => h.UserId == userId && h.QuestionId == 10 && h.RoundNumber == 1);
-        Assert.Contains(userQuestionHistoryData, h => h.UserId == userId && h.QuestionId == 20 && h.RoundNumber == 1);
+        Assert.Contains(userQuestionHistoryData, h => h.UserId == userId && h.QuestionId == 10);
+        Assert.Contains(userQuestionHistoryData, h => h.UserId == userId && h.QuestionId == 20);
 
         mockContext.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }

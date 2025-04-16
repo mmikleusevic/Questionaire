@@ -5,39 +5,39 @@
 namespace QuestionaireApi.Migrations
 {
     /// <inheritdoc />
-    public partial class AddedForeignKeyForAnswersAddedSoftDeleteToQuestionsAndQueryFilter : Migration
+    public partial class RemovedRoundNumberFromQuestionHistory : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<bool>(
-                name: "IsDeleted",
-                table: "Questions",
-                type: "bit",
-                nullable: false,
-                defaultValue: false);
+            migrationBuilder.DropColumn(
+                name: "RoundNumber",
+                table: "UserQuestionHistory");
 
             migrationBuilder.UpdateData(
                 table: "AspNetUsers",
                 keyColumn: "Id",
                 keyValue: "2db072f6-3706-4996-b222-343896c40606",
                 column: "ConcurrencyStamp",
-                value: "bc88d4e2-8a6e-441b-9120-0cdd2a36ea55");
+                value: "f26727ac-6626-4f2a-bb21-214ffd19d811");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "IsDeleted",
-                table: "Questions");
+            migrationBuilder.AddColumn<int>(
+                name: "RoundNumber",
+                table: "UserQuestionHistory",
+                type: "int",
+                nullable: false,
+                defaultValue: 0);
 
             migrationBuilder.UpdateData(
                 table: "AspNetUsers",
                 keyColumn: "Id",
                 keyValue: "2db072f6-3706-4996-b222-343896c40606",
                 column: "ConcurrencyStamp",
-                value: "429a70c4-d5c6-4101-b94b-155f6e7091ac");
+                value: "70054d32-15c0-4c03-a929-9119f7047b0f");
         }
     }
 }
