@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +10,7 @@ namespace UI
     public class GameUIController : SafeArea
     {
         [SerializeField] private GameSettingsUIController gameSettingsUIController;
-        
+
         private Label answer1Text;
         private Label answer2Text;
         private Label answer3Text;
@@ -99,13 +98,14 @@ namespace UI
             nextButton.SetEnabled(currentQuestionIndex < questions.Count - 1);
         }
 
-        private void ShowQuestion()
+        private void ShowQuestion(bool forward = false)
         {
             if (questions == null || questions.Count == 0) return;
 
             QuestionDto question = questions[currentQuestionIndex];
             question.isRead = true;
-            questionText.text = question.QuestionText;
+
+            AnimateSlide(forward, questionText, question.QuestionText);
 
             bool hasOneAnswer = question.Answers.Count == 1;
 
@@ -115,7 +115,7 @@ namespace UI
 
                 if (correctAnswer == null) return;
 
-                answer2Text.text = correctAnswer.AnswerText;
+                AnimateSlide(forward, answer2Text, correctAnswer.AnswerText);
                 answer2Text.AddToClassList("correctAnswerBackground");
                 ToggleAnswerStyle(answer2Text);
             }
@@ -125,27 +125,50 @@ namespace UI
                 {
                     Label answerLabel = answerTexts[i];
                     answerLabel.userData = question.Answers[i];
-                    answerLabel.text = question.Answers[i].AnswerText;
                     answerLabel.style.opacity = 1;
+                    AnimateSlide(forward, answerLabel, question.Answers[i].AnswerText);
                     ToggleAnswerStyle(answerLabel);
                 }
             }
         }
 
+        private void NextQuestion()
+        {
+            if (currentQuestionIndex >= questions.Count - 1) return;
+
+            currentQuestionIndex++;
+            ResetAnswers();
+            SetNavigationButtons();
+            ShowQuestion(true);
+        }
+
         private void PreviousQuestion()
         {
+            if (currentQuestionIndex <= 0) return;
+
             currentQuestionIndex--;
             ResetAnswers();
             SetNavigationButtons();
             ShowQuestion();
         }
 
-        private void NextQuestion()
+        private void AnimateSlide(bool forward, Label label, string labelText)
         {
-            currentQuestionIndex++;
-            ResetAnswers();
-            SetNavigationButtons();
-            ShowQuestion();
+            float direction = forward ? -1 : 1;
+
+            label.style.translate = new StyleTranslate(new Translate(Length.Percent(direction * 1000), 0));
+            label.text = labelText;
+            label.experimental.animation
+                .Start(
+                    new Vector2(direction * 1000f, 0f),
+                    new Vector2(0f, 0f),
+                    300,
+                    (e, val) =>
+                    {
+                        label.style.translate = new StyleTranslate(
+                            new Translate(Length.Percent(val.x), Length.Percent(val.y))
+                        );
+                    });
         }
 
         private IEnumerator CreateUserQuestionHistory()
