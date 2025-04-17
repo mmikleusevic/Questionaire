@@ -25,8 +25,8 @@
     text-overflow: clip;
     opacity: 0;
     transition-property: opacity, background-color;
-    transition-duration: 0.2s, 0.2s;
-    transition-timing-function: linear, linear;
+    transition-duration: 0.3s, 0.3s;
+    transition-timing-function: ease-out, ease-out;
     transition-delay: 0s, 0s;
 }
 

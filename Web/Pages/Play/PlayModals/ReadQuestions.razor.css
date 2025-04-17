@@ -20,11 +20,22 @@
     z-index: 999;
 }
 
-.question-part {
+.top-part {
     display: flex;
     justify-content: center;
     align-items: center;
-    flex: 1 0 45%;
+    flex-direction: column;
+    flex: 1 0 50%;
+}
+
+.buttons-part {
+    display: flex;
+    flex: 1 0 20%;
+}
+
+.question-part {
+    display: flex;
+    flex: 1 0 80%;
 }
 
 @keyframes slideInFromLeft {

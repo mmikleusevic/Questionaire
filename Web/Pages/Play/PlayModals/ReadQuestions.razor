@@ -1,8 +1,12 @@
 @using Web.Pages.Custom
 <div class="read-question">
-    <div class="question-part">
-        <Button class="back-button" @onclick="HideModal">Back</Button>
-        <div class="question @slideAnimationClass" @key="currentQuestion.Id">@currentQuestion.QuestionText</div>
+    <div class="top-part">
+        <div class="buttons-part">
+            <Button class="back-button" @onclick="HideModal">Back</Button>
+        </div>
+        <div class="question-part">
+            <div class="question @slideAnimationClass" @key="currentQuestion.Id">@currentQuestion.QuestionText</div>
+        </div>
     </div>
     <div class="navigation-part">
         <Button class="previous-button" Disabled="IsPreviousButtonDisabled" @onclick="PreviousQuestion">@("<")</Button>
