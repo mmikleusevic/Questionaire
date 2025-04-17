@@ -2,7 +2,7 @@
 <div class="read-question">
     <div class="question-part">
         <Button class="back-button" @onclick="HideModal">Back</Button>
-        <div class="question">@currentQuestion.QuestionText</div>
+        <div class="question @slideAnimationClass" @key="currentQuestion.Id">@currentQuestion.QuestionText</div>
     </div>
     <div class="navigation-part">
         <Button class="previous-button" Disabled="IsPreviousButtonDisabled" @onclick="PreviousQuestion">@("<")</Button>
@@ -21,7 +21,7 @@
                 
                 @if (answer != null)
                 {
-                    <div class="@GetDynamicAnswerClass(answer)">@(answer.AnswerText)</div>
+                    <div class="@GetDynamicAnswerClass(answer) @slideAnimationClass" @key="answer.Id">@(answer.AnswerText)</div>
                 }
                 else
                 {

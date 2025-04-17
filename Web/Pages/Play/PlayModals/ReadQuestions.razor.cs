@@ -21,9 +21,11 @@ public partial class ReadQuestions : ComponentBase
     private bool IsPreviousButtonDisabled => currentQuestionIndex <= 0;
     private bool IsNextButtonDisabled => currentQuestionIndex >= Questions.Count - 1;
     private bool showAnswersOrStyling;
-
+    private string slideAnimationClass = "slide-from-left";
+    
     protected override void OnParametersSet()
     {
+        slideAnimationClass = "slide-from-left";
         currentQuestionIndex = 0;
         showAnswersOrStyling = false;
         ShowQuestion(currentQuestionIndex);
@@ -32,7 +34,7 @@ public partial class ReadQuestions : ComponentBase
     private void ShowQuestion(int index)
     {
         if (index < 0 || index >= Questions.Count) return;
-
+        
         currentQuestionIndex = index;
         currentQuestion = Questions[currentQuestionIndex];
         currentQuestion.isRead = true;
@@ -58,12 +60,14 @@ public partial class ReadQuestions : ComponentBase
 
     private void PreviousQuestion()
     {
+        slideAnimationClass = "slide-from-left";
         if (IsPreviousButtonDisabled) return;
         ShowQuestion(currentQuestionIndex - 1);
     }
 
     private void NextQuestion()
     {
+        slideAnimationClass = "slide-from-right";
         if (IsNextButtonDisabled) return;
         ShowQuestion(currentQuestionIndex + 1);
     }
