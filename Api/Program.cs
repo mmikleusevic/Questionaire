@@ -145,10 +145,13 @@ try
 
     string keyPath = Path.Combine(builder.Environment.ContentRootPath, "Keys");
 
-    builder.Services.AddDataProtection()
-        .PersistKeysToFileSystem(new DirectoryInfo(keyPath))
-        .SetApplicationName("QuestionnaireApp")
-        .ProtectKeysWithDpapiNG();
+    if (builder.Environment.IsProduction())
+    {
+        builder.Services.AddDataProtection()
+            .PersistKeysToFileSystem(new DirectoryInfo(keyPath))
+            .SetApplicationName("QuestionnaireApp")
+            .ProtectKeysWithDpapiNG();
+    }
 
     builder.Services.AddRateLimiter(options =>
     {
