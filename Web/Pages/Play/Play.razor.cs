@@ -12,7 +12,10 @@ public partial class Play : ComponentBase
 {
     private const int TargetQuestionNumber = 50;
     private readonly List<QuestionExtendedDto> questions = new List<QuestionExtendedDto>();
-    private readonly HashSet<Difficulty> selectedDifficulties = new HashSet<Difficulty> { Difficulty.Easy };
+
+    private readonly HashSet<Difficulty> selectedDifficulties = new HashSet<Difficulty>
+        { Difficulty.Easy, Difficulty.Medium, Difficulty.Hard };
+
     private string? deviceIdentifier;
     private bool isInitializing = true;
     private bool isLoading;
