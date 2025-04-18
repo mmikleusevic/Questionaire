@@ -12,24 +12,25 @@
         <Button class="previous-button" Disabled="IsPreviousButtonDisabled" @onclick="PreviousQuestion">@("<")</Button>
         <Button class="next-button" Disabled="IsNextButtonDisabled" @onclick="NextQuestion">@(">")</Button>
     </div>
-    <ShowHideContent @bind-IsVisible="showAnswersOrStyling" 
-                     InitiallyHidden="true" 
+    <ShowHideContent @bind-IsVisible="showAnswersOrStyling"
+                     InitiallyHidden="true"
                      ApplyVisibilityCss="IsSingleAnswerMode"
-                     ShowText="Show" 
+                     ShowText="Show"
                      HideText="Hide">
         <div class="answers-part">
             @for (int i = 0; i < 3; i++)
             {
                 var index = i;
                 var answer = answers?[index];
-                
+
                 @if (answer != null)
                 {
-                    <div class="@GetDynamicAnswerClass(answer) @slideAnimationClass" @key="answer.Id">@(answer.AnswerText)</div>
+                    <div class="@GetDynamicAnswerClass(answer) @slideAnimationClass"
+                         @key="answer.Id">@(answer.AnswerText)</div>
                 }
                 else
                 {
-                    <div class="answer-item answer-default"></div> 
+                    <div class="answer-item answer-default"></div>
                 }
             }
         </div>

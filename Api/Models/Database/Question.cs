@@ -6,8 +6,8 @@ using SharedStandard.Models;
 namespace QuestionaireApi.Models.Database;
 
 [Index(nameof(QuestionText))]
-[Index(nameof(CreatedById))] 
-[Index(nameof(Difficulty))] 
+[Index(nameof(CreatedById))]
+[Index(nameof(Difficulty))]
 public class Question
 {
     public int Id { get; set; }

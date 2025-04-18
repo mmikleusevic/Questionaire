@@ -7,6 +7,9 @@ namespace Web.Logger;
 public class ApiLogger(string categoryName, string logApiEndpoint, IHttpClientFactory httpClientFactory)
     : ILogger
 {
+    private static DateTime lastFailure = DateTime.MinValue;
+    private static readonly TimeSpan SuppressPeriod = TimeSpan.FromMinutes(1);
+
     public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception,
         Func<TState, Exception?, string> formatter)
     {
@@ -37,6 +40,12 @@ public class ApiLogger(string categoryName, string logApiEndpoint, IHttpClientFa
 
     private async Task SendLogToServerAsync(LogEntryDto logEntry)
     {
+        if (DateTime.UtcNow - lastFailure < SuppressPeriod)
+        {
+            Debug.WriteLine("[ApiLogger] Skipping log due to recent failure.");
+            return;
+        }
+
         try
         {
             HttpClient httpClient = httpClientFactory.CreateClient("WebAPI");
@@ -46,11 +55,20 @@ public class ApiLogger(string categoryName, string logApiEndpoint, IHttpClientFa
             if (!response.IsSuccessStatusCode)
             {
                 Debug.WriteLine($"[ApiLogger] Failed to send log entry to API. Status: {response.StatusCode}");
+                lastFailure = DateTime.UtcNow;
             }
         }
         catch (Exception ex)
         {
+            if (ex is HttpRequestException httpEx &&
+                httpEx.InnerException?.Message.Contains("CORS", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                Debug.WriteLine("[ApiLogger] Skipping known CORS-related logging exception.");
+                return;
+            }
+
             Debug.WriteLine($"[ApiLogger] Exception occurred while sending log entry to API: {ex.Message}");
+            lastFailure = DateTime.UtcNow;
         }
     }
 }

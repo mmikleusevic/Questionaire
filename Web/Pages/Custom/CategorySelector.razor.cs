@@ -12,7 +12,7 @@ public partial class CategorySelector : ComponentBase
     private string searchQuery = string.Empty;
     private List<CategoryExtendedDto> searchResults = new List<CategoryExtendedDto>();
     private int selectedIndex = -1;
-    private bool showDropdown = false;
+    private bool showDropdown;
 
     [Parameter] public string LabelText { get; set; } = string.Empty;
     [Parameter] public bool AllowMultiple { get; set; } = true;

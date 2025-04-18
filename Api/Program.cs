@@ -1,5 +1,6 @@
 using System.Threading.RateLimiting;
 using DotNetEnv;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.RateLimiting;
@@ -141,6 +142,13 @@ try
     {
         Log.Warning("No valid origins specified for CORS policy 'Cors'. Requests might be blocked.");
     }
+
+    string keyPath = Path.Combine(builder.Environment.ContentRootPath, "Keys");
+
+    builder.Services.AddDataProtection()
+        .PersistKeysToFileSystem(new DirectoryInfo(keyPath))
+        .SetApplicationName("QuestionnaireApp")
+        .ProtectKeysWithDpapiNG();
 
     builder.Services.AddRateLimiter(options =>
     {

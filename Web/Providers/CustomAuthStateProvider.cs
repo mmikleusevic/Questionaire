@@ -132,8 +132,8 @@ public class CustomAuthStateProvider(
             string responseData = await response.Content.ReadAsStringAsync();
             JObject jsonResponse = JObject.Parse(responseData);
 
-            string? accessToken = jsonResponse.Value<string>("accessToken");
-            string? refreshToken = jsonResponse.Value<string>("refreshToken");
+            string? accessToken = jsonResponse.Value<string>(AccessTokenKey);
+            string? refreshToken = jsonResponse.Value<string>(RefreshTokenKey);
 
             if (string.IsNullOrEmpty(accessToken) || string.IsNullOrEmpty(refreshToken))
             {
@@ -243,8 +243,8 @@ public class CustomAuthStateProvider(
             string responseData = await response.Content.ReadAsStringAsync();
             JObject jsonResponse = JObject.Parse(responseData);
 
-            string? newAccessToken = jsonResponse.Value<string>("accessToken");
-            string? newRefreshToken = jsonResponse.Value<string>("refreshToken");
+            string? newAccessToken = jsonResponse.Value<string>(AccessTokenKey);
+            string? newRefreshToken = jsonResponse.Value<string>(RefreshTokenKey);
 
             if (string.IsNullOrEmpty(newAccessToken) || string.IsNullOrEmpty(newRefreshToken))
             {

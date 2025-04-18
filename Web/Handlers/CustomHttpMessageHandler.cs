@@ -15,6 +15,8 @@ public class CustomHttpMessageHandler(
     private const string BearerScheme = "Bearer";
     private const string LoginPath = "/login";
     private const string RegisterPath = "/register";
+    private const string RefreshPath = "/refresh";
+    private const string XRetryAttempt = "X-Retry-Attempt";
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
         CancellationToken cancellationToken)
@@ -34,17 +36,14 @@ public class CustomHttpMessageHandler(
 
             response = await base.SendAsync(request, cancellationToken);
 
-            if (response.StatusCode == HttpStatusCode.Unauthorized && !IsIdentityRequest(request))
+            if (response.StatusCode == HttpStatusCode.Unauthorized
+                && !IsIdentityRequest(request)
+                && !request.Headers.Contains(XRetryAttempt))
             {
-                logger.LogInformation("Received 401 Unauthorized for {RequestUri}. Attempting token refresh.",
-                    request.RequestUri);
-
                 bool refreshed = await authStateProvider.RefreshTokenAsync();
 
                 if (refreshed)
                 {
-                    logger.LogInformation("Token refresh successful. Retrying request to {RequestUri}.",
-                        request.RequestUri);
                     response.Dispose();
 
                     accessToken = await localStorageService.GetItemAsync<string>(AccessTokenKey, cancellationToken);
@@ -56,6 +55,8 @@ public class CustomHttpMessageHandler(
                     {
                         logger.LogWarning("Token refresh reported success, but no new access token found in storage.");
                     }
+
+                    request.Headers.Add(XRetryAttempt, "1");
 
                     response = await base.SendAsync(request, cancellationToken);
                 }
@@ -74,20 +75,6 @@ public class CustomHttpMessageHandler(
                 "An unexpected error occurred in CustomHttpMessageService while processing request to {RequestUri}.",
                 request?.RequestUri);
 
-            try
-            {
-                using IServiceScope emergencyScope = serviceProvider.CreateScope();
-                CustomAuthStateProvider emergencyAuthProvider =
-                    emergencyScope.ServiceProvider.GetRequiredService<CustomAuthStateProvider>();
-                await emergencyAuthProvider.Logout();
-            }
-            catch (Exception logoutEx)
-            {
-                logger.LogError(logoutEx, "Failed to logout user after an exception in CustomHttpMessageService.");
-            }
-
-            response?.Dispose();
-
             return new HttpResponseMessage(HttpStatusCode.InternalServerError)
             {
                 ReasonPhrase = "An internal error occurred in the message handler."
@@ -98,6 +85,7 @@ public class CustomHttpMessageHandler(
     private bool IsIdentityRequest(HttpRequestMessage request)
     {
         return request.RequestUri?.AbsolutePath.EndsWith(LoginPath, StringComparison.OrdinalIgnoreCase) == true
-               || request.RequestUri?.AbsolutePath.EndsWith(RegisterPath, StringComparison.OrdinalIgnoreCase) == true;
+               || request.RequestUri?.AbsolutePath.EndsWith(RegisterPath, StringComparison.OrdinalIgnoreCase) == true
+               || request.RequestUri?.AbsolutePath.EndsWith(RefreshPath, StringComparison.OrdinalIgnoreCase) == true;
     }
 }

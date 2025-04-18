@@ -7,7 +7,8 @@ namespace QuestionaireApi.Services;
 
 public class UserQuestionHistoryService(QuestionaireDbContext context) : IUserQuestionHistoryService
 {
-    public async Task ResetUserQuestionHistoryForCriteria(string userId, IEnumerable<int> categoryIds, IEnumerable<Difficulty> difficulties)
+    public async Task ResetUserQuestionHistoryForCriteria(string userId, IEnumerable<int> categoryIds,
+        IEnumerable<Difficulty> difficulties)
     {
         try
         {
@@ -20,7 +21,7 @@ public class UserQuestionHistoryService(QuestionaireDbContext context) : IUserQu
                 .ToListAsync();
 
             if (!questionIdsMatchingCriteria.Any()) return;
-            
+
             await context.UserQuestionHistory
                 .Where(h => h.UserId == userId && questionIdsMatchingCriteria.Contains(h.QuestionId))
                 .ExecuteDeleteAsync();
@@ -39,9 +40,9 @@ public class UserQuestionHistoryService(QuestionaireDbContext context) : IUserQu
             await context.UserQuestionHistory.AddRangeAsync(questionIds.Select(q => new UserQuestionHistory
             {
                 UserId = userId,
-                QuestionId = q,
+                QuestionId = q
             }));
-            
+
             await context.SaveChangesAsync();
         }
         catch (Exception ex)

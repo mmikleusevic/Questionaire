@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using QuestionaireApi.Interfaces;
 using Shared.Models;
@@ -6,6 +7,7 @@ namespace QuestionaireApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[AllowAnonymous]
 public class LogsController(
     ILogger<LogsController> logger,
     ILogService logService) : ControllerBase
